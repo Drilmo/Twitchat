@@ -2145,6 +2145,75 @@ const UserDataSchema = {
 			},
 		},
 
+		queues: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				queueList: {
+					type:"array",
+					minItems:0,
+					maxItems:50,
+					items:{
+						type:"object",
+						additionalProperties: false,
+						properties: {
+							id: {type:"string", maxLength:50},
+							title: {type:"string", maxLength:100},
+							enabled: {type:"boolean"},
+							isDefault: {type:"boolean"},
+							queueEntries: {
+								type:"array",
+								minItems:0,
+								maxItems:10000,
+								items:{
+									type:"object",
+									additionalProperties: false,
+									properties: {
+										id: {type:"string", maxLength:50},
+										user: { $ref: "#/definitions/twitchatUser" },
+										joinedAt: {type:"integer", minimum:0},
+										note: {type:"string", maxLength:500}
+									}
+								}
+							},
+							inProgressEntries: {
+								type:"array",
+								minItems:0,
+								maxItems:10000,
+								items:{
+									type:"object",
+									additionalProperties: false,
+									properties: {
+										id: {type:"string", maxLength:50},
+										user: { $ref: "#/definitions/twitchatUser" },
+										joinedAt: {type:"integer", minimum:0},
+										note: {type:"string", maxLength:500}
+									}
+								}
+							},
+							placeholderKey: {type:"string", maxLength:100},
+							overlayParams: {
+								type:"object",
+								additionalProperties: false,
+								properties: {
+									style: {type:"string", maxLength:50},
+									orientation: {enum: ["vertical", "horizontal"]},
+									displayMode: {enum: ["queue", "inProgress", "alternating"]},
+									scrolling: {type:"boolean"},
+									bgColor: {type:"string", maxLength:10},
+									showIcon: {type:"boolean"},
+									bgEnabled: {type:"boolean"},
+									textFont: {type:"string", maxLength:200},
+									textSize: {type:"number", minimum:0, maximum:300},
+									textColor: {type:"string", maxLength:10}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+
 		donationGoals: {
 			type:"object",
 			additionalProperties: false,

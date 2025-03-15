@@ -897,6 +897,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.twitchCharity.populateData();
 			StoreProxy.donationGoals.populateData();
 			StoreProxy.streamelements.populateData();
+			StoreProxy.queues.populateData();
 
 			rebuildPlaceholdersCache();
 

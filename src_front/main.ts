@@ -27,6 +27,7 @@ import { storeParams } from '@/store/params/storeParams';
 import { storePatreon } from '@/store/patreon/storePatreon';
 import { storePoll } from '@/store/poll/storePoll';
 import { storePrediction } from '@/store/prediction/storePrediction';
+import { storeQueue } from '@/store/queue/storeQueue';
 import { storeQna } from '@/store/qna/storeQna';
 import { storeRaffle } from '@/store/raffle/storeRaffle';
 import { storeRewards } from '@/store/rewards/storeRewards';
@@ -248,6 +249,7 @@ function buildApp() {
 	StoreProxy.default.obs = storeOBS();
 	StoreProxy.default.params = storeParams();
 	StoreProxy.default.poll = storePoll();
+	StoreProxy.default.queues = storeQueue();
 	StoreProxy.default.chatPoll = storeChatPoll();
 	StoreProxy.default.prediction = storePrediction();
 	StoreProxy.default.raffle = storeRaffle();
