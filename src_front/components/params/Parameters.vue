@@ -110,6 +110,7 @@
 				<ParamsDonate v-if="content == contentDonate" ref="currentContent" />
 				<ParamsValues v-if="content == contentValues" ref="currentContent" />
 				<ParamsTimer v-if="content == contentTimers" ref="currentContent" />
+				<ParamsQueue v-if="content == contentQueues" ref="currentContent" />
 
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">{{ $t("params.search_no_result") }}</div>
@@ -155,6 +156,8 @@ import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
 import ParamsValues from './contents/ParamsValues.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
+import ParamsTimer from './contents/ParamsTimer.vue';
+import ParamsQueue from './contents/ParamsQueue.vue';
 import ToggleBlock from '../../components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
@@ -229,6 +232,11 @@ class Parameters extends Vue {
 	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM; }
 	public get contentTimers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TIMERS; }
 
+	/**
+	 * Get queues content ID
+	 */
+	public get contentQueues():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.QUEUES; }
+
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private keyDownCaptureHandler!:(e:KeyboardEvent) => void;
 	private menuEntries:MenuEntry[] = [
@@ -246,6 +254,7 @@ class Parameters extends Vue {
 		{pinned:true, icon:"user", page:TwitchatDataTypes.ParameterPages.ACCOUNT, labelKey:'params.categories.account'},
 		{pinned:false, icon:"info", page:TwitchatDataTypes.ParameterPages.ABOUT, labelKey:'params.categories.about', newflag:{date:1693519200000, id:'params_about'}},
 		{pinned:false, icon:"timer", page:TwitchatDataTypes.ParameterPages.TIMERS, labelKey:'params.categories.timers', newflag:{date:Config.instance.NEW_FLAGS_DATE_V16, id:'params_timers'}},
+		{pinned:false, icon:"queue", page:TwitchatDataTypes.ParameterPages.QUEUES, labelKey:'params.categories.queues', newflag:{date:Config.instance.NEW_FLAGS_DATE_V16, id:'params_queues'}},
 	];
 
 	/**

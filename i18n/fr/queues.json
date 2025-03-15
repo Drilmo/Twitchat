@@ -1,0 +1,105 @@
+{
+	"default": {
+		"queue_title": "File d'attente par défaut"
+	},
+	"delete_confirm": {
+		"title": "Supprimer la file d'attente",
+		"message": "Êtes-vous sûr de vouloir supprimer cette file d'attente ? Cette action ne peut pas être annulée."
+	},
+	"menu": {
+		"title": "Files d'attente",
+		"description": "Créer et gérer des files d'attente pour votre stream"
+	},
+	"create": "Créer une nouvelle file d'attente",
+	"title": "Titre de la file d'attente",
+	"enabled": "Activée",
+	"empty": "Cette file d'attente est vide",
+	"overlay": {
+		"title": "Overlay de file d'attente",
+		"style": "Style",
+		"orientation": "Orientation",
+		"vertical": "Verticale",
+		"horizontal": "Horizontale",
+		"display_mode": "Mode d'affichage",
+		"queue_only": "File d'attente uniquement",
+		"in_progress_only": "En cours uniquement",
+		"alternating": "Alterné",
+		"scrolling": "Activer le défilement",
+		"colors": {
+			"background": "Couleur de fond",
+			"text": "Couleur du texte"
+		},
+		"show_icon": "Afficher l'icône utilisateur",
+		"bg_enabled": "Activer le fond",
+		"font": "Police de texte",
+		"size": "Taille du texte"
+	},
+	"entry": {
+		"add_to_queue": "Ajouter à la file d'attente",
+		"add_to_in_progress": "Ajouter aux en cours",
+		"remove_from_queue": "Retirer de la file d'attente",
+		"remove_from_in_progress": "Retirer des en cours",
+		"clear_queue": "Vider la file d'attente",
+		"clear_in_progress": "Vider les en cours",
+		"note": "Note (optionnelle)",
+		"position": "Position : {POSITION}",
+		"already_in_queue": "{USER} est déjà dans la file d'attente",
+		"already_in_progress": "{USER} est déjà en cours",
+		"added_to_queue": "{USER} a été ajouté à la file d'attente",
+		"added_to_in_progress": "{USER} a été ajouté aux en cours",
+		"removed_from_queue": "{USER} a été retiré de la file d'attente",
+		"removed_from_in_progress": "{USER} a été retiré des en cours"
+	},
+	"draw": {
+		"title": "Tirer un utilisateur",
+		"first": "Premier utilisateur",
+		"random": "Utilisateur aléatoire",
+		"specific": "Utilisateur spécifique",
+		"add_to_in_progress": "Ajouter à la liste des en cours",
+		"draw": "Tirer",
+		"no_user": "Aucun utilisateur à tirer",
+		"drawn": "{USER} a été tiré de la file d'attente"
+	},
+	"triggers": {
+		"on_queue_join": {
+			"title": "À l'entrée dans la file",
+			"description": "Quand un utilisateur rejoint une file d'attente"
+		},
+		"on_queue_leave": {
+			"title": "À la sortie de la file",
+			"description": "Quand un utilisateur quitte une file d'attente"
+		},
+		"on_in_progress_join": {
+			"title": "À l'entrée dans les en cours",
+			"description": "Quand un utilisateur rejoint la liste des en cours"
+		},
+		"on_in_progress_leave": {
+			"title": "À la sortie des en cours",
+			"description": "Quand un utilisateur quitte la liste des en cours"
+		},
+		"action_queue_join": {
+			"title": "Rejoindre la file",
+			"description": "Ajouter un utilisateur à une file d'attente"
+		},
+		"action_queue_leave": {
+			"title": "Quitter la file",
+			"description": "Retirer un utilisateur d'une file d'attente"
+		},
+		"action_in_progress_join": {
+			"title": "Rejoindre les en cours",
+			"description": "Ajouter un utilisateur à la liste des en cours"
+		},
+		"action_in_progress_leave": {
+			"title": "Quitter les en cours",
+			"description": "Retirer un utilisateur de la liste des en cours"
+		},
+		"action_get_position": {
+			"title": "Obtenir la position",
+			"description": "Obtenir la position d'un utilisateur dans la file d'attente"
+		},
+		"action_draw": {
+			"title": "Tirer de la file",
+			"description": "Tirer un utilisateur de la file d'attente"
+		}
+	}
+}

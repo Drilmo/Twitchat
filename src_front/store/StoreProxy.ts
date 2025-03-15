@@ -45,6 +45,7 @@ export default class StoreProxy {
 	public static raffle:IRaffleState & IRaffleGetters & IRaffleActions & {$state:IRaffleState, $reset:()=>void};
 	public static stream:IStreamState & IStreamGetters & IStreamActions & {$state:IStreamState, $reset:()=>void};
 	public static timers:ITimerState & ITimerGetters & ITimerActions & {$state:ITimerState, $reset:()=>void};
+	public static queues:IQueueState & IQueueGetters & IQueueActions & {$state:IQueueState, $reset:()=>void};
 	public static triggers:ITriggersState & ITriggersGetters & ITriggersActions & {$state:ITriggersState, $reset:()=>void};
 	public static tts:ITTSState & ITTSGetters & ITTSActions & {$state:ITTSState , $reset:()=>void};
 	public static users:IUsersState & IUsersGetters & IUsersActions & {$state:IUsersState, $reset:()=>void};
@@ -1566,6 +1567,101 @@ export interface ITimerActions {
 }
 
 
+export interface IQueueState {
+	/**
+	 * contains all the queues definitions
+	 */
+	queueList: TwitchatDataTypes.QueueData[];
+}
+
+export interface IQueueGetters {
+}
+
+export interface IQueueActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():Promise<void>;
+	/**
+	 * Broadcast current queue states via the PublicAPI
+	 */
+	broadcastStates(id?:string):void;
+	/**
+	 * Create a queue
+	 */
+	createQueue():void;
+	/**
+	 * Deletes given queue
+	 */
+	deleteQueue(id:string):void;
+	/**
+	 * Add a user to a queue
+	 * @param queueId ID of the queue
+	 * @param user User to add
+	 * @param note Optional note/message
+	 * @returns The entry created or null if already in the queue
+	 */
+	addUserToQueue(queueId:string, user:TwitchatDataTypes.TwitchatUser, note?:string):TwitchatDataTypes.QueueEntry|null;
+	/**
+	 * Add a user to the in-progress list of a queue
+	 * @param queueId ID of the queue
+	 * @param user User to add
+	 * @param note Optional note/message
+	 * @returns The entry created or null if already in the in-progress list
+	 */
+	addUserToInProgress(queueId:string, user:TwitchatDataTypes.TwitchatUser, note?:string):TwitchatDataTypes.QueueEntry|null;
+	/**
+	 * Draw a user from a queue
+	 * @param queueId ID of the queue
+	 * @param drawType Type of draw (first, specific user, random)
+	 * @param userId Optional specific user ID to draw
+	 * @param addToInProgress If true, automatically add the drawn user to the in-progress list
+	 * @returns The drawn entry or null if none found
+	 */
+	drawUserFromQueue(queueId:string, drawType:"first"|"user"|"random", userId?:string, addToInProgress?:boolean):TwitchatDataTypes.QueueEntry|null;
+	/**
+	 * Remove a user from a queue
+	 * @param queueId ID of the queue
+	 * @param userId ID of the user to remove
+	 * @returns The removed entry or null if not found
+	 */
+	removeUserFromQueue(queueId:string, userId:string):TwitchatDataTypes.QueueEntry|null;
+	/**
+	 * Remove a user from the in-progress list
+	 * @param queueId ID of the queue
+	 * @param userId ID of the user to remove
+	 * @returns The removed entry or null if not found
+	 */
+	removeUserFromInProgress(queueId:string, userId:string):TwitchatDataTypes.QueueEntry|null;
+	/**
+	 * Clear the waiting queue
+	 * @param queueId ID of the queue
+	 */
+	clearQueue(queueId:string):void;
+	/**
+	 * Clear the in-progress list
+	 * @param queueId ID of the queue
+	 */
+	clearInProgress(queueId:string):void;
+	/**
+	 * Get a user's position in the queue (1-indexed)
+	 * @param queueId ID of the queue
+	 * @param userId ID of the user
+	 * @returns Position in queue (1-indexed) or -1 if not found
+	 */
+	getUserPositionInQueue(queueId:string, userId:string):number;
+	/**
+	 * Check if a user is in the queue or in-progress
+	 * @param queueId ID of the queue
+	 * @param userId ID of the user
+	 * @returns Location of the user or null if not found
+	 */
+	getUserLocation(queueId:string, userId:string):"queue"|"inProgress"|null;
+	/**
+	 * Saves data to server
+	 */
+	saveData():void;
+}
 
 
 export interface ITriggersState {

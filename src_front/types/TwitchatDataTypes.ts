@@ -14,7 +14,7 @@ export namespace TwitchatDataTypes {
 
 	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals';
+	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | 'queue';
 
 	export const ParamDeepSections = {
 		AD: "ad",
@@ -76,8 +76,114 @@ export namespace TwitchatDataTypes {
 		CONNEXIONS: "connexions",
 		PREMIUM: "premium",
 		TIMERS: "timers",
+		QUEUES: "queues",
 	} as const;
 	export type ParameterPagesStringType = typeof ParameterPages[keyof typeof ParameterPages];
+
+	/**
+	 * Contains info about a counter
+	 */
+	/**
+	 * Contains info about a queue
+	 */
+	export interface QueueData {
+		id:string;
+		/**
+		 * Queue name
+		 */
+		title:string;
+		/**
+		 * Queue enabled?
+		 */
+		enabled:boolean;
+		/**
+		 * Is this the default queue?
+		 */
+		isDefault?:boolean;
+		/**
+		 * List of users waiting in the queue
+		 */
+		queueEntries:QueueEntry[];
+		/**
+		 * List of users currently in progress
+		 */
+		inProgressEntries:QueueEntry[];
+		/**
+		 * Queue placeholder for use in triggers
+		 * If value is "XXX", the placeholder {QUEUE_XXX} will be usable
+		 * in all triggers
+		 */
+		placeholderKey:string;
+		/**
+		 * Overlay parameters
+		 */
+		overlayParams: QueueOverlayParams;
+	}
+
+	/**
+	 * Contains info about a queue entry
+	 */
+	export interface QueueEntry {
+		id:string;
+		/**
+		 * User information
+		 */
+		user:TwitchatUser;
+		/**
+		 * Join timestamp
+		 */
+		joinedAt:number;
+		/**
+		 * Optional custom message or note
+		 */
+		note?:string;
+	}
+
+	/**
+	 * Overlay parameters for queues
+	 */
+	export interface QueueOverlayParams {
+		/**
+		 * Style of the overlay (text list)
+		 */
+		style:string;
+		/**
+		 * Orientation of the queue display (vertical or horizontal)
+		 */
+		orientation:"vertical"|"horizontal";
+		/**
+		 * Display mode (queue, inProgress, alternating)
+		 */
+		displayMode:"queue"|"inProgress"|"alternating";
+		/**
+		 * Enable scrolling for long lists
+		 */
+		scrolling:boolean;
+		/**
+		 * Background color
+		 */
+		bgColor:string;
+		/**
+		 * Show queue icon
+		 */
+		showIcon:boolean;
+		/**
+		 * Enable background
+		 */
+		bgEnabled:boolean;
+		/**
+		 * Text font
+		 */
+		textFont:string;
+		/**
+		 * Text size
+		 */
+		textSize:number;
+		/**
+		 * Text color
+		 */
+		textColor:string;
+	}
 
 	/**
 	 * Contains info about a counter

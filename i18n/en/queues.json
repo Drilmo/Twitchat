@@ -1,0 +1,105 @@
+{
+	"default": {
+		"queue_title": "Default Queue"
+	},
+	"delete_confirm": {
+		"title": "Delete Queue",
+		"message": "Are you sure you want to delete this queue? This action cannot be undone."
+	},
+	"menu": {
+		"title": "Queues",
+		"description": "Create and manage queues for your stream"
+	},
+	"create": "Create new queue",
+	"title": "Queue Title",
+	"enabled": "Enabled",
+	"empty": "This queue is empty",
+	"overlay": {
+		"title": "Queue Overlay",
+		"style": "Style",
+		"orientation": "Orientation",
+		"vertical": "Vertical",
+		"horizontal": "Horizontal",
+		"display_mode": "Display Mode",
+		"queue_only": "Queue Only",
+		"in_progress_only": "In Progress Only",
+		"alternating": "Alternating",
+		"scrolling": "Enable Scrolling",
+		"colors": {
+			"background": "Background Color",
+			"text": "Text Color"
+		},
+		"show_icon": "Show User Icon",
+		"bg_enabled": "Enable Background",
+		"font": "Text Font",
+		"size": "Text Size"
+	},
+	"entry": {
+		"add_to_queue": "Add to Queue",
+		"add_to_in_progress": "Add to In Progress",
+		"remove_from_queue": "Remove from Queue",
+		"remove_from_in_progress": "Remove from In Progress",
+		"clear_queue": "Clear Queue",
+		"clear_in_progress": "Clear In Progress",
+		"note": "Note (optional)",
+		"position": "Position: {POSITION}",
+		"already_in_queue": "{USER} is already in the queue",
+		"already_in_progress": "{USER} is already in progress",
+		"added_to_queue": "{USER} has been added to the queue",
+		"added_to_in_progress": "{USER} has been added to in progress",
+		"removed_from_queue": "{USER} has been removed from the queue",
+		"removed_from_in_progress": "{USER} has been removed from in progress"
+	},
+	"draw": {
+		"title": "Draw User",
+		"first": "First User",
+		"random": "Random User",
+		"specific": "Specific User",
+		"add_to_in_progress": "Add to In Progress List",
+		"draw": "Draw",
+		"no_user": "No user to draw",
+		"drawn": "{USER} has been drawn from the queue"
+	},
+	"triggers": {
+		"on_queue_join": {
+			"title": "On Queue Join",
+			"description": "When a user joins a queue"
+		},
+		"on_queue_leave": {
+			"title": "On Queue Leave",
+			"description": "When a user leaves a queue"
+		},
+		"on_in_progress_join": {
+			"title": "On In Progress Join",
+			"description": "When a user joins the in progress list"
+		},
+		"on_in_progress_leave": {
+			"title": "On In Progress Leave",
+			"description": "When a user leaves the in progress list"
+		},
+		"action_queue_join": {
+			"title": "Join Queue",
+			"description": "Add a user to a queue"
+		},
+		"action_queue_leave": {
+			"title": "Leave Queue",
+			"description": "Remove a user from a queue"
+		},
+		"action_in_progress_join": {
+			"title": "Join In Progress",
+			"description": "Add a user to the in progress list"
+		},
+		"action_in_progress_leave": {
+			"title": "Leave In Progress",
+			"description": "Remove a user from the in progress list"
+		},
+		"action_get_position": {
+			"title": "Get Queue Position",
+			"description": "Get a user's position in the queue"
+		},
+		"action_draw": {
+			"title": "Draw from Queue",
+			"description": "Draw a user from the queue"
+		}
+	}
+}

@@ -16,6 +16,7 @@
 		<OverlayChatPoll v-if="overlay=='chatPoll'" />
 		<OverlayBingoGrid v-if="overlay=='bingogrid'" ref="bingoGrid" />
 		<OverlayDonationGoals v-if="overlay=='donationgoals'" />
+		<OverlayQueue v-if="overlay=='queue'" :id="overlayId" />
 	</div>
 </template>
 
@@ -43,6 +44,7 @@ const OverlayPoll = defineAsyncComponent({loader: () => import('@/components/ove
 const OverlayBingoGrid = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayBingoGrid.vue')});
 const OverlayDonationGoals = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayDonationGoals.vue')});
 const OverlayChatPoll = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayChatPoll.vue')});
+const OverlayQueue = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayQueue.vue')});
 
 @Component({
 	components:{
@@ -62,11 +64,13 @@ const OverlayChatPoll = defineAsyncComponent({loader: () => import('@/components
 		OverlayDonationGoals,
 		OverlayEndingCredits,
 		OverlayChatHighlight,
+		OverlayQueue,
 	}
 })
 class Overlay extends Vue {
 
 	public overlay:TwitchatDataTypes.OverlayTypes|"" = "";
+	public overlayId:string = "";
 
 	private heatEventHandler!:(event:{detail:TwitchatDataTypes.HeatClickData}) => void;
 
@@ -77,7 +81,10 @@ class Overlay extends Vue {
 	}
 
 	public beforeMount():void {
-		this.overlay = this.$router.currentRoute.value.params.id as TwitchatDataTypes.OverlayTypes;
+		const params = this.$router.currentRoute.value.params.id as string;
+		const parts = params.split('/');
+		this.overlay = parts[0] as TwitchatDataTypes.OverlayTypes;
+		this.overlayId = parts[1] || "";
 	}
 
 	public mounted():void {
