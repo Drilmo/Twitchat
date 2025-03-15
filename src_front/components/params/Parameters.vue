@@ -156,12 +156,11 @@ import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
 import ParamsValues from './contents/ParamsValues.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
-import ParamsTimer from './contents/ParamsTimer.vue';
-import ParamsQueue from './contents/ParamsQueue.vue';
 import ToggleBlock from '../../components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
 import { VueDraggable } from 'vue-draggable-plus';
+import ParamsQueue from './contents/ParamsQueue.vue';
 import ParamsTimer from './contents/ParamsTimer.vue';
 
 @Component({
