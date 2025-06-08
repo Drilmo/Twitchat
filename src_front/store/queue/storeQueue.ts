@@ -4,6 +4,7 @@ import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import StoreProxy, { type IQueueActions, type IQueueGetters, type IQueueState } from '../StoreProxy';
@@ -14,9 +15,9 @@ export const storeQueue = defineStore('queue', {
         } as IQueueState),
 
         getters: {
-                queues: (state) => state.queueList.map(q => q.placeholderKey),
-                runningEntries: (state) => state.queueList.reduce((p,c)=>p+c.entries.length+(c.inProgress?.length||0),0),
-        } as IQueueGetters
+                queues: (state:IQueueState):string[] => state.queueList.map(q => q.placeholderKey),
+                runningEntries: (state:IQueueState):number => state.queueList.reduce((p,c)=>p+c.entries.length+(c.inProgress?.length||0),0),
+        } as unknown as IQueueGetters
         & ThisType<UnwrapRef<IQueueState> & _StoreWithGetters<IQueueGetters> & PiniaCustomProperties>
         & _GettersTree<IQueueState>,
 
@@ -43,7 +44,7 @@ export const storeQueue = defineStore('queue', {
                         for (let i = 0; i < this.queueList.length; i++) {
                                 const entry = this.queueList[i];
                                 if(id && entry.id !== id) continue;
-                                PublicAPI.instance.broadcast(TwitchatEvent.QUEUE_STATE, entry);
+                                PublicAPI.instance.broadcast(TwitchatEvent.QUEUE_STATE, entry as unknown as JsonObject);
                         }
                 },
 
@@ -122,7 +123,7 @@ export const storeQueue = defineStore('queue', {
 
                 saveData() {
                         const data:IStoreData = { queueList:this.queueList };
-                        DataStore.set(DataStore.QUEUE_CONFIGS, data);
+                        DataStore.set(DataStore.QUEUE_CONFIGS, data as unknown as JsonObject);
                 },
         } as IQueueActions
         & ThisType<IQueueActions

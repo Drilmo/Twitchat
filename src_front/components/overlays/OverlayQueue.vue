@@ -42,7 +42,7 @@ class OverlayQueue extends AbstractOverlay {
         }
 
         public onUpdate(e:TwitchatEvent):void {
-                const data = e.data as TwitchatDataTypes.QueueData;
+                const data = e.data as unknown as TwitchatDataTypes.QueueData;
                 if(!data) return;
                 this.entries = data.entries;
                 this.inProgress = data.inProgress || [];
