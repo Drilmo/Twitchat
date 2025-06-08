@@ -66,12 +66,15 @@
 		},
 		"obs": {
 			"require": "Ces événéments nécessitent de {URL}",
-			"require_url": "lier twitchat à OBS"
+			"require_url": "lier twitchat à OBS",
+			"anyScene": "N'importe quelle scène"
 		},
 		"count": {
 			"require": "Ces événéments nécessitent de d'abord {URL_COUNTERS} ou de {URL_VALUES}",
 			"require_counters": "créer des compteurs",
-			"require_values": "créer des Valeurs"
+			"require_values": "créer des Valeurs",
+			"any_counter": "N'importe quel compteur",
+			"any_value": "N'importe quelle valeur"
 		},
 		"rewards": {
 			"require": "Ces événéments nécessitent de {URL}",
@@ -431,7 +434,7 @@
 				"extract_data_type_json": "JSON",
 				"extract_data_jsonpath": "JSON path (ex: $)",
 				"extract_data_placeholder": "Placeholder...",
-				"add_placeholder_bt": "Ajouter un palceholder"
+				"add_placeholder_bt": "Ajouter un placeholder"
 			},
 			"count": {
 				"value_label": "Valeur",
@@ -789,9 +792,9 @@
 			"sub_gift_recipient": "Personnes recevant un sub",
 			"sub_gift_recipient_id": "ID des personnes recevant un sub",
 			"sub_gift_count": "Nombre de subs offerts",
-			"sub_resub": "\"true\" si c'est un resub",
-			"sub_prime_upgrade": "\"true\" si c'est un prime transformé en sub",
-			"sub_gift_upgrade": "\"true\" si c'est un gift transformé en sub",
+			"sub_resub": "est-ce un resub ?",
+			"sub_prime_upgrade": "est-ce un prime transformé en sub ?",
+			"sub_gift_upgrade": "est-ce un subgift transformé en sub ?",
 			"sub_gift_upgrade_user_id": "ID de la personne ayant offert le sub transformé",
 			"sub_gift_upgrade_user_name": "Pseudo de la personne ayant offert le sub transformé",
 			"bits": "Nombre de bits",
@@ -808,7 +811,7 @@
 			"stream_viewers": "Nombre de raiders",
 			"stream_duration": "Durée du stream en millisecondes",
 			"stream_duration_str": "Durée du stream formatée",
-			"stream_live": "\"true\" si la personne était en stream au moment du raid",
+			"stream_live": "La personne était-elle en stream au moment du raid ?",
 			"viewers": "Nombre de viewers",
 			"reward_title": "Nom de la récompense",
 			"reward_description": "Description de la récompense",
@@ -851,6 +854,7 @@
 			"challenge_contribution_total": "Contribution totale de la personne",
 			"shoutout_in": "Chaîne vous ayant fait un shoutout",
 			"shoutout_out": "Chaîne que vous avez shoutout",
+			"counter_id": "ID du compteur",
 			"counter_name": "Nom du compteur",
 			"counter_value": "Nouvelle valeur du compteur",
 			"counter_update": "Valeur ajoutée",
@@ -1000,6 +1004,8 @@
 			"platform":"Platforme ayant déclenché le trigger\n(twitch, youtube, ...)",
 			"tiktok_gift_count":"Nombre de cadeaux",
 			"tiktok_gift_id":"ID du cadeau",
+			"tiktok_gift_name":"Nom du cadeau",
+			"tiktok_gift_image":"Image du cadeau",
 			"tiktok_like_count":"Nombre de likes",
 			"tiktok_like_total":"Nombtre de likes reçus durant ce stream",
 			"tiktok_diamonds":"Diamants reçus",
@@ -1301,7 +1307,8 @@
 			},
 			"OBS_SCENE": {
 				"label": "Changement de scène",
-				"description": "Actions à exécuter lorsque la scène OBS {SUB_ITEM_NAME} devient active"
+				"description": "Actions à exécuter lorsque la scène OBS {SUB_ITEM_NAME} devient active",
+				"description_any": "Actions à exécuter lorsque n'importe quelle scène OBS devient active"
 			},
 			"OBS_SOURCE_ON": {
 				"label": "Source affichée",
@@ -1395,27 +1402,33 @@
 			},
 			"COUNTER_EDIT": {
 				"label": "Compteur modifié",
-				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} est modifié"
+				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} est modifié",
+				"description_any": "Actions à exécuter lorsqu'un compteur est modifié"
 			},
 			"COUNTER_ADD": {
 				"label": "Ajout à un compteur",
-				"description": "Actions à exécuter lorsqu'une valeur est ajoutée au compteur {SUB_ITEM_NAME}"
+				"description": "Actions à exécuter lorsqu'une valeur est ajoutée au compteur {SUB_ITEM_NAME}",
+				"description_any": "Actions à exécuter lorsqu'un compteur augmente"
 			},
 			"COUNTER_DEL": {
 				"label": "Retrait d'un compteur",
-				"description": "Actions à exécuter lorsqu'une valeur est soustraite au compteur {SUB_ITEM_NAME}"
+				"description": "Actions à exécuter lorsqu'une valeur est soustraite au compteur {SUB_ITEM_NAME}",
+				"description_any": "Actions à exécuter lorsqu'un compteur diminue"
 			},
 			"COUNTER_MAXED": {
 				"label": "Valeur de compteur max atteinte",
-				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} atteint sa valeur maximale"
+				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} atteint sa valeur maximale",
+				"description_any": "Actions à exécuter lorsqu'un compteur atteint sa valeur maximale"
 			},
 			"COUNTER_MINED": {
 				"label": "Valeur de compteur min atteinte",
-				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} atteint sa valeur minimale"
+				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} atteint sa valeur minimale",
+				"description_any": "Actions à exécuter lorsqu'un compteur atteint sa valeur minimale"
 			},
 			"COUNTER_LOOPED": {
 				"label": "Valeur de compteur bouclée",
 				"description": "Actions à exécuter lorsque la valeur du compteur {SUB_ITEM_NAME} est bouclée {INFO}",
+				"description_any": "Actions à exécuter lorsqu'un compteur boucle {INFO}",
 				"description_info": "(Si l'option \"boucler\" est activée et que la valeur max est atteinte, la valeur sera remplacée par la valeur min, et inversement)"
 			},
 			"RAID_STARTED": {
@@ -1475,7 +1488,9 @@
 			},
 			"VALUE_UPDATE": {
 				"label": "Valeur modifiée",
-				"description": "Actions à exécuter lorsque la valeur {SUB_ITEM_NAME} est modifiée"
+				"label_any": "N'importe quelle valeur modifiée",
+				"description": "Actions à exécuter lorsque la valeur {SUB_ITEM_NAME} est modifiée",
+				"description_any": "Actions à exécuter lorsqu'une Valeur est modifiée"
 			},
 			"ANNOUNCEMENTS": {
 				"label": "/announce",
@@ -1734,6 +1749,10 @@
 			"STREAMSOCKET_ACTION": {
 				"label":"Action StreamSocket déclenchée",
 				"description": "Actions à exécuter lorsqu'une action StreamSocket est déclenchée"
+			},
+			"TWITCH_COMBO": {
+				"label":"Twitch Combo",
+				"description": "Actions à exécuter lorsque quelqu'un envoie des bits depuis les Combos Twitch"
 			}
 		},
 		"musicEvents": {

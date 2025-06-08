@@ -153,7 +153,7 @@ export const storeTiktok = defineStore('tiktok', {
 					//TODO find a way to use TwitchUtils.parseMessageToChunks() so links and mentions are also parsed
 					//But so far it's super tricky as the way tiktok emotes work isn't compatible with how the method
 					//parses emotes.
-					//But it might also make sens to just parse the message then push the emotes at the end, so far
+					//But it might also make sense to just parse the message then push the emotes at the end, so far
 					//I haven't observed a message with emotes in the middle of a message
 					//Example message, the result should be:
 					// 🖼️‼️🖼️‼️🖼️‼️🖼️‼️
@@ -262,6 +262,7 @@ export const storeTiktok = defineStore('tiktok', {
 							image:json.data.giftPictureUrl,
 							diamonds:json.data.diamondCount * json.data.repeatCount,
 							giftId:json.data.giftId.toString(),
+							giftName:json.data.giftName,
 							raw_data:json.data,
 						}
 						StoreProxy.chat.addMessage(message);

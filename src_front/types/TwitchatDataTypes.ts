@@ -2670,6 +2670,7 @@ export namespace TwitchatDataTypes {
 		TIKTOK_SUB:"tiktok_sub",
 		TIKTOK_GIFT:"tiktok_gift",
 		TIKTOK_LIKE:"tiktok_like",
+		TWITCH_COMBO:"twitch_combo",
 		TIKTOK_SHARE:"tiktok_share",
 		VALUE_UPDATE:"value_update",
 		GOXLR_BUTTON:"goxlr_button",
@@ -2798,6 +2799,7 @@ export namespace TwitchatDataTypes {
 		tiktok_gift:true,
 		tiktok_like:true,
 		tiktok_share:true,
+		twitch_combo:true,
 		super_sticker:true,
 		value_update:false,
 		unban_request:true,
@@ -3022,6 +3024,7 @@ export namespace TwitchatDataTypes {
 									| MessageCustomTrainSummaryData
 									| MessageCustomTrainFailData
 									| MessageStreamSocketActionData
+									| MessageTwitchComboData
 	;
 
 	/**
@@ -6062,6 +6065,10 @@ export namespace TwitchatDataTypes {
 		 */
 		giftId:string;
 		/**
+		 * Name of the gift
+		 */
+		giftName:string;
+		/**
 		 * Raw data of the original message
 		 */
 		raw_data?:any;
@@ -6269,6 +6276,21 @@ export namespace TwitchatDataTypes {
         bits: number;
 		/**
 		 * User that triggered the action
+		 */
+        user: TwitchatUser;
+	}
+
+	/**
+	 * Message sent when someone uses the "combo" feature on Twitch
+	 */
+	export interface MessageTwitchComboData extends AbstractTwitchatMessage {
+		type: "twitch_combo";
+		/**
+		 * Number of bits used to trigger the combo
+		 */
+        bits: number;
+		/**
+		 * User that made the combo
 		 */
         user: TwitchatUser;
 	}

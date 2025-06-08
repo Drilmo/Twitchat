@@ -1767,6 +1767,7 @@ export const storeDebug = defineStore('debug', {
 						count,
 						diamonds:count,
 						giftId:"123456",
+						giftName:"Roses"
 					};
 					data = m;
 					break;
@@ -2007,6 +2008,21 @@ export const storeDebug = defineStore('debug', {
 						actionName:"My action name",
 						bits:Math.round(Math.random()*100),
 						sku:"my_sku_id",
+						user:fakeUser,
+					};
+
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO: {
+					const m:TwitchatDataTypes.MessageTwitchComboData = {
+						id:Utils.getUUID(),
+						type,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						platform:"twitch",
+						bits:Math.round(Math.random()*100),
 						user:fakeUser,
 					};
 

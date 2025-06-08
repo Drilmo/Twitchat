@@ -243,6 +243,7 @@
 			"sub_gift_upgrade_anon": "{USER} is continuing the Gift Sub they got from an anonymous user"
 		},
 		"bits": "{USER} sent {BITS} bit | {USER} sent {BITS} bits",
+		"combo": "{USER} sent {BITS} bit from Combos | {USER} sent {BITS} bits from Combos",
 		"boosted": "Your channel has been boosted to {COUNT} people",
 		"train_cooldown": "Hype train can be started again by your viewers!",
 		"follow": "{USER} follows the channel",
@@ -486,7 +487,6 @@
 			"donation": "{USER} sent a {AMOUNT} tip on Streamelements"
 		},
 		"kofi": {
-			"anonymous": "An anonymous user",
 			"donation": "{USER} sent a {AMOUNT} tip on Ko-Fi",
 			"merch": "{USER} bought {PRODUCT} for {AMOUNT} on Ko-Fi",
 			"subscription": "{USER} subscribed for {AMOUNT} on Ko-fi",
@@ -516,7 +516,7 @@
 		},
 		"youtube": {
 			"platform_youtube": "Message received\non YouTube",
-			"connected_to": "Now connected to live chat \"{TITLE}\""
+			"connected_to": "Connected to \"{TITLE}\" live chat"
 		},
 		"tiktok": {
 			"platform_tiktok": "Message received\non TikTok"

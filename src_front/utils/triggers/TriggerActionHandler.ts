@@ -199,6 +199,14 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO: {
+				if(this.emergencyMode && StoreProxy.emergency.params.noTriggers === true) return;
+
+				if(await this.executeTriggersByType(TriggerTypes.TWITCH_COMBO, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
 				const eventType = message.isStart === true? TriggerTypes.PREDICTION_START : TriggerTypes.PREDICTION_RESULT;
 				if(await this.executeTriggersByType(eventType, message, testMode, undefined, undefined, forcedTriggerId)) {
@@ -301,6 +309,7 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE: {
+				await this.executeTriggersByType(TriggerTypes.OBS_SCENE, message, testMode, TriggerActionDataTypes.ANY_OBS_SCENE, undefined, forcedTriggerId)
 				if(await this.executeTriggersByType(TriggerTypes.OBS_SCENE, message, testMode, message.sceneName.toLowerCase(), undefined, forcedTriggerId)) {
 					return;
 				}break;
@@ -488,25 +497,31 @@ export default class TriggerActionHandler {
 			case TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE:{
 				let executed = false;
 				if(message.added > 0) {
+					await this.executeTriggersByType(TriggerTypes.COUNTER_ADD, message, testMode, TriggerActionDataTypes.ANY_COUNTER, undefined, forcedTriggerId)
 					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_ADD, message, testMode, message.counter.id, undefined, forcedTriggerId);
 					executed ||= result;
 				}
 				if(message.added < 0) {
+					await this.executeTriggersByType(TriggerTypes.COUNTER_DEL, message, testMode, TriggerActionDataTypes.ANY_COUNTER, undefined, forcedTriggerId)
 					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_DEL, message, testMode, message.counter.id, undefined, forcedTriggerId);
 					executed ||= result;
 				}
 				if(message.maxed) {
+					await this.executeTriggersByType(TriggerTypes.COUNTER_MAXED, message, testMode, TriggerActionDataTypes.ANY_COUNTER, undefined, forcedTriggerId)
 					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_MAXED, message, testMode, message.counter.id, undefined, forcedTriggerId);
 					executed ||= result;
 				}
 				if(message.mined) {
+					await this.executeTriggersByType(TriggerTypes.COUNTER_MINED, message, testMode, TriggerActionDataTypes.ANY_COUNTER, undefined, forcedTriggerId)
 					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_MINED, message, testMode, message.counter.id, undefined, forcedTriggerId);
 					executed ||= result;
 				}
 				if(message.looped) {
+					await this.executeTriggersByType(TriggerTypes.COUNTER_LOOPED, message, testMode, TriggerActionDataTypes.ANY_COUNTER, undefined, forcedTriggerId)
 					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_LOOPED, message, testMode, message.counter.id, undefined, forcedTriggerId)
 					executed ||= result;
 				}
+				await this.executeTriggersByType(TriggerTypes.COUNTER_EDIT, message, testMode, TriggerActionDataTypes.ANY_COUNTER, undefined, forcedTriggerId)
 				const result = await this.executeTriggersByType(TriggerTypes.COUNTER_EDIT, message, testMode, message.counter.id, undefined, forcedTriggerId);
 				executed ||= result;
 				if(executed) {
@@ -515,6 +530,7 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE:{
+				await this.executeTriggersByType(TriggerTypes.VALUE_UPDATE, message, testMode, TriggerActionDataTypes.ANY_VALUE, undefined, forcedTriggerId)
 				if(await this.executeTriggersByType(TriggerTypes.VALUE_UPDATE, message, testMode, message.value.id, undefined, forcedTriggerId)) {
 					return;
 				}break;
@@ -1127,7 +1143,7 @@ export default class TriggerActionHandler {
 			return false;
 		}
 
-		//If Ko-fi user requested to make their comment private, remove it so
+		//If Ko-fi user requested to make their comment and amouunt private, remove them so
 		//triggers cannot use it
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.KOFI && message.isPublic !== true) {
 			log.entries.push({date:Date.now(), type:"message", value:"🫥 Ko-Fi user requested their message to be private. Removing it before executing triggers."});
@@ -1353,8 +1369,15 @@ export default class TriggerActionHandler {
 		}
 
 		for (const step of actions) {
+
 			const logStep:LogTriggerStep = {id:Utils.getUUID(), type:"step", date:Date.now(), data:step, messages:[] as {date:number, value:string}[], error:false};
 			log.entries.push(logStep);
+
+			if(step.enabled === false) {
+				logStep.messages.push({date:Date.now(), value:"❌ Action disabled. Skip it"});
+				logStep.error = true;
+				continue;
+			}
 
 			const actionPlaceholders = TriggerActionPlaceholders(step.type);
 

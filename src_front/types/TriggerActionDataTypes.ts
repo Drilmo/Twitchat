@@ -62,7 +62,8 @@ export interface TriggerCallStack {
 // const e: Path<Test, "myPrefix"> = "myPrefix.blabla"; // invalid
 // const f: Path<Test, "myPrefix"> = "myPrefix.name"; // valid
 
-export type TriggerActionTypes =  TriggerActionEmptyData
+export type TriggerActionTypes = {enabled?:boolean} &
+								( TriggerActionEmptyData
 								| TriggerActionDelayData
 								| TriggerActionObsData
 								| TriggerActionChatData
@@ -107,7 +108,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionChatPollData
 								| TriggerActionAnimatedTextData
 								| TriggerActionCustomTrainData
-;
+							);
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
 
@@ -1450,6 +1451,9 @@ export interface TriggerTreeItemData{
 	children?:TriggerTreeItemData[];
 }
 
+export const ANY_OBS_SCENE = "any_obs_scene";
+export const ANY_COUNTER = "any_counter";
+export const ANY_VALUE = "any_value";
 export const AD_APPROACHING_INTERVALS = [5*60000, 4*60000, 3*60000, 2*60000, 1*60000, 30000, 20000, 10000, 5000];
 
 export const VIBRATION_PATTERNS = [
@@ -1630,6 +1634,7 @@ export const TriggerTypes = {
 	CUSTOM_TRAIN_FAIL:"166",
 	CUSTOM_TRAIN_COOLDOWN:"167",
 	STREAMSOCKET_ACTION:"168",
+	TWITCH_COMBO:"169",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1892,9 +1897,9 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"MONTHS_TOTAL", descKey:'triggers.placeholders.sub_months_total', pointer:"totalSubDuration", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{tag:"MONTHS_PREPAID", descKey:'triggers.placeholders.sub_months_prepaid', pointer:"months", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{tag:"MONTHS_STREAK", descKey:'triggers.placeholders.sub_months_streak', pointer:"streakMonths", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
-		{tag:"IS_RESUB", descKey:'triggers.placeholders.sub_resub', pointer:"is_resub", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
-		{tag:"IS_PRIME_UPGRADE", descKey:'triggers.placeholders.sub_prime_upgrade', pointer:"is_primeUpgrade", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
-		{tag:"IS_GIFT_UPGRADE", descKey:'triggers.placeholders.sub_gift_upgrade', pointer:"is_giftUpgrade", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
+		{tag:"IS_RESUB", descKey:'triggers.placeholders.sub_resub', pointer:"is_resub", numberParsable:true, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
+		{tag:"IS_PRIME_UPGRADE", descKey:'triggers.placeholders.sub_prime_upgrade', pointer:"is_primeUpgrade", numberParsable:true, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
+		{tag:"IS_GIFT_UPGRADE", descKey:'triggers.placeholders.sub_gift_upgrade', pointer:"is_giftUpgrade", numberParsable:true, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{tag:"GIFT_UPGRADE_SENDER_ID", descKey:'triggers.placeholders.sub_gift_upgrade_user_id', pointer:"gift_upgradeSender.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{tag:"GIFT_UPGRADE_SENDER_NAME", descKey:'triggers.placeholders.sub_gift_upgrade_user_name', pointer:"gift_upgradeSender.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 	];
@@ -1927,6 +1932,17 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"PINNED", descKey:'triggers.placeholders.cheer_pin', pointer:"pinned", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
 		{tag:"PIN_LEVEL", descKey:'triggers.placeholders.cheer_pinLevel', pointer:"pinLevel", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
 		{tag:"PIN_DURATION", descKey:'triggers.placeholders.cheer_pinDuration', pointer:"pinDuration_ms", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
+	];
+
+	map[TriggerTypes.TWITCH_COMBO] = [
+		{tag:USER_NAME, descKey:'triggers.placeholders.user', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchComboData>,
+		{tag:USER_DISPLAY_NAME, descKey:'triggers.placeholders.user_customName', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchComboData>,
+		{tag:USER_ID, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchComboData>,
+		{tag:USER_FOLLOWAGE, descKey:'triggers.placeholders.followage', pointer:"user", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchComboData>,
+		{tag:USER_FOLLOWAGE_MS, descKey:'triggers.placeholders.followage_ms', pointer:"user", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchComboData>,
+		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchComboData>,
+		{tag:USER_CUSTOM_BADGES, descKey:'triggers.placeholders.user_custom_badges', pointer:"__user_custom_badges__", numberParsable:false, isUserID:false},
+		{tag:"BITS", descKey:'triggers.placeholders.bits', pointer:"bits", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchComboData>,
 	];
 
 	map[TriggerTypes.FOLLOW] = [
@@ -2175,6 +2191,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.COUNTER_LOOPED] =
 	map[TriggerTypes.COUNTER_MINED] =
 	map[TriggerTypes.COUNTER_MAXED] = [
+		{tag:"COUNTER_ID", descKey:'triggers.placeholders.counter_id', pointer:"counter.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 		{tag:"NAME", descKey:'triggers.placeholders.counter_name', pointer:"counter.name", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 		{tag:"VALUE", descKey:'triggers.placeholders.counter_value', pointer:"value", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 		{tag:"UPDATE", descKey:'triggers.placeholders.counter_update', pointer:"added", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
@@ -2186,6 +2203,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 
 	map[TriggerTypes.VALUE_UPDATE] = [
+		{tag:"VALUE_ID", descKey:'triggers.placeholders.counter_id', pointer:"value.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
 		{tag:"VALUE_NAME", descKey:'triggers.placeholders.value_name', pointer:"value.name", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
 		{tag:"NEW_VALUE", descKey:'triggers.placeholders.new_value', pointer:"newValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
 		{tag:"OLD_VALUE", descKey:'triggers.placeholders.old_value', pointer:"oldValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
@@ -2507,6 +2525,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_CUSTOM_BADGES, descKey:'triggers.placeholders.user_custom_badges', pointer:"__user_custom_badges__", numberParsable:false, isUserID:false},
 		{tag:"GIFT_COUNT", descKey:'triggers.placeholders.tiktok_gift_count', pointer:"count", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{tag:"GIFT_ID", descKey:'triggers.placeholders.tiktok_gift_id', pointer:"giftId", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
+		{tag:"GIFT_NAME", descKey:'triggers.placeholders.tiktok_gift_name', pointer:"giftName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
+		{tag:"GIFT_IMAGE", descKey:'triggers.placeholders.tiktok_gift_image', pointer:"image", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{tag:"DIAMONDS", descKey:'triggers.placeholders.tiktok_diamonds', pointer:"diamonds", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 	];
 
@@ -2854,6 +2874,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"watchStreak", labelKey:"triggers.events.POWER_UP_MESSAGE.label", value:TriggerTypes.POWER_UP_MESSAGE, descriptionKey:"triggers.events.POWER_UP_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"watchStreak", labelKey:"triggers.events.POWER_UP_GIANT_EMOTE.label", value:TriggerTypes.POWER_UP_GIANT_EMOTE, descriptionKey:"triggers.events.POWER_UP_GIANT_EMOTE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"watchStreak", labelKey:"triggers.events.POWER_UP_CELEBRATION.label", value:TriggerTypes.POWER_UP_CELEBRATION, descriptionKey:"triggers.events.POWER_UP_CELEBRATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V16_1, category:TriggerEventTypeCategories.SUBITS, icon:"bits", labelKey:"triggers.events.TWITCH_COMBO.label", value:TriggerTypes.TWITCH_COMBO, descriptionKey:"triggers.events.TWITCH_COMBO.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO},
 
 		// {newDate:1693519200000, category:TriggerEventTypeCategories.SUBITS, icon:"hypeChat", labelKey:"triggers.events.HYPE_CHAT.label", value:TriggerTypes.HYPE_CHAT, descriptionKey:"triggers.events.HYPE_CHAT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT},
 		{disabled:true, disabledReasonLabelKey:"triggers.events.HYPE_TRAIN_APPROACHING.disabled_reason", category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", labelKey:"triggers.events.HYPE_TRAIN_APPROACHING.label", value:TriggerTypes.HYPE_TRAIN_APPROACHING, descriptionKey:"triggers.events.HYPE_TRAIN_APPROACHING.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING},

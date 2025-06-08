@@ -243,6 +243,7 @@
 			"sub_gift_upgrade_anon": "{USER} continue l'abonnement offert par une personne anonyme"
 		},
 		"bits": "{USER} a envoyé 1 bit | {USER} a envoyé {BITS} bits",
+		"combo": "{USER} a envoyé 1 bit depuis les Combos | {USER} a envoyé {BITS} bits depuis les Combos",
 		"boosted": "Votre chaîne a été mise en avant auprès de {COUNT} personnes",
 		"train_cooldown": "Le train de la hype peut à nouveau être déclenché !",
 		"follow": "{USER} suit la chaîne",
@@ -486,7 +487,6 @@
 			"donation": "{USER} a fait un don de {AMOUNT} sur Streamelements"
 		},
 		"kofi": {
-			"anonymous": "Une personne anonyme",
 			"donation": "{USER} a fait un don de {AMOUNT} sur Ko-fi",
 			"merch": "{USER} a acheté {PRODUCT} pour {AMOUNT} sur Ko-fi",
 			"subscription": "{USER} s'est abonné pour {AMOUNT} sur Ko-fi",
@@ -516,7 +516,7 @@
 		},
 		"youtube": {
 			"platform_youtube": "Message reçu\nsur YouTube",
-			"connected_to": "Vous êtes maintenant connecté·e au tchat du live \"{TITLE}\""
+			"connected_to": "Vous êtes connecté·e au tchat du live \"{TITLE}\""
 		},
 		"tiktok": {
 			"platform_youtube": "Message reçu\nsur TikTok"

@@ -76,8 +76,8 @@
 		</div>
 
 		<button class="filteredMessages" v-if="customActivitiesDisplayed" @click="unlockListRefresh()">
-			<img src="@/assets/icons/back.svg" alt="back">
-			<span><img src="@/assets/icons/train.svg" alt="train" class="icon">{{$t('chat.hype_train.filtered_title')}}</span>
+			<Icon name="back" alt="back" />
+			<span><Icon name="train" alt="train" class="icon" />{{$t('chat.hype_train.filtered_title')}}</span>
 		</button>
 
 		<div class="conversation" ref="conversationHolder" v-if="conversation.length > 0"
@@ -628,6 +628,8 @@ class MessageList extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER:
 			case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT:
+			case TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE:
+			case TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO:
 			case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 				return this.config.filters.cheer === true;
 			}
@@ -1955,7 +1957,7 @@ export default toNative(MessageList);
 		align-items: center;
 		margin-right: .5em;
 		z-index: 1;
-		img {
+		.icon {
 			height: 1em;
 		}
 		span {

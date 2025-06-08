@@ -1,8 +1,8 @@
 <template>
 	<div class="pollstate gameStateWindow">
-		<h1 class="title"><img src="@/assets/icons/chatPoll.svg"><span>{{poll.title}}</span></h1>
+		<h1 class="title"><Icon name="chatPoll" /><span>{{poll.title}}</span></h1>
 
-		<ProgressBar class="progress"
+		<ProgressBar
 			secondary
 			:percent="progressPercent"
 			:duration="poll.duration_s*1000" />
@@ -19,21 +19,22 @@
 		</div>
 
 		<div class="item actions">
-			<Button alert @click="endPoll()">{{ $t("poll.state.endBt") }}</Button>
+			<TTButton alert @click="endPoll()">{{ $t("poll.state.endBt") }}</TTButton>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
 import ProgressBar from '../ProgressBar.vue';
+import TTButton from '../TTButton.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		ProgressBar,
 	}
 })

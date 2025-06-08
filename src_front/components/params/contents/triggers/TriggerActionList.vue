@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionlist">
 		<div class="card-item secondary description" data-noselect>
-			<img src="@/assets/icons/info.svg" class="icon">
+			<Icon name="info" class="icon" theme="light" />
 			<i18n-t scope="global" tag="span" v-if="triggerDescriptionLabel" :keypath="triggerDescriptionLabel">
 				<template #SUB_ITEM_NAME>
 					<mark>{{ subTypeLabel }}</mark>
@@ -93,7 +93,7 @@
 		<div :class="listClasses">
 			<div v-if="hasCondition" class="conditionSelector" data-noselect>
 				<TTButton icon="cross" alert @click="matchingCondition = false" :selected="matchingCondition == false" />
-				<img src="@/assets/icons/condition.svg" class="conditionLink" />
+				<Icon name="condition" class="conditionLink" />
 				<TTButton icon="checkmark" @click="matchingCondition = true" :selected="matchingCondition == true" primary />
 			</div>
 			<svg class="conditionJoint" v-if="hasCondition" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -155,28 +155,29 @@
 </template>
 
 <script lang="ts">
+import Icon from '@/components/Icon.vue';
 import PermissionsForm from '@/components/PermissionsForm.vue';
 import TTButton from '@/components/TTButton.vue';
-import { TriggerSubTypeLabel, TriggerTypes, TriggerTypesDefinitionList, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerSubTypeLabel, TriggerTypes, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
+import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';
+import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 import TriggerActionChatCommandParams from './TriggerActionChatCommandParams.vue';
 import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
+import TriggerActionEntry from './TriggerActionEntry.vue';
 import TriggerActionHeatParams from './TriggerActionHeatParams.vue';
 import TriggerActionScheduleParams from './TriggerActionScheduleParams.vue';
 import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.vue';
 import TriggerAdApproachParams from './TriggerAdApproachParams.vue';
 import TriggerConditionList from './TriggerConditionList.vue';
 import TriggerGoXLRParams from './TriggerGoXLRParams.vue';
-import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
-import TriggerActionEntry from './TriggerActionEntry.vue';
-import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
@@ -278,8 +279,7 @@ class TriggerActionList extends Vue {
 	 * Get a trigger's description
 	 */
 	public get triggerDescriptionLabel():string|undefined {
-		const item = TriggerTypesDefinitionList().find(v => v.value == this.triggerData.type) as TriggerTypeDefinition|null;
-		return item?.descriptionKey;
+		return TriggerUtils.getTriggerDisplayInfo(this.triggerData).descriptionKey;
 	}
 
 	/**
@@ -550,6 +550,7 @@ class TriggerActionList extends Vue {
 		}else
 		if(e.key == "v" && e.ctrlKey && this.$store.triggers.clipboard.length > 0) {
 			for (let i = 0; i < this.$store.triggers.clipboard.length; i++) {
+				if(this.triggerData.actions.length >= this.$config.MAX_TRIGGER_ACTIONS) break;
 				const action = JSON.parse(JSON.stringify(this.$store.triggers.clipboard[i])) as TriggerActionTypes;
 				action.id = Utils.getUUID();//Override ID by a new one to avoid conflicts
 				action.condition = this.matchingCondition;
@@ -768,6 +769,7 @@ export default toNative(TriggerActionList);
 
 	.selectRect {
 		z-index: 1;
+		pointer-events: none;
 		position: absolute;
 		border: 1px solid var(--color-text);
 		background-color: var(--background-color-fader);

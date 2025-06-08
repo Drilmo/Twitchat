@@ -1,7 +1,7 @@
 <template>
 	<div class="rafflestate gameStateWindow" v-if="raffleData">
 		<h1 class="title">
-			<img src="@/assets/icons/ticket.svg">
+			<Icon name="ticket" />
 			<span>{{ $t('raffle.state_title') }}</span>
 			<div class="methods" ref="methods">
 				<mark v-if="raffleData.mode == 'chat' && raffleData.command">{{raffleData.command}}</mark>
@@ -16,9 +16,9 @@
 			/>
 
 			<div class="card-item secondary warning" v-if="$store.raffle.raffleList.length >= 10"><Icon name="alert" />{{$t("raffle.state_many_raffles", {COUNT:$store.raffle.raffleList.length})}}</div>
-	
+
 			<div class="entries">
-				<img src="@/assets/icons/user.svg" alt="user">
+				<Icon name="user" alt="user" />
 				<i18n-t scope="global" tag="p" keypath="raffle.state_users" :plural="raffleData.entries?.length">
 					<template #COUNT>
 						<span>{{raffleData.entries?.length}}</span>
@@ -26,9 +26,9 @@
 					</template>
 				</i18n-t>
 			</div>
-	
+
 			<div class="entries" v-if="cumulatedEntryCount != raffleData.entries?.length">
-				<img src="@/assets/icons/ticket.svg" alt="ticket">
+				<Icon name="ticket" alt="ticket" />
 				<i18n-t scope="global" tag="p" keypath="raffle.state_users_cumulated" :plural="cumulatedEntryCount"
 				v-if="cumulatedEntryCount != raffleData.maxEntries">
 					<template #COUNT>
@@ -36,7 +36,7 @@
 					</template>
 				</i18n-t>
 			</div>
-	
+
 			<div class="winners" v-if="raffleData.winners && raffleData.winners.length > 0">
 				<div class="entries">
 					<template v-for="w in raffleData.winners" :key="w.label">
@@ -49,7 +49,7 @@
 					</template>
 				</div>
 			</div>
-	
+
 			<div class="ctas">
 				<TTButton icon="cross"
 					highlight
@@ -70,12 +70,12 @@
 
 				<ParamItem class="small" v-model="raffleData.autoClose" :paramData="param_autoClose" noBackground @change="$store.raffle.saveData()" />
 			</div>
-	
+
 			<div class="card-item overlayStatus" v-if="obsConnected && !checkingOverlay && !overlayFound">
 				<div>{{ $t("raffle.state_overlay_not_found") }}</div>
 				<OverlayInstaller type="wheel" @obsSourceCreated="checkOverlay()" light />
 			</div>
-	
+
 			<div class="card-item overlayStatus" v-else-if="obsConnected && !checkingOverlay && !sourceVisible">
 				<div>{{ $t("raffle.state_overlay_not_visible") }}</div>
 				<TTButton icon="show" @click="showOverlay()">{{$t("global.show")}}</TTButton>
@@ -98,10 +98,12 @@ import TTButton from '../TTButton.vue';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 import { gsap } from 'gsap/gsap-core';
 import ParamItem from '../params/ParamItem.vue';
+import Icon from '../Icon.vue';
 
 
 @Component({
 	components:{
+		Icon,
 		TTButton,
 		ParamItem,
 		ProgressBar,
@@ -241,6 +243,10 @@ class RaffleState extends Vue {
 		}else{
 			this.raffleData!.duration_s += duration_s;
 		}
+		if(this.raffleData?.showCountdownOverlay) {
+			const defaultCd = this.$store.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)
+			if(defaultCd) this.$store.timers.timerAdd(defaultCd?.id, 60_000);
+		}
 	}
 
 	public async pickWinner():Promise<void> {
@@ -373,7 +379,7 @@ export default toNative(RaffleState);
 		flex-direction: row;
 		align-items: center;
 		font-style: italic;
-		img {
+		.icon {
 			height: 1em;
 			width: 1em;
 			object-fit: fill;

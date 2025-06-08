@@ -13,11 +13,11 @@
 					@mouseenter="element == 'chatters'? updateOnlineUsersTooltip($event) : ()=>{}"
 					v-tooltip="{
 						touch:'hold',
-						content: element == 'chatters' && $store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : $t(getPinnedMenuItemFromid(element).labelKey)
+						content: element == 'chatters' && $store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : $t(getPinnedMenuItemFromId(element).labelKey)
 					}"
-					:aria-label="$t(getPinnedMenuItemFromid(element).labelKey)"
-					:icon="getPinnedMenuItemFromid(element).icon"
-					@click="onClickMenuItem(getPinnedMenuItemFromid(element))" />
+					:aria-label="$t(getPinnedMenuItemFromId(element).labelKey)"
+					:icon="getPinnedMenuItemFromId(element).icon"
+					@click="onClickMenuItem(getPinnedMenuItemFromId(element))" />
 			</VueDraggable>
 
 			<form @submit.prevent="" class="inputForm" name="messageform">
@@ -319,15 +319,16 @@
 				</transition>
 
 				<ButtonNotification
-				v-if="showObsBtn" icon="obs"
-				class="error"
-				v-tooltip="{touch:'hold', content:$t('chat.form.obs_disconnected_tt'), showOnCreate:true}"
-				@click="openOBSParams()"></ButtonNotification>
+					v-if="showObsBtn" icon="obs"
+					class="error"
+					v-tooltip="{touch:'hold', content:$t('chat.form.obs_disconnected_tt'), showOnCreate:true}"
+					@click="openOBSParams()"></ButtonNotification>
 
 				<ButtonNotification
-				v-if="showGazaBtn"
-				v-tooltip="{touch:'hold', content:$t('gaza.tooltip'), showOnCreate:shouldShowTooltip('gaza'), onHidden:()=>onHideTooltip('gaza')}"
-				@click="$emit('update:showGazaFunds', true)">🍉</ButtonNotification>
+					v-if="showGazaBtn"
+					v-newflag="{date:1759253466000, id:'gaza'}"
+					v-tooltip="{touch:'hold', content:$t('gaza.tooltip'), showOnCreate:shouldShowTooltip('gaza'), onHidden:()=>onHideTooltip('gaza')}"
+					@click="$emit('update:showGazaFunds', true)">🍉</ButtonNotification>
 
 				<transition name="blink">
 					<TTButton class="emergency"
@@ -503,7 +504,7 @@ export class ChatForm extends Vue {
 		}
 	}
 
-	public getPinnedMenuItemFromid(id:string):typeof TwitchatDataTypes.PinnableMenuItems[number] {
+	public getPinnedMenuItemFromId(id:string):typeof TwitchatDataTypes.PinnableMenuItems[number] {
 		return TwitchatDataTypes.PinnableMenuItems.find(v=>v.id == id)!;
 	}
 

@@ -63,7 +63,7 @@
 				</i18n-t>
 
 				<div v-for="e in c.events" :key="e.value" :class="getTriggerClasses(e)"
-				v-newflag="e.newDate? {date:e.newDate, id:'triggerEvent_'+e.value} : undefined">
+				v-newflag="e.newDate? {date:e.newDate, id:'triggerEvent_'+e.value+'_'+e.newDate} : undefined">
 					<TTButton class="triggerBt"
 						:icon="e.icon"
 						:premium="e.premium === true"
@@ -103,7 +103,7 @@
 import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TriggerEventTypeCategory } from '@/types/TriggerActionDataTypes';
-import { TriggerEventTypeCategories, TriggerTypes, TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
+import { ANY_COUNTER, ANY_OBS_SCENE, TriggerEventTypeCategories, TriggerTypes, TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -116,6 +116,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
+import { ANY_VALUE } from '../../../../types/TriggerActionDataTypes';
 
 @Component({
 	components:{
@@ -157,15 +158,6 @@ class TriggerCreateForm extends Vue {
 	public get isGoxlrMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
 
 	public get hasChannelPoints():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
-
-	/**
-	 * Gets a trigger's icon
-	 */
-	public getTriggerIcon(e:TriggerTypeDefinition):string {
-		if(!e.icon) return "";
-		if(e.icon.indexOf("/") > -1) return e.icon as string;
-		return this.$asset("icons/"+e.icon+".svg");
-	}
 
 	/**
 	 * Gets a trigger's classes
@@ -397,6 +389,14 @@ class TriggerCreateForm extends Vue {
 						isCategory:false,
 					};
 				});
+				const defaultName = this.$t("triggers.obs.anyScene");
+				list.unshift({
+					label:defaultName,
+					searchTerms:[defaultName],
+					value:ANY_OBS_SCENE,
+					icon:"",
+					isCategory:false,
+				})
 				this.subtriggerList = list;
 				this.$emit("updateHeader", "triggers.header_select_obs_scene");
 			}
@@ -647,6 +647,14 @@ class TriggerCreateForm extends Vue {
 				isCategory:false,
 			};
 		});
+		const defaultName = this.$t("triggers.count.any_counter");
+		list.unshift({
+			label:defaultName,
+			searchTerms:[defaultName],
+			value:ANY_COUNTER,
+			icon:"",
+			isCategory:false,
+		})
 		this.subtriggerList = list;
 	}
 
@@ -667,6 +675,14 @@ class TriggerCreateForm extends Vue {
 				isCategory:false,
 			};
 		});
+		const defaultName = this.$t("triggers.count.any_value");
+		list.unshift({
+			label:defaultName,
+			searchTerms:[defaultName],
+			value:ANY_VALUE,
+			icon:"",
+			isCategory:false,
+		})
 		this.subtriggerList = list;
 	}
 
@@ -759,6 +775,9 @@ export default toNative(TriggerCreateForm);
 			}
 			&.newFlag {
 				border: 0;
+				border-radius: var(--border-radius);
+				padding: .25em;
+				background-color: var(--color-secondary-fader);
 			}
 		}
 

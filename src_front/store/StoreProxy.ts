@@ -2670,6 +2670,10 @@ export interface IStreamlabsActions {
 	 */
 	loadCharityCampaignInfo(url?:string):Promise<boolean>;
 	/**
+	 * Fully resync the charity campaign amount
+	 */
+	resyncCharityTips():Promise<void>;
+	/**
 	 * Disconnects from current campaign
 	 */
 	disconnectCharityCampaign():void;
@@ -2790,7 +2794,7 @@ export interface IStreamelementsActions {
 
 export interface IKofiState {
 	webhooktoken:string;
-	webhooks:string[];
+	webhooks:{url:string, fails:number, enabled:boolean}[];
 	connected:boolean;
 }
 
@@ -2815,6 +2819,18 @@ export interface IKofiActions {
 	 * @param data
 	 */
 	onEvent(data:any):void;
+	/**
+	 * Removes a webhook
+	 */
+	addWebhook(url:string):void;
+	/**
+	 * Removes a webhook
+	 */
+	removeWebhook(webhook:IKofiState["webhooks"][number]):void;
+	/**
+	 * Restarts a disabled webhook
+	 */
+	restartWebhook(webhook:IKofiState["webhooks"][number]):Promise<void>;
 	/**
 	 * Saves configs to server
 	 */

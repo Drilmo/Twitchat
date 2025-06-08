@@ -5,9 +5,11 @@
 			data-noselect
 			v-tooltip="$t('triggers.reorder_tt')" />
 
-		<img src="@/assets/icons/timer.svg" class="icon">
+		<ToggleButton v-model="action.enabled" small />
 
-		<DurationForm v-if="isNumericValue" class="field" v-model="action.delay" allowMs />
+		<Icon name="timer" class="icon" theme="light" @click="action.enabled = !action.enabled" />
+
+		<DurationForm style="color:#fff" v-if="isNumericValue" class="field" v-model="action.delay" allowMs />
 
 		<TTButton v-else icon="trash" small secondary @click="action.delay = 0">{{ action.delay }}</TTButton>
 
@@ -19,7 +21,7 @@
 				@insert="insertTag"
 			/>
 
-			<TTButton transparent icon="merge" @click="$emit('addCondition')" v-tooltip="$t('triggers.condition.add_tt')" />
+			<TTButton transparent icon="merge" light @click="$emit('addCondition')" v-tooltip="$t('triggers.condition.add_tt')" />
 			<TTButton alert icon="trash" @click="$emit('delete')" />
 		</div>
 	</div>
@@ -28,6 +30,7 @@
 <script lang="ts">
 import DurationForm from '@/components/DurationForm.vue';
 import TTButton from '@/components/TTButton.vue';
+import ToggleButton from '@/components/ToggleButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
 import type { TriggerActionTypes, TriggerData } from '@/types/TriggerActionDataTypes';
@@ -38,6 +41,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	components:{
 		TTButton,
 		ParamItem,
+		ToggleButton,
 		DurationForm,
 		PlaceholderSelector,
 	},
