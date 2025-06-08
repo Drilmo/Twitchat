@@ -1,0 +1,13 @@
+{
+    "queue":{
+        "default_title":"File d'attente",
+        "addBt":"Créer une file",
+        "overlayBt":"Configurer l'overlay",
+        "form":{
+            "param_placeholder":"Nom du placeholder",
+            "param_max_per_user":"Entrées maxi par utilisateur",
+            "param_max_entries":"Nombre maximum de viewers",
+            "param_show_in_progress":"Afficher la liste en cours"
+        }
+    }
+}

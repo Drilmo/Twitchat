@@ -1,0 +1,13 @@
+{
+    "queue":{
+        "default_title":"Queue",
+        "addBt":"Create queue",
+        "overlayBt":"Configure overlay",
+        "form":{
+            "param_placeholder":"Placeholder name",
+            "param_max_per_user":"Max entries per user",
+            "param_max_entries":"Max viewers",
+            "param_show_in_progress":"Show in progress list"
+        }
+    }
+}
