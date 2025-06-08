@@ -2547,17 +2547,17 @@ const UserDataSchema = {
 			}
 		},
 
-		customTrainConfigs:{
-			type: "object",
-			additionalProperties: false,
-			properties: {
-				customTrainList: {
-					type:"array",
-					minItems:0,
-					maxItems:10,
-					items:{
-						type: "object",
-						additionalProperties: false,
+                customTrainConfigs:{
+                        type: "object",
+                        additionalProperties: false,
+                        properties: {
+                                customTrainList: {
+                                        type:"array",
+                                        minItems:0,
+                                        maxItems:10,
+                                        items:{
+                                                type: "object",
+                                                additionalProperties: false,
 						properties: {
 							id: { type: "string" },
 							enabled: { type: "boolean" },
@@ -2621,10 +2621,69 @@ const UserDataSchema = {
 									streamlabs_charity:{ type: "boolean" },
 									twitch_charity:{ type: "boolean" },
 								}
-							}
-						}
-					}
-				},
+                                        }
+                                }
+                        }
+                },
+
+                queueConfigs:{
+                        type: "object",
+                        additionalProperties: false,
+                        properties: {
+                                queueList: {
+                                        type:"array",
+                                        minItems:0,
+                                        maxItems:10,
+                                        items:{
+                                                type: "object",
+                                                additionalProperties: false,
+                                                properties: {
+                                                        id:{type:"string"},
+                                                        enabled:{type:"boolean"},
+                                                        title:{type:"string"},
+                                                        placeholderKey:{type:"string", maxLength:50},
+                                                        maxPerUser:{type:"number", minimum:1, maximum:100},
+                                                        maxEntries:{type:"number", minimum:1, maximum:100},
+                                                        paused:{type:"boolean"},
+                                                        entries:{
+                                                                type:"array",
+                                                                minItems:0,
+                                                                maxItems:1000,
+                                                                items:{
+                                                                        type:"object",
+                                                                        additionalProperties:false,
+                                                                        properties:{
+                                                                                user:{type:"object"},
+                                                                                joined_at:{type:"number"}
+                                                                        }
+                                                                }
+                                                        },
+                                                        inProgress:{
+                                                                type:"array",
+                                                                minItems:0,
+                                                                maxItems:1000,
+                                                                items:{
+                                                                        type:"object",
+                                                                        additionalProperties:false,
+                                                                        properties:{
+                                                                                user:{type:"object"},
+                                                                                joined_at:{type:"number"}
+                                                                        }
+                                                                },
+                                                                nullable:true
+                                                        },
+                                                        overlayParams:{
+                                                                type:"object",
+                                                                additionalProperties:false,
+                                                                properties:{
+                                                                        showInProgress:{type:"boolean"}
+                                                                }
+                                                        }
+                                                }
+                                        }
+                                },
+                        }
+                },
 			}
 		},
 	}

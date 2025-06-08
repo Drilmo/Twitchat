@@ -14,7 +14,7 @@ export namespace TwitchatDataTypes {
 
 	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext" | "customtrain";
+        export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext" | "customtrain" | "queue";
 
 	export const ParamDeepSections = {
 		AD: "ad",
@@ -6283,15 +6283,41 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Message sent when someone uses the "combo" feature on Twitch
 	 */
-	export interface MessageTwitchComboData extends AbstractTwitchatMessage {
-		type: "twitch_combo";
-		/**
-		 * Number of bits used to trigger the combo
-		 */
+export interface MessageTwitchComboData extends AbstractTwitchatMessage {
+                type: "twitch_combo";
+                /**
+                 * Number of bits used to trigger the combo
+                 */
         bits: number;
-		/**
-		 * User that made the combo
-		 */
+                /**
+                 * User that made the combo
+                 */
         user: TwitchatUser;
-	}
+        }
+
+        /**
+         * Represents an entry in a viewer queue
+         */
+        export interface QueueEntry {
+                user:TwitchatUser;
+                joined_at:number;
+        }
+
+        /**
+         * Represents a viewer queue configuration
+         */
+        export interface QueueData {
+                id:string;
+                enabled:boolean;
+                title:string;
+                placeholderKey:string;
+               maxPerUser:number;
+               maxEntries:number;
+               paused:boolean;
+                entries:QueueEntry[];
+                inProgress?:QueueEntry[];
+                overlayParams?:{
+                        showInProgress:boolean;
+                }
+        }
 }
