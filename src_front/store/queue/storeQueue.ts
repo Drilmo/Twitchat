@@ -16,29 +16,59 @@ const getDefaultOverlayParams = ():NonNullable<TwitchatDataTypes.QueueData["over
         titleFont:"Roboto",
         titleSize:30,
         titleColor:"#ffffff",
+        titleBgColor:"#000000",
+        titleBgOpacity:80,
         subTitleFont:"Roboto",
         subTitleSize:30,
         subTitleColor:"#ffffff",
+        subTitleBgColor:"#000000",
+        subTitleBgOpacity:80,
         queueLabelFont:"Roboto",
         queueLabelSize:30,
         queueLabelColor:"#ffffff",
+        queueBgColor:"#000000",
+        queueBgOpacity:80,
         queueEntryFont:"Roboto",
         queueEntrySize:30,
         queueEntryColor:"#ffffff",
+        queueEntryBgColor:"#000000",
+        queueEntryBgOpacity:0,
         progressEntryFont:"Roboto",
         progressEntrySize:30,
         progressEntryColor:"#ffffff",
+        progressBgColor:"#000000",
+        progressBgOpacity:80,
         stateFont:"Roboto",
         stateSize:30,
         stateColor:"#ffffff",
+        stateBgColor:"#000000",
+        stateBgOpacity:80,
+        statePausedFont:"Roboto",
+        statePausedSize:30,
+        statePausedColor:"#ffffff",
+        statePausedBgColor:"#000000",
+        statePausedBgOpacity:80,
+        stateRunningFont:"Roboto",
+        stateRunningSize:30,
+        stateRunningColor:"#ffffff",
+        stateRunningBgColor:"#000000",
+        stateRunningBgOpacity:80,
         title:StoreProxy.i18n.t('queue.default_title') as string,
         subTitle:"",
         queueLabel:StoreProxy.i18n.t('queue.default_title') as string,
         progressLabel:StoreProxy.i18n.t('overlay.queue.param_progressLabel') as string,
+        showEmptyQueueMessage:true,
         emptyQueueMessage:StoreProxy.i18n.t('overlay.queue.empty') as string,
+        emptyQueueFont:"Roboto",
+        emptyQueueSize:30,
+        emptyQueueColor:"#ffffff",
+        emptyQueueBgColor:"#000000",
+        emptyQueueBgOpacity:0,
         statePaused:StoreProxy.i18n.t('overlay.queue.state_paused') as string,
         stateRunning:StoreProxy.i18n.t('overlay.queue.state_running') as string,
+        showPausedState:true,
         showRunningState:true,
+        sectionsOrder:['title', 'subtitle', 'state', 'queue', 'progress'],
 });
 
 export const storeQueue = defineStore('queue', {
@@ -75,26 +105,59 @@ export const storeQueue = defineStore('queue', {
                                                 q.overlayParams.titleFont ??= def.titleFont;
                                                 q.overlayParams.titleSize ??= def.titleSize;
                                                 q.overlayParams.titleColor ??= def.titleColor;
+                                                q.overlayParams.titleBgColor ??= def.titleBgColor;
+                                                q.overlayParams.titleBgOpacity ??= def.titleBgOpacity;
                                                 q.overlayParams.subTitleFont ??= def.subTitleFont;
                                                 q.overlayParams.subTitleSize ??= def.subTitleSize;
                                                 q.overlayParams.subTitleColor ??= def.subTitleColor;
+                                                q.overlayParams.subTitleBgColor ??= def.subTitleBgColor;
+                                                q.overlayParams.subTitleBgOpacity ??= def.subTitleBgOpacity;
                                                 q.overlayParams.queueLabelFont ??= def.queueLabelFont;
                                                 q.overlayParams.queueLabelSize ??= def.queueLabelSize;
                                                 q.overlayParams.queueLabelColor ??= def.queueLabelColor;
+                                                q.overlayParams.queueBgColor ??= def.queueBgColor;
+                                                q.overlayParams.queueBgOpacity ??= def.queueBgOpacity;
                                                 q.overlayParams.queueEntryFont ??= def.queueEntryFont;
                                                 q.overlayParams.queueEntrySize ??= def.queueEntrySize;
                                                 q.overlayParams.queueEntryColor ??= def.queueEntryColor;
+                                                q.overlayParams.queueEntryBgColor ??= def.queueEntryBgColor;
+                                                q.overlayParams.queueEntryBgOpacity ??= def.queueEntryBgOpacity;
                                                 q.overlayParams.progressEntryFont ??= def.progressEntryFont;
                                                 q.overlayParams.progressEntrySize ??= def.progressEntrySize;
                                                 q.overlayParams.progressEntryColor ??= def.progressEntryColor;
+                                                q.overlayParams.progressBgColor ??= def.progressBgColor;
+                                                q.overlayParams.progressBgOpacity ??= def.progressBgOpacity;
                                                 q.overlayParams.stateFont ??= def.stateFont;
                                                 q.overlayParams.stateSize ??= def.stateSize;
                                                 q.overlayParams.stateColor ??= def.stateColor;
+                                                q.overlayParams.stateBgColor ??= def.stateBgColor;
+                                                q.overlayParams.stateBgOpacity ??= def.stateBgOpacity;
                                                 q.overlayParams.title ??= def.title;
                                                 q.overlayParams.subTitle ??= def.subTitle;
                                                 q.overlayParams.queueLabel ??= def.queueLabel;
                                                 q.overlayParams.progressLabel ??= def.progressLabel;
+                                                q.overlayParams.showEmptyQueueMessage ??= def.showEmptyQueueMessage;
                                                 q.overlayParams.emptyQueueMessage ??= def.emptyQueueMessage;
+                                                q.overlayParams.emptyQueueFont ??= def.emptyQueueFont;
+                                                q.overlayParams.emptyQueueSize ??= def.emptyQueueSize;
+                                                q.overlayParams.emptyQueueColor ??= def.emptyQueueColor;
+                                                q.overlayParams.emptyQueueBgColor ??= def.emptyQueueBgColor;
+                                                q.overlayParams.emptyQueueBgOpacity ??= def.emptyQueueBgOpacity;
+                                                q.overlayParams.statePaused ??= def.statePaused;
+                                                q.overlayParams.stateRunning ??= def.stateRunning;
+                                                q.overlayParams.showPausedState ??= def.showPausedState;
+                                                q.overlayParams.showRunningState ??= def.showRunningState;
+                                                q.overlayParams.statePausedFont ??= def.statePausedFont;
+                                                q.overlayParams.statePausedSize ??= def.statePausedSize;
+                                                q.overlayParams.statePausedColor ??= def.statePausedColor;
+                                                q.overlayParams.statePausedBgColor ??= def.statePausedBgColor;
+                                                q.overlayParams.statePausedBgOpacity ??= def.statePausedBgOpacity;
+                                                q.overlayParams.stateRunningFont ??= def.stateRunningFont;
+                                                q.overlayParams.stateRunningSize ??= def.stateRunningSize;
+                                                q.overlayParams.stateRunningColor ??= def.stateRunningColor;
+                                                q.overlayParams.stateRunningBgColor ??= def.stateRunningBgColor;
+                                                q.overlayParams.stateRunningBgOpacity ??= def.stateRunningBgOpacity;
+                                                q.overlayParams.sectionsOrder ??= def.sectionsOrder;
                                         }
                                 }
                         }else{
