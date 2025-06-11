@@ -75,9 +75,10 @@ export namespace TwitchatDataTypes {
 		AUTOMOD: "automod",
 		AD: "ad",
 		CONNECTIONS: "connexions",
-		PREMIUM: "premium",
-		TIMERS: "timers",
-	} as const;
+                PREMIUM: "premium",
+                TIMERS: "timers",
+                QUEUES: "queues",
+        } as const;
 	export type ParameterPagesStringType = typeof ParameterPages[keyof typeof ParameterPages];
 
 	/**
@@ -2742,6 +2743,10 @@ export namespace TwitchatDataTypes {
 		COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
 		OBS_PLAYBACK_STATE_UPDATE:"obs_playback_state_update",
 		COMMUNITY_CHALLENGE_CONTRIBUTION:"community_challenge_contribution",
+		QUEUE_JOIN:"queue_join",
+		QUEUE_LEAVE:"queue_leave",
+		QUEUE_MOVE_TO_PROGRESS:"queue_move_to_progress",
+		QUEUE_COMPLETE:"queue_complete",
 	} as const;
 
 	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
@@ -2867,6 +2872,10 @@ export namespace TwitchatDataTypes {
 		community_boost_complete:true,
 		obs_playback_state_update:false,
 		community_challenge_contribution:true,
+		queue_join:true,
+		queue_leave:true,
+		queue_move_to_progress:true,
+		queue_complete:true,
 	} as const satisfies Record<ChatMessageTypes["type"], boolean>;
 
 
@@ -3025,6 +3034,10 @@ export namespace TwitchatDataTypes {
 									| MessageCustomTrainFailData
 									| MessageStreamSocketActionData
 									| MessageTwitchComboData
+									| MessageQueueJoinData
+									| MessageQueueLeaveData
+									| MessageQueueMoveToProgressData
+									| MessageQueueCompleteData
 	;
 
 	/**
@@ -4656,6 +4669,86 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageChatHighlightCloseData extends AbstractTwitchatMessage {
 		type:"chat_highlight_close";
+	}
+
+	/**
+	 * Represents a queue join message
+	 */
+	export interface MessageQueueJoinData extends AbstractTwitchatMessage {
+		type:"queue_join";
+		/**
+		 * User that joined the queue
+		 */
+		user:TwitchatUser;
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+		/**
+		 * Position in the queue
+		 */
+		position:number;
+	}
+
+	/**
+	 * Represents a queue leave message
+	 */
+	export interface MessageQueueLeaveData extends AbstractTwitchatMessage {
+		type:"queue_leave";
+		/**
+		 * User that left the queue
+		 */
+		user:TwitchatUser;
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+	}
+
+	/**
+	 * Represents a queue move to progress message
+	 */
+	export interface MessageQueueMoveToProgressData extends AbstractTwitchatMessage {
+		type:"queue_move_to_progress";
+		/**
+		 * User that was moved to progress
+		 */
+		user:TwitchatUser;
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+	}
+
+	/**
+	 * Represents a queue complete message
+	 */
+	export interface MessageQueueCompleteData extends AbstractTwitchatMessage {
+		type:"queue_complete";
+		/**
+		 * User that completed their queue session
+		 */
+		user:TwitchatUser;
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
 	}
 
 	/**
@@ -6313,11 +6406,40 @@ export interface MessageTwitchComboData extends AbstractTwitchatMessage {
                 placeholderKey:string;
                maxPerUser:number;
                maxEntries:number;
+               inProgressEnabled:boolean;
                paused:boolean;
                 entries:QueueEntry[];
                 inProgress?:QueueEntry[];
                 overlayParams?:{
                         showInProgress:boolean;
+                        rotateDelay:number;
+                        position:ScreenPosition;
+                        titleFont:string;
+                        titleSize:number;
+                        titleColor:string;
+                        subTitleFont:string;
+                        subTitleSize:number;
+                        subTitleColor:string;
+                        queueLabelFont:string;
+                        queueLabelSize:number;
+                        queueLabelColor:string;
+                        queueEntryFont:string;
+                        queueEntrySize:number;
+                        queueEntryColor:string;
+                        progressEntryFont:string;
+                        progressEntrySize:number;
+                        progressEntryColor:string;
+                        stateFont:string;
+                        stateSize:number;
+                        stateColor:string;
+                        title:string;
+                        subTitle:string;
+                        queueLabel:string;
+                        progressLabel:string;
+                        emptyQueueMessage:string;
+                        statePaused:string;
+                        stateRunning:string;
+                        showRunningState:boolean;
                 }
-        }
+       }
 }

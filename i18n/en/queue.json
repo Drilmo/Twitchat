@@ -3,11 +3,31 @@
         "default_title":"Queue",
         "addBt":"Create queue",
         "overlayBt":"Configure overlay",
+        "header":"Create viewer queues, manage them from {LINK_OVERLAY}.",
+        "header_link_overlay":"the overlay",
+        "premium_limit":"You created the maximum number of {MAX} queues.\nBecome premium to create up to {MAX_PREMIUM} queues.\nOr disable / delete some queues to create new ones.",
+        "pauseBt":"Pause",
+        "resumeBt":"Resume",
         "form":{
             "param_placeholder":"Placeholder name",
+            "param_placeholder_tt":"Name used in placeholders to display queue information. Example: {QUEUE_1_COUNT} will display the number of viewers in the queue.",
             "param_max_per_user":"Max entries per user",
+            "param_max_per_user_tt":"Maximum number of times a user can join the queue.",
             "param_max_entries":"Max viewers",
-            "param_show_in_progress":"Show in progress list"
+            "param_max_entries_tt":"Maximum number of viewers allowed in the queue. Set to 0 for unlimited.",
+            "param_enable_in_progress":"Enable in progress list",
+            "param_enable_in_progress_tt":"Enable a separate list for viewers currently being processed. Useful for tracking who's currently playing/participating.",
+            "param_show_in_progress":"Show in progress list",
+            "param_rotate_delay":"Rotation delay (s)",
+            "list_entries":"Viewers in queue",
+            "list_entries_tt":"List of viewers currently waiting in the queue.",
+            "list_in_progress":"Viewers in progress",
+            "list_in_progress_tt":"List of viewers currently being processed (playing, participating, etc.).",
+            "move_up_tt":"Move up in queue",
+            "move_down_tt":"Move down in queue",
+            "move_to_progress_tt":"Move to in progress",
+            "move_back_to_queue_tt":"Move back to queue",
+            "remove_viewer_tt":"Remove from queue"
         }
     }
 }

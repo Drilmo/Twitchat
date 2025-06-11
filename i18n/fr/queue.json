@@ -3,11 +3,31 @@
         "default_title":"File d'attente",
         "addBt":"Créer une file",
         "overlayBt":"Configurer l'overlay",
+        "header":"Créez des files d'attente, gérez-les depuis {LINK_OVERLAY}.",
+        "header_link_overlay":"l'overlay",
+        "premium_limit":"Vous avez créé le nombre maximum de {MAX} files d'attente.\nDevenez premium pour en créer jusqu'à {MAX_PREMIUM}.\nOu désactivez / supprimez des files pour en créer de nouvelles.",
+        "pauseBt":"Pause",
+        "resumeBt":"Reprendre",
         "form":{
             "param_placeholder":"Nom du placeholder",
+            "param_placeholder_tt":"Nom utilisé dans les placeholders pour afficher les informations de la file. Exemple : {QUEUE_1_COUNT} affichera le nombre de viewers dans la file.",
             "param_max_per_user":"Entrées maxi par utilisateur",
+            "param_max_per_user_tt":"Nombre maximum de fois qu'un utilisateur peut rejoindre la file.",
             "param_max_entries":"Nombre maximum de viewers",
-            "param_show_in_progress":"Afficher la liste en cours"
+            "param_max_entries_tt":"Nombre maximum de viewers autorisés dans la file. Mettre à 0 pour illimité.",
+            "param_enable_in_progress":"Activer la liste en cours",
+            "param_enable_in_progress_tt":"Active une liste séparée pour les viewers en cours de traitement. Utile pour suivre qui joue/participe actuellement.",
+            "param_show_in_progress":"Afficher la liste en cours",
+            "param_rotate_delay":"Délai de rotation (s)",
+            "list_entries":"Viewers dans la file",
+            "list_entries_tt":"Liste des viewers actuellement en attente dans la file.",
+            "list_in_progress":"Viewers en cours",
+            "list_in_progress_tt":"Liste des viewers en cours de traitement (en train de jouer, participer, etc.).",
+            "move_up_tt":"Monter dans la file",
+            "move_down_tt":"Descendre dans la file",
+            "move_to_progress_tt":"Déplacer vers en cours",
+            "move_back_to_queue_tt":"Remettre dans la file",
+            "remove_viewer_tt":"Retirer de la file"
         }
     }
 }

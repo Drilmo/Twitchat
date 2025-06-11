@@ -44,7 +44,7 @@ export default class StoreProxy {
 	public static raffle:IRaffleState & IRaffleGetters & IRaffleActions & {$state:IRaffleState, $reset:()=>void};
 	public static stream:IStreamState & IStreamGetters & IStreamActions & {$state:IStreamState, $reset:()=>void};
         public static timers:ITimerState & ITimerGetters & ITimerActions & {$state:ITimerState, $reset:()=>void};
-        public static queues:IQueueState & IQueueGetters & IQueueActions & {$state:IQueueState, $reset:()=>void};
+        public static queue:IQueueState & IQueueGetters & IQueueActions & {$state:IQueueState, $reset:()=>void};
         public static triggers:ITriggersState & ITriggersGetters & ITriggersActions & {$state:ITriggersState, $reset:()=>void};
 	public static tts:ITTSState & ITTSGetters & ITTSActions & {$state:ITTSState , $reset:()=>void};
 	public static users:IUsersState & IUsersGetters & IUsersActions & {$state:IUsersState, $reset:()=>void};
@@ -1594,6 +1594,8 @@ export interface IQueueActions {
         deleteQueue(id:string):void;
         addViewer(id:string, user:TwitchatDataTypes.TwitchatUser):void;
         removeViewer(id:string, userId:string):void;
+        removeViewerFromQueue(id:string, userId:string):void;
+        removeViewerFromInProgress(id:string, userId:string):void;
         moveToInProgress(id:string, userId:string):void;
         pauseQueue(id:string):void;
         resumeQueue(id:string):void;

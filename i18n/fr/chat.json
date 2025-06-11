@@ -597,6 +597,21 @@
 		},
 		"stream_socket": {
 			"action": "{USER} a utilisé l'action StreamSocket \"{ACTION}\""
+		},
+		"commands": {
+			"join_usage": "Usage : /join {nom ou placeholder de la file}",
+			"leave_usage": "Usage : /leave {nom ou placeholder de la file}",
+			"queue_not_found": "File d'attente \"{queue}\" introuvable.",
+			"queue_unavailable": "La file d'attente \"{queue}\" n'est pas disponible actuellement.",
+			"already_in_queue": "Vous êtes déjà dans \"{queue}\" à la position {position}.",
+			"already_in_progress": "Vous êtes déjà en cours dans \"{queue}\".",
+			"joined_queue": "Vous avez rejoint \"{queue}\" à la position {position}.",
+			"left_queue": "Vous avez quitté la file \"{queue}\".",
+			"no_queues": "Aucune file d'attente n'est disponible actuellement.",
+			"available_queues": "Files d'attente disponibles :",
+			"in_progress": "En cours",
+			"position": "Position {position}/{total}",
+			"not_in_queue": "Pas dans la file"
 		}
 	}
 }

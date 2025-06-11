@@ -597,6 +597,21 @@
 		},
 		"stream_socket": {
 			"action": "{USER} used StreamSocket action \"{ACTION}\""
+		},
+		"commands": {
+			"join_usage": "Usage: /join {queue name or placeholder}",
+			"leave_usage": "Usage: /leave {queue name or placeholder}",
+			"queue_not_found": "Queue \"{queue}\" not found.",
+			"queue_unavailable": "Queue \"{queue}\" is currently unavailable.",
+			"already_in_queue": "You are already in \"{queue}\" at position {position}.",
+			"already_in_progress": "You are already in progress in \"{queue}\".",
+			"joined_queue": "You joined \"{queue}\" at position {position}.",
+			"left_queue": "You left the queue \"{queue}\".",
+			"no_queues": "No queues are currently available.",
+			"available_queues": "Available queues:",
+			"in_progress": "In progress",
+			"position": "Position {position}/{total}",
+			"not_in_queue": "Not in queue"
 		}
 	}
 }

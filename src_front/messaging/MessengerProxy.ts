@@ -407,6 +407,233 @@ export default class MessengerProxy {
 			return true
 		}else
 
+		if(cmd == "/join") {
+			//Join a queue
+			const queueRef = params.join(" ").trim();
+			if(!queueRef) {
+				StoreProxy.chat.addMessage({
+					id: Utils.getUUID(),
+					date: Date.now(),
+					channel_id: channel.id,
+					user: StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.login),
+					answers: [],
+					is_short: false,
+					message: StoreProxy.i18n.t("chat.commands.join_usage"),
+					message_html: StoreProxy.i18n.t("chat.commands.join_usage"),
+					message_chunks: [],
+					message_size: 0,
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				});
+				return true;
+			}
+			
+			const queue = StoreProxy.queue.queueList.find(q => 
+				q.title.toLowerCase() === queueRef.toLowerCase() || 
+				q.placeholderKey.toLowerCase() === queueRef.toLowerCase()
+			);
+			
+			if(!queue) {
+				StoreProxy.chat.addMessage({
+					id: Utils.getUUID(),
+					date: Date.now(),
+					channel_id: channel.id,
+					user: StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.login),
+					answers: [],
+					is_short: false,
+					message: StoreProxy.i18n.t("chat.commands.queue_not_found", {queue: queueRef}),
+					message_html: StoreProxy.i18n.t("chat.commands.queue_not_found", {queue: queueRef}),
+					message_chunks: [],
+					message_size: 0,
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				});
+				return true;
+			}
+			
+			if(!queue.enabled || queue.paused) {
+				StoreProxy.chat.addMessage({
+					id: Utils.getUUID(),
+					date: Date.now(),
+					channel_id: channel.id,
+					user: StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.login),
+					answers: [],
+					is_short: false,
+					message: StoreProxy.i18n.t("chat.commands.queue_unavailable", {queue: queue.title}),
+					message_html: StoreProxy.i18n.t("chat.commands.queue_unavailable", {queue: queue.title}),
+					message_chunks: [],
+					message_size: 0,
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				});
+				return true;
+			}
+			
+			//Add current user to queue
+			if(message.user.id && message.user.id !== channel.id) {
+				const existingEntry = queue.entries.find(e => e.user.id === message.user.id);
+				const inProgress = queue.inProgress?.find(e => e.user.id === message.user.id);
+				
+				if(existingEntry || inProgress) {
+					const position = existingEntry ? queue.entries.indexOf(existingEntry) + 1 : 0;
+					StoreProxy.chat.addMessage({
+						id: Utils.getUUID(),
+						date: Date.now(),
+						channel_id: channel.id,
+						user: StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.login),
+						answers: [],
+						is_short: false,
+						message: inProgress ? 
+							StoreProxy.i18n.t("chat.commands.already_in_progress", {queue: queue.title}) :
+							StoreProxy.i18n.t("chat.commands.already_in_queue", {queue: queue.title, position}),
+						message_html: inProgress ? 
+							StoreProxy.i18n.t("chat.commands.already_in_progress", {queue: queue.title}) :
+							StoreProxy.i18n.t("chat.commands.already_in_queue", {queue: queue.title, position}),
+						message_chunks: [],
+						message_size: 0,
+						platform: "twitchat",
+						type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+					});
+				} else {
+					StoreProxy.queue.addViewer(queue.id, message.user);
+					const position = queue.entries.length;
+					StoreProxy.chat.addMessage({
+						id: Utils.getUUID(),
+						date: Date.now(),
+						channel_id: channel.id,
+						user: StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.login),
+						answers: [],
+						is_short: false,
+						message: StoreProxy.i18n.t("chat.commands.joined_queue", {queue: queue.title, position}),
+						message_html: StoreProxy.i18n.t("chat.commands.joined_queue", {queue: queue.title, position}),
+						message_chunks: [],
+						message_size: 0,
+						platform: "twitchat",
+						type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+					});
+				}
+			}
+			return true
+		}else
+
+		if(cmd == "/leave") {
+			//Leave a queue
+			const queueRef = params.join(" ").trim();
+			if(!queueRef) {
+				StoreProxy.chat.addMessage({
+					id: Utils.getUUID(),
+					date: Date.now(),
+					channel_id: channel.id,
+					user: StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.login),
+					answers: [],
+					is_short: false,
+					message: StoreProxy.i18n.t("chat.commands.leave_usage"),
+					message_html: StoreProxy.i18n.t("chat.commands.leave_usage"),
+					message_chunks: [],
+					message_size: 0,
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				});
+				return true;
+			}
+			
+			const queue = StoreProxy.queue.queueList.find(q => 
+				q.title.toLowerCase() === queueRef.toLowerCase() || 
+				q.placeholderKey.toLowerCase() === queueRef.toLowerCase()
+			);
+			
+			if(!queue) {
+				StoreProxy.chat.addMessage({
+					id: Utils.getUUID(),
+					date: Date.now(),
+					channel_id: channel.id,
+					user: StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.login),
+					answers: [],
+					is_short: false,
+					message: StoreProxy.i18n.t("chat.commands.queue_not_found", {queue: queueRef}),
+					message_html: StoreProxy.i18n.t("chat.commands.queue_not_found", {queue: queueRef}),
+					message_chunks: [],
+					message_size: 0,
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				});
+				return true;
+			}
+			
+			if(message.user.id && message.user.id !== channel.id) {
+				StoreProxy.queue.removeViewer(queue.id, message.user.id);
+				StoreProxy.chat.addMessage({
+					id: Utils.getUUID(),
+					date: Date.now(),
+					channel_id: channel.id,
+					user: StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.login),
+					answers: [],
+					is_short: false,
+					message: StoreProxy.i18n.t("chat.commands.left_queue", {queue: queue.title}),
+					message_html: StoreProxy.i18n.t("chat.commands.left_queue", {queue: queue.title}),
+					message_chunks: [],
+					message_size: 0,
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				});
+			}
+			return true
+		}else
+
+		if(cmd == "/queue") {
+			//List queues and user positions
+			const enabledQueues = StoreProxy.queue.queueList.filter(q => q.enabled && !q.paused);
+			
+			if(enabledQueues.length === 0) {
+				StoreProxy.chat.addMessage({
+					id: Utils.getUUID(),
+					date: Date.now(),
+					channel_id: channel.id,
+					user: StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.login),
+					answers: [],
+					is_short: false,
+					message: StoreProxy.i18n.t("chat.commands.no_queues"),
+					message_html: StoreProxy.i18n.t("chat.commands.no_queues"),
+					message_chunks: [],
+					message_size: 0,
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				});
+				return true;
+			}
+			
+			let messageText = StoreProxy.i18n.t("chat.commands.available_queues") + "\n";
+			enabledQueues.forEach(queue => {
+				const userEntry = queue.entries.find(e => e.user.id === message.user.id);
+				const userInProgress = queue.inProgress?.find(e => e.user.id === message.user.id);
+				const position = userEntry ? queue.entries.indexOf(userEntry) + 1 : 0;
+				
+				if(userInProgress) {
+					messageText += `• ${queue.title} - ${StoreProxy.i18n.t("chat.commands.in_progress")}\n`;
+				} else if(userEntry) {
+					messageText += `• ${queue.title} - ${StoreProxy.i18n.t("chat.commands.position", {position, total: queue.entries.length})}\n`;
+				} else {
+					messageText += `• ${queue.title} - ${StoreProxy.i18n.t("chat.commands.not_in_queue")}\n`;
+				}
+			});
+			
+			StoreProxy.chat.addMessage({
+				id: Utils.getUUID(),
+				date: Date.now(),
+				channel_id: channel.id,
+				user: StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.login),
+				answers: [],
+				is_short: false,
+				message: messageText,
+				message_html: messageText.replace(/\n/g, "<br>"),
+				message_chunks: [],
+				message_size: 0,
+				platform: "twitchat",
+				type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+			});
+			return true
+		}else
+
 		if(cmd == "/search") {
 			//Search a for messages
 			const search = params.join(" ");

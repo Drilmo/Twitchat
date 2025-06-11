@@ -2643,7 +2643,8 @@ const UserDataSchema = {
                                                         title:{type:"string"},
                                                         placeholderKey:{type:"string", maxLength:50},
                                                         maxPerUser:{type:"number", minimum:1, maximum:100},
-                                                        maxEntries:{type:"number", minimum:1, maximum:100},
+                                                        maxEntries:{type:"number", minimum:0, maximum:100},
+                                                        inProgressEnabled:{type:"boolean"},
                                                         paused:{type:"boolean"},
                                                         entries:{
                                                                 type:"array",
@@ -2676,12 +2677,36 @@ const UserDataSchema = {
                                                                 type:"object",
                                                                 additionalProperties:false,
                                                                 properties:{
-                                                                        showInProgress:{type:"boolean"}
+                                                                        showInProgress:{type:"boolean"},
+                                                                        rotateDelay:{type:"number", minimum:0, maximum:60},
+                                                                        position:{type:"string", enum:["tl","t","tr","l","m","r","bl","b","br"]},
+                                                                        titleFont:{type:"string", maxLength:50},
+                                                                        titleSize:{type:"number", minimum:10, maximum:150},
+                                                                        titleColor:{type:"string", maxLength:10},
+                                                                        subTitleFont:{type:"string", maxLength:50},
+                                                                        subTitleSize:{type:"number", minimum:10, maximum:150},
+                                                                        subTitleColor:{type:"string", maxLength:10},
+                                                                        queueLabelFont:{type:"string", maxLength:50},
+                                                                        queueLabelSize:{type:"number", minimum:10, maximum:150},
+                                                                        queueLabelColor:{type:"string", maxLength:10},
+                                                                        queueEntryFont:{type:"string", maxLength:50},
+                                                                        queueEntrySize:{type:"number", minimum:10, maximum:150},
+                                                                        queueEntryColor:{type:"string", maxLength:10},
+                                                                        progressEntryFont:{type:"string", maxLength:50},
+                                                                        progressEntrySize:{type:"number", minimum:10, maximum:150},
+                                                                        progressEntryColor:{type:"string", maxLength:10},
+                                                                        stateFont:{type:"string", maxLength:50},
+                                                                        stateSize:{type:"number", minimum:10, maximum:150},
+                                                                        stateColor:{type:"string", maxLength:10},
+                                                                        title:{type:"string", maxLength:50},
+                                                                        subTitle:{type:"string", maxLength:50},
+                                                                        queueLabel:{type:"string", maxLength:50},
+                                                                        progressLabel:{type:"string", maxLength:50}
                                                                 }
                                                         }
-                                                }
-                                        }
-                                },
+                                               }
+                                       }
+                               },
                         }
                 },
 			}

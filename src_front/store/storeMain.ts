@@ -720,7 +720,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.users.populateData();
                         StoreProxy.sammi.populateData();
                         StoreProxy.timers.populateData();
-                        StoreProxy.queues.populateData();
+                        StoreProxy.queue.populateData();
                         StoreProxy.raffle.populateData();
 			StoreProxy.labels.populateData();
 			StoreProxy.stream.populateData();

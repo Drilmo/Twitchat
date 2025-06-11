@@ -651,7 +651,7 @@
 				"message": "Are you sure you want to delete this entry?"
 			}
 		},
-		"customTrain": {
+                "customTrain": {
 			"header": "Create custom hype trains linked to tips from external platforms",
 			"add_bt": "Create custom train",
 			"default_title":"Hype Train",
@@ -699,7 +699,55 @@
 			"param_successLabel_summary": "Level {'{'}LEVEL{'}'} reached at {'{'}PERCENT{'}'}%",
 			"param_recordLabel_default": "🏆 New all time record 🏆",
 			"param_platforms": "Chose tip platforms accepted for this train",
-			"allTimeRecord_title":"All time record on the {DATE}, level {LEVEL} at {PERCENT} with {AMOUNT}"
-		}
-	}
+                        "allTimeRecord_title":"All time record on the {DATE}, level {LEVEL} at {PERCENT} with {AMOUNT}"
+                },
+                "queue": {
+                        "head": "Show viewer queues",
+                        "addBt": "@:queue.addBt",
+                        "default_title": "@:queue.default_title",
+                        "createQueue_bt": "Edit queues",
+                        "param_placeholder":"@:queue.form.param_placeholder",
+                        "param_max_per_user":"@:queue.form.param_max_per_user",
+                        "param_max_entries":"@:queue.form.param_max_entries",
+                        "param_enable_in_progress":"@:queue.form.param_enable_in_progress",
+                        "param_show_in_progress":"@:queue.form.param_show_in_progress",
+                        "param_rotate_delay":"@:queue.form.param_rotate_delay",
+                        "param_title":"Title",
+                        "param_subTitle":"Subtitle",
+                        "param_queueLabel":"Queue name",
+                        "param_progressLabel":"In progress name",
+                        "param_titleFont":"Title font",
+                        "param_titleSize":"Title size",
+                        "param_titleColor":"Title color",
+                        "param_subTitleFont":"Subtitle font",
+                        "param_subTitleSize":"Subtitle size",
+                        "param_subTitleColor":"Subtitle color",
+                        "param_queueLabelFont":"Queue name font",
+                        "param_queueLabelSize":"Queue name size",
+                        "param_queueLabelColor":"Queue name color",
+                        "param_queueEntryFont":"Queue entry font",
+                        "param_queueEntrySize":"Queue entry size",
+                        "param_queueEntryColor":"Queue entry color",
+                        "param_progressEntryFont":"In progress entry font",
+                        "param_progressEntrySize":"In progress entry size",
+                        "param_progressEntryColor":"In progress entry color",
+                        "param_stateFont":"State font",
+                        "param_stateSize":"State size",
+                        "param_stateColor":"State color",
+                        "param_emptyQueueMessage":"Empty queue message",
+                        "param_statePaused":"Paused message",
+                        "param_stateRunning":"Active message", 
+                        "param_showRunningState":"Show active state",
+                        "state_paused":"Paused",
+                        "state_running":"Active",
+                        "param_placement":"Position on screen",
+                        "list_entries":"@:queue.form.list_entries",
+                        "list_in_progress":"@:queue.form.list_in_progress",
+                        "empty":"Queue is empty",
+                        "testAddBt":"Add viewer",
+                        "testMoveBt":"Move to in progress",
+                        "testRemoveBt":"Remove viewer",
+                        "testRemoveProgBt":"Remove from progress"
+                }
+        }
 }

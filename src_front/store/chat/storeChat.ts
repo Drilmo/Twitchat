@@ -215,6 +215,21 @@ export const storeChat = defineStore('chat', {
 				detailsKey:"params.commands.raffle",
 			},
 			{
+				id:"queuejoin",
+				cmd:"/join {queue}",
+				detailsKey:"params.commands.queuejoin",
+			},
+			{
+				id:"queueleave", 
+				cmd:"/leave {queue}",
+				detailsKey:"params.commands.queueleave",
+			},
+			{
+				id:"queuelist",
+				cmd:"/queue",
+				detailsKey:"params.commands.queuelist",
+			},
+			{
 				id:"bingoemote",
 				cmd:"/bingo emote",
 				detailsKey:"params.commands.bingo",

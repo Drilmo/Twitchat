@@ -258,7 +258,7 @@ function buildApp() {
 	StoreProxy.default.rewards = storeRewards();
         StoreProxy.default.stream = storeStream();
         StoreProxy.default.timers = storeTimer();
-        StoreProxy.default.queues = (storeQueue() as unknown) as StoreProxy.IQueueState & StoreProxy.IQueueGetters & StoreProxy.IQueueActions & { $state: StoreProxy.IQueueState; $reset:()=>void };
+        StoreProxy.default.queue = (storeQueue() as unknown) as StoreProxy.IQueueState & StoreProxy.IQueueGetters & StoreProxy.IQueueActions & { $state: StoreProxy.IQueueState; $reset:()=>void };
         //Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.triggers = (storeTriggers() as unknown) as StoreProxy.ITriggersState & StoreProxy.ITriggersGetters & StoreProxy.ITriggersActions & { $state: StoreProxy.ITriggersState; $reset:()=>void };
 	StoreProxy.default.tts = storeTTS();
