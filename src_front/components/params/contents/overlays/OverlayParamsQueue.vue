@@ -66,6 +66,14 @@
                             </ul>
                         </ToggleBlock>
                     </div>
+                    
+                    <div class="card-item dark simulate">
+                        <TTButton icon="test" @click="testAdd(entry)">{{ $t('overlay.queue.testAddBt') }}</TTButton>
+                        <TTButton icon="test" @click="testMove(entry)">{{ $t('overlay.queue.testMoveBt') }}</TTButton>
+                        <TTButton icon="test" @click="testRemove(entry)">{{ $t('overlay.queue.testRemoveBt') }}</TTButton>
+                        <TTButton icon="test" v-if="entry.overlayParams!.showInProgress" @click="testRemoveProg(entry)">{{ $t('overlay.queue.testRemoveProgBt') }}</TTButton>
+                    </div>
+                    
                     <div class="card-item">
                         <strong>{{ $t('overlay.queue.section_title') }}</strong>
                         <ParamItem :paramData="param_title[entry.id]" v-model="entry.overlayParams!.title" @change="save(entry)" />
@@ -210,12 +218,6 @@
                         <PlacementSelector v-model="entry.overlayParams!.position" @change="save(entry)" />
                     </div>
 
-                    <div class="testButtons">
-                        <TTButton icon="test" @click="testAdd(entry)">{{ $t('overlay.queue.testAddBt') }}</TTButton>
-                        <TTButton icon="test" @click="testMove(entry)">{{ $t('overlay.queue.testMoveBt') }}</TTButton>
-                        <TTButton icon="test" @click="testRemove(entry)">{{ $t('overlay.queue.testRemoveBt') }}</TTButton>
-                        <TTButton icon="test" v-if="entry.overlayParams!.showInProgress" @click="testRemoveProg(entry)">{{ $t('overlay.queue.testRemoveProgBt') }}</TTButton>
-                    </div>
             </ToggleBlock>
         </VueDraggable>
     </div>
@@ -331,32 +333,32 @@ class OverlayParamsQueue extends Vue {
             this.param_titleSize[id] = {type:'number', value:q.overlayParams?.titleSize ?? 30, labelKey:'overlay.queue.param_titleSize', icon:'fontSize', min:10, max:150};
             this.param_titleColor[id] = {type:'color', value:q.overlayParams?.titleColor ?? '#ffffff', labelKey:'overlay.queue.param_titleColor', icon:'color'};
             this.param_titleBgColor[id] = {type:'color', value:q.overlayParams?.titleBgColor ?? '#000000', labelKey:'overlay.queue.param_titleBgColor', icon:'color'};
-            this.param_titleBgOpacity[id] = {type:'number', value:q.overlayParams?.titleBgOpacity ?? 80, labelKey:'overlay.queue.param_titleBgOpacity', icon:'percent', min:0, max:100};
+            this.param_titleBgOpacity[id] = {type:'slider', value:q.overlayParams?.titleBgOpacity ?? 80, min:0, max:100, labelKey:'overlay.queue.param_bgOpacity', icon:'percent'};
             this.param_subTitleFont[id] = {type:'font', value:q.overlayParams?.subTitleFont ?? 'Roboto', labelKey:'overlay.queue.param_subTitleFont', icon:'font'};
             this.param_subTitleSize[id] = {type:'number', value:q.overlayParams?.subTitleSize ?? 30, labelKey:'overlay.queue.param_subTitleSize', icon:'fontSize', min:10, max:150};
             this.param_subTitleColor[id] = {type:'color', value:q.overlayParams?.subTitleColor ?? '#ffffff', labelKey:'overlay.queue.param_subTitleColor', icon:'color'};
             this.param_subTitleBgColor[id] = {type:'color', value:q.overlayParams?.subTitleBgColor ?? '#000000', labelKey:'overlay.queue.param_subTitleBgColor', icon:'color'};
-            this.param_subTitleBgOpacity[id] = {type:'number', value:q.overlayParams?.subTitleBgOpacity ?? 80, labelKey:'overlay.queue.param_subTitleBgOpacity', icon:'percent', min:0, max:100};
+            this.param_subTitleBgOpacity[id] = {type:'slider', value:q.overlayParams?.subTitleBgOpacity ?? 80, min:0, max:100, labelKey:'overlay.queue.param_bgOpacity', icon:'percent'};
             this.param_queueLabelFont[id] = {type:'font', value:q.overlayParams?.queueLabelFont ?? 'Roboto', labelKey:'overlay.queue.param_queueLabelFont', icon:'font'};
             this.param_queueLabelSize[id] = {type:'number', value:q.overlayParams?.queueLabelSize ?? 30, labelKey:'overlay.queue.param_queueLabelSize', icon:'fontSize', min:10, max:150};
             this.param_queueLabelColor[id] = {type:'color', value:q.overlayParams?.queueLabelColor ?? '#ffffff', labelKey:'overlay.queue.param_queueLabelColor', icon:'color'};
             this.param_queueBgColor[id] = {type:'color', value:q.overlayParams?.queueBgColor ?? '#000000', labelKey:'overlay.queue.param_queueBgColor', icon:'color'};
-            this.param_queueBgOpacity[id] = {type:'number', value:q.overlayParams?.queueBgOpacity ?? 80, labelKey:'overlay.queue.param_queueBgOpacity', icon:'percent', min:0, max:100};
+            this.param_queueBgOpacity[id] = {type:'slider', value:q.overlayParams?.queueBgOpacity ?? 80, min:0, max:100, labelKey:'overlay.queue.param_bgOpacity', icon:'percent'};
             this.param_queueEntryFont[id] = {type:'font', value:q.overlayParams?.queueEntryFont ?? 'Roboto', labelKey:'overlay.queue.param_queueEntryFont', icon:'font'};
             this.param_queueEntrySize[id] = {type:'number', value:q.overlayParams?.queueEntrySize ?? 30, labelKey:'overlay.queue.param_queueEntrySize', icon:'fontSize', min:10, max:150};
             this.param_queueEntryColor[id] = {type:'color', value:q.overlayParams?.queueEntryColor ?? '#ffffff', labelKey:'overlay.queue.param_queueEntryColor', icon:'color'};
             this.param_queueEntryBgColor[id] = {type:'color', value:q.overlayParams?.queueEntryBgColor ?? '#000000', labelKey:'overlay.queue.param_queueEntryBgColor', icon:'color'};
-            this.param_queueEntryBgOpacity[id] = {type:'number', value:q.overlayParams?.queueEntryBgOpacity ?? 0, labelKey:'overlay.queue.param_queueEntryBgOpacity', icon:'percent', min:0, max:100};
+            this.param_queueEntryBgOpacity[id] = {type:'slider', value:q.overlayParams?.queueEntryBgOpacity ?? 0, min:0, max:100, labelKey:'overlay.queue.param_bgOpacity', icon:'percent'};
             this.param_progressEntryFont[id] = {type:'font', value:q.overlayParams?.progressEntryFont ?? 'Roboto', labelKey:'overlay.queue.param_progressEntryFont', icon:'font'};
             this.param_progressEntrySize[id] = {type:'number', value:q.overlayParams?.progressEntrySize ?? 30, labelKey:'overlay.queue.param_progressEntrySize', icon:'fontSize', min:10, max:150};
             this.param_progressEntryColor[id] = {type:'color', value:q.overlayParams?.progressEntryColor ?? '#ffffff', labelKey:'overlay.queue.param_progressEntryColor', icon:'color'};
             this.param_progressBgColor[id] = {type:'color', value:q.overlayParams?.progressBgColor ?? '#000000', labelKey:'overlay.queue.param_progressBgColor', icon:'color'};
-            this.param_progressBgOpacity[id] = {type:'number', value:q.overlayParams?.progressBgOpacity ?? 80, labelKey:'overlay.queue.param_progressBgOpacity', icon:'percent', min:0, max:100};
+            this.param_progressBgOpacity[id] = {type:'slider', value:q.overlayParams?.progressBgOpacity ?? 80, min:0, max:100, labelKey:'overlay.queue.param_bgOpacity', icon:'percent'};
             this.param_stateFont[id] = {type:'font', value:q.overlayParams?.stateFont ?? 'Roboto', labelKey:'overlay.queue.param_stateFont', icon:'font'};
             this.param_stateSize[id] = {type:'number', value:q.overlayParams?.stateSize ?? 30, labelKey:'overlay.queue.param_stateSize', icon:'fontSize', min:10, max:150};
             this.param_stateColor[id] = {type:'color', value:q.overlayParams?.stateColor ?? '#ffffff', labelKey:'overlay.queue.param_stateColor', icon:'color'};
             this.param_stateBgColor[id] = {type:'color', value:q.overlayParams?.stateBgColor ?? '#000000', labelKey:'overlay.queue.param_stateBgColor', icon:'color'};
-            this.param_stateBgOpacity[id] = {type:'number', value:q.overlayParams?.stateBgOpacity ?? 80, labelKey:'overlay.queue.param_stateBgOpacity', icon:'percent', min:0, max:100};
+            this.param_stateBgOpacity[id] = {type:'slider', value:q.overlayParams?.stateBgOpacity ?? 80, min:0, max:100, labelKey:'overlay.queue.param_bgOpacity', icon:'percent'};
             this.param_title[id] = {type:'string', value:q.overlayParams?.title ?? '', maxLength:50, labelKey:'overlay.queue.param_title', icon:'text'};
             this.param_subTitle[id] = {type:'string', value:q.overlayParams?.subTitle ?? '', maxLength:50, labelKey:'overlay.queue.param_subTitle', icon:'text'};
             this.param_queueLabel[id] = {type:'string', value:q.overlayParams?.queueLabel ?? 'Queue', maxLength:50, labelKey:'overlay.queue.param_queueLabel', icon:'text'};
@@ -367,7 +369,7 @@ class OverlayParamsQueue extends Vue {
             this.param_emptyQueueSize[id] = {type:'number', value:q.overlayParams?.emptyQueueSize ?? 30, labelKey:'overlay.queue.param_emptyQueueSize', icon:'fontSize', min:10, max:150};
             this.param_emptyQueueColor[id] = {type:'color', value:q.overlayParams?.emptyQueueColor ?? '#ffffff', labelKey:'overlay.queue.param_emptyQueueColor', icon:'color'};
             this.param_emptyQueueBgColor[id] = {type:'color', value:q.overlayParams?.emptyQueueBgColor ?? '#000000', labelKey:'overlay.queue.param_emptyQueueBgColor', icon:'color'};
-            this.param_emptyQueueBgOpacity[id] = {type:'number', value:q.overlayParams?.emptyQueueBgOpacity ?? 0, labelKey:'overlay.queue.param_emptyQueueBgOpacity', icon:'percent', min:0, max:100};
+            this.param_emptyQueueBgOpacity[id] = {type:'slider', value:q.overlayParams?.emptyQueueBgOpacity ?? 0, min:0, max:100, labelKey:'overlay.queue.param_bgOpacity', icon:'percent'};
             this.param_statePaused[id] = {type:'string', value:q.overlayParams?.statePaused ?? '', maxLength:50, labelKey:'overlay.queue.param_statePaused', icon:'text'};
             this.param_stateRunning[id] = {type:'string', value:q.overlayParams?.stateRunning ?? '', maxLength:50, labelKey:'overlay.queue.param_stateRunning', icon:'text'};
             this.param_showPausedState[id] = {type:'boolean', value:q.overlayParams?.showPausedState !== false, labelKey:'overlay.queue.param_showPausedState', icon:'checkmark'};
@@ -376,12 +378,12 @@ class OverlayParamsQueue extends Vue {
             this.param_statePausedSize[id] = {type:'number', value:q.overlayParams?.statePausedSize ?? q.overlayParams?.stateSize ?? 30, labelKey:'overlay.queue.param_stateSize', icon:'fontSize', min:10, max:150};
             this.param_statePausedColor[id] = {type:'color', value:q.overlayParams?.statePausedColor ?? q.overlayParams?.stateColor ?? '#ffffff', labelKey:'overlay.queue.param_stateColor', icon:'color'};
             this.param_statePausedBgColor[id] = {type:'color', value:q.overlayParams?.statePausedBgColor ?? q.overlayParams?.stateBgColor ?? '#000000', labelKey:'overlay.queue.param_stateBgColor', icon:'color'};
-            this.param_statePausedBgOpacity[id] = {type:'number', value:q.overlayParams?.statePausedBgOpacity ?? q.overlayParams?.stateBgOpacity ?? 80, labelKey:'overlay.queue.param_stateBgOpacity', icon:'percent', min:0, max:100};
+            this.param_statePausedBgOpacity[id] = {type:'slider', value:q.overlayParams?.statePausedBgOpacity ?? q.overlayParams?.stateBgOpacity ?? 80, min:0, max:100, labelKey:'overlay.queue.param_bgOpacity', icon:'percent'};
             this.param_stateRunningFont[id] = {type:'font', value:q.overlayParams?.stateRunningFont ?? q.overlayParams?.stateFont ?? 'Roboto', labelKey:'overlay.queue.param_stateFont', icon:'font'};
             this.param_stateRunningSize[id] = {type:'number', value:q.overlayParams?.stateRunningSize ?? q.overlayParams?.stateSize ?? 30, labelKey:'overlay.queue.param_stateSize', icon:'fontSize', min:10, max:150};
             this.param_stateRunningColor[id] = {type:'color', value:q.overlayParams?.stateRunningColor ?? q.overlayParams?.stateColor ?? '#ffffff', labelKey:'overlay.queue.param_stateColor', icon:'color'};
             this.param_stateRunningBgColor[id] = {type:'color', value:q.overlayParams?.stateRunningBgColor ?? q.overlayParams?.stateBgColor ?? '#000000', labelKey:'overlay.queue.param_stateBgColor', icon:'color'};
-            this.param_stateRunningBgOpacity[id] = {type:'number', value:q.overlayParams?.stateRunningBgOpacity ?? q.overlayParams?.stateBgOpacity ?? 80, labelKey:'overlay.queue.param_stateBgOpacity', icon:'percent', min:0, max:100};
+            this.param_stateRunningBgOpacity[id] = {type:'slider', value:q.overlayParams?.stateRunningBgOpacity ?? q.overlayParams?.stateBgOpacity ?? 80, min:0, max:100, labelKey:'overlay.queue.param_bgOpacity', icon:'percent'};
             this.param_titleBgColor[id] = {type:'color', value:q.overlayParams?.titleBgColor ?? '#000000', labelKey:'overlay.queue.param_bgColor', icon:'color'};
             this.param_titleBgOpacity[id] = {type:'slider', value:q.overlayParams?.titleBgOpacity ?? 80, min:0, max:100, labelKey:'overlay.queue.param_bgOpacity', icon:'percent'};
             this.param_subTitleBgColor[id] = {type:'color', value:q.overlayParams?.subTitleBgColor ?? '#000000', labelKey:'overlay.queue.param_bgColor', icon:'color'};
@@ -414,7 +416,16 @@ class OverlayParamsQueue extends Vue {
 
     private getFakeUser(entry:TwitchatDataTypes.QueueData):TwitchatDataTypes.TwitchatUser {
         const id = 'queue_test_' + entry.id;
-        return this.$store.users.getUserFrom('twitch', this.$store.auth.twitch.user.id, id, 'TestUser', 'Test user');
+        const user = this.$store.users.getUserFrom('twitch', this.$store.auth.twitch.user.id, id, 'testuser', 'TestUser');
+        // Add a placeholder avatar for the test user
+        user.avatarPath = 'https://static-cdn.jtvnw.net/user-default-pictures-uv/41780b5a-def8-11e9-94d9-784f43822e80-profile_image-300x300.png';
+        // Ensure the test user is not marked as blocked or errored
+        user.is_blocked = false;
+        user.errored = false;
+        // Force proper display names to avoid API lookup issues
+        user.login = 'testuser';
+        user.displayNameOriginal = 'TestUser';
+        return user;
     }
 
     public testAdd(entry:TwitchatDataTypes.QueueData):void {
@@ -443,8 +454,14 @@ export default toNative(OverlayParamsQueue);
 <style scoped lang="less">
 .overlayparamsqueue{
     .queueList{display:flex;flex-direction:column;gap:.5em;}
-    .testButtons{display:flex;gap:.5em;margin-top:.5em;flex-wrap:wrap;}
     .placement{display:flex;flex-direction:column;align-items:center;}
+    
+    .simulate {
+        display: flex;
+        gap: .5em;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
     
     .install {
         gap: .5em;

@@ -36,10 +36,14 @@
                     :titleMaxLengh="50"
                     @update:title="save(entry)">
                     <template #left_actions>
-                        <ToggleButton v-model="entry.enabled" @change="save(entry)" />
+                        <Icon name="list" class="queueIcon" />
                     </template>
                     <template #right_actions>
-                        <TTButton icon="trash" alert @click.stop="$store.queue.deleteQueue(entry.id)" />
+                        <div class="actions">
+                            <ToggleButton v-model="entry.enabled" @change="save(entry)" @click.stop />
+                            <TTButton class="actionBt" @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
+                            <TTButton class="actionBt" alert icon="trash" @click.stop="$store.queue.deleteQueue(entry.id)" />
+                        </div>
                     </template>
                     <div class="content">
                         <div class="card-item placeholder" v-tooltip="$t('queue.form.param_placeholder_tt')">
@@ -59,10 +63,14 @@
                         </div>
                         <ToggleBlock class="entries" small :title="$t('queue.form.list_entries')" :open="false" v-tooltip="$t('queue.form.list_entries_tt')">
                             <div class="viewer" v-for="(v, index) in entry.entries" :key="v.user.id">
-                                <span class="name">{{ v.user.displayName }}</span>
+                                <div class="userInfo" @click="openUserCard(v.user)">
+                                    <Icon :name="v.user.platform" class="platformIcon" />
+                                    <img :src="v.user.avatarPath" class="avatar" v-if="v.user.avatarPath" />
+                                    <span class="name">{{ v.user.displayName }} ({{ v.user.id }})</span>
+                                </div>
                                 <div class="actions">
-                                    <TTButton icon="up" small v-if="index > 0" @click="moveUp(entry, index)" v-tooltip="$t('queue.form.move_up_tt')" />
-                                    <TTButton icon="down" small v-if="index < entry.entries.length - 1" @click="moveDown(entry, index)" v-tooltip="$t('queue.form.move_down_tt')" />
+                                    <TTButton icon="scrollUp" small v-if="index > 0" @click="moveUp(entry, index)" v-tooltip="$t('queue.form.move_up_tt')" />
+                                    <TTButton icon="scrollDown" small v-if="index < entry.entries.length - 1" @click="moveDown(entry, index)" v-tooltip="$t('queue.form.move_down_tt')" />
                                     <TTButton icon="right" small v-if="entry.inProgressEnabled" @click="moveToProgress(entry, v)" v-tooltip="$t('queue.form.move_to_progress_tt')" />
                                     <TTButton icon="trash" alert small @click="removeViewer(entry, v)" v-tooltip="$t('queue.form.remove_viewer_tt')" />
                                 </div>
@@ -70,7 +78,11 @@
                         </ToggleBlock>
                         <ToggleBlock class="inprogress" small v-if="entry.inProgressEnabled" :title="$t('queue.form.list_in_progress')" :open="false" v-tooltip="$t('queue.form.list_in_progress_tt')">
                             <div class="viewer" v-for="(v, index) in entry.inProgress" :key="v.user.id">
-                                <span class="name">{{ v.user.displayName }}</span>
+                                <div class="userInfo" @click="openUserCard(v.user)">
+                                    <Icon :name="v.user.platform" class="platformIcon" />
+                                    <img :src="v.user.avatarPath" class="avatar" v-if="v.user.avatarPath" />
+                                    <span class="name">{{ v.user.displayName }} ({{ v.user.id }})</span>
+                                </div>
                                 <div class="actions">
                                     <TTButton icon="left" small @click="moveBackToQueue(entry, v)" v-tooltip="$t('queue.form.move_back_to_queue_tt')" />
                                     <TTButton icon="trash" alert small @click="removeFromProgress(entry, v)" v-tooltip="$t('queue.form.remove_viewer_tt')" />
@@ -150,6 +162,7 @@ class ParamsQueue extends Vue {
         queue.entries[index] = queue.entries[index - 1];
         queue.entries[index - 1] = temp;
         this.$store.queue.saveData();
+        this.$store.queue.broadcastStates(queue.id);
     }
 
     public moveDown(queue:TwitchatDataTypes.QueueData, index:number):void {
@@ -158,6 +171,7 @@ class ParamsQueue extends Vue {
         queue.entries[index] = queue.entries[index + 1];
         queue.entries[index + 1] = temp;
         this.$store.queue.saveData();
+        this.$store.queue.broadcastStates(queue.id);
     }
 
     public moveToProgress(queue:TwitchatDataTypes.QueueData, entry:TwitchatDataTypes.QueueEntry):void {
@@ -205,6 +219,15 @@ class ParamsQueue extends Vue {
 
     public openPremium():void {
         this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+    }
+
+    public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
+        this.$store.users.openUserCard(user, this.$store.auth.twitch.user.id, user.platform);
+        
+        // Close the parameters panel completely if we're not in the QueueForm panel
+        if(!this.panelContext) {
+            this.$store.params.closeParameters();
+        }
     }
 
     public onNavigateBack():boolean { return false; }
@@ -260,9 +283,45 @@ export default toNative(ParamsQueue);
             background-color: var(--color-dark-fadest);
             border-radius: var(--border-radius);
             
-            .name {
+            .userInfo {
+                display: flex;
+                align-items: center;
+                gap: .5em;
                 flex-grow: 1;
                 margin-right: .5em;
+                overflow: hidden;
+                cursor: pointer;
+                transition: all .2s;
+                
+                &:hover {
+                    transform: translateX(2px);
+                }
+                
+                .platformIcon {
+                    width: 1.2em;
+                    height: 1.2em;
+                    flex-shrink: 0;
+                }
+                
+                .avatar {
+                    width: 1.5em;
+                    height: 1.5em;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    flex-shrink: 0;
+                }
+                
+                .name {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    text-decoration: none;
+                    color: inherit;
+                    
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
             }
             
             .actions {
@@ -271,6 +330,28 @@ export default toNative(ParamsQueue);
                 flex-shrink: 0;
             }
         }
+    }
+    .actions {
+        gap: .25em;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin: -.25em 0;
+        align-self: stretch;
+        .actionBt {
+            width: 1.5em;
+            min-width: 1.5em;
+            border-radius: 0;
+            align-self: stretch;
+            &:last-child {
+                margin-left: -.25em;//avoid gap between buttons without putting them in a dedicated container
+            }
+        }
+    }
+    
+    .queueIcon {
+        width: 1em;
+        z-index: 1;
     }
 }
 </style>

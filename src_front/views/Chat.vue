@@ -43,6 +43,7 @@
 			<TTUserList				class="popin" v-if="$store.params.currentModal == 'TTuserList'" @close="$store.params.closeModal()" />
 			<PinedMessages			class="popin" v-if="$store.params.currentModal == 'pins'" @close="$store.params.closeModal()" />
 			<TimerForm				class="popin" v-if="$store.params.currentModal == 'timer'" @close="$store.params.closeModal()" />
+			<QueueForm				class="popin" v-if="$store.params.currentModal == 'queue'" @close="$store.params.closeModal()" />
 			<TriggersLogs			class="popin" v-if="$store.params.currentModal == 'triggersLogs'" @close="$store.params.closeModal()" />
 			<HeatLogs				class="popin" v-if="$store.params.currentModal == 'heatLogs'" @close="$store.params.closeModal()" />
 			<ObsHeatLogs			class="popin" v-if="$store.params.currentModal == 'obsHeatLogs'" @close="$store.params.closeModal()" />
@@ -208,6 +209,7 @@ import Gngngn from '../components/chatform/Gngngn.vue';
 import PinedMessages from '../components/chatform/PinedMessages.vue';
 import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsListModal.vue';
 import TimerForm from '../components/timer/TimerForm.vue';
+import QueueForm from '../components/queue/QueueForm.vue';
 import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
@@ -231,6 +233,7 @@ import type { placements } from '@popperjs/core';
 		PollForm,
 		Changelog,
 		TimerForm,
+		QueueForm,
 		GreetThem,
 		BingoForm,
 		Extensions,

@@ -1,5 +1,9 @@
 {
     "queue":{
+        "panel": {
+            "title": "Queues",
+            "description": "Manage your queues and let your viewers join them."
+        },
         "default_title":"Queue",
         "addBt":"Create queue",
         "overlayBt":"Configure overlay",

@@ -1,5 +1,9 @@
 {
     "queue":{
+        "panel": {
+            "title": "Files d'attente",
+            "description": "Gérez vos files d'attente et laissez vos viewers s'y inscrire."
+        },
         "default_title":"File d'attente",
         "addBt":"Créer une file",
         "overlayBt":"Configurer l'overlay",

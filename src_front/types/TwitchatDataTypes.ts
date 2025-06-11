@@ -10,7 +10,7 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
 
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatPoll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams" | "groqHistory";
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatPoll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "queue" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams" | "groqHistory";
 
 	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
@@ -2600,7 +2600,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Defines the pinnable menu items
 	 */
-	type PinId = "poll" | "chatPoll" | "prediction" | "raffle" | "bingo" | "bingo_grid" | "qna" | "chatSugg" | "timer" | "streamInfo" | "extensions" | "clearChat" | "chatters" | "rewards";
+	type PinId = "poll" | "chatPoll" | "prediction" | "raffle" | "bingo" | "bingo_grid" | "qna" | "chatSugg" | "timer" | "queue" | "streamInfo" | "extensions" | "clearChat" | "chatters" | "rewards";
 	export const PinnableMenuItems:{id:PinId, isModal:boolean, icon:string, modalId:TwitchatDataTypes.ModalTypes|"", modelValueName:string, labelKey:string}[] = [
 		{id:"poll",			isModal:true,	icon:"poll", 			modalId:"poll",			modelValueName:"",	 labelKey:"cmdmenu.poll"},
 		{id:"chatPoll",		isModal:true,	icon:"chatPoll", 		modalId:"chatPoll",		modelValueName:"",	 labelKey:"cmdmenu.chatPoll"},
@@ -2611,6 +2611,7 @@ export namespace TwitchatDataTypes {
 		{id:"qna",			isModal:true,	icon:"qna", 			modalId:"qnaForm",		modelValueName:"",	 labelKey:"cmdmenu.qna"},
 		{id:"chatSugg",		isModal:true,	icon:"chatSugg", 		modalId:"chatsuggForm",	modelValueName:"",	 labelKey:"cmdmenu.suggestions"},
 		{id:"timer",		isModal:true,	icon:"timer", 			modalId:"timer",		modelValueName:"",	 labelKey:"cmdmenu.timer"},
+		{id:"queue",		isModal:true,	icon:"list", 			modalId:"queue",		modelValueName:"",	 labelKey:"cmdmenu.queue"},
 		{id:"streamInfo",	isModal:true,	icon:"info", 			modalId:"streamInfo",	modelValueName:"",	 labelKey:"cmdmenu.info"},
 		{id:"extensions",	isModal:true,	icon:"extension", 		modalId:"extensions",	modelValueName:"",	 labelKey:"cmdmenu.extensions"},
 		{id:"clearChat",	isModal:false,	icon:"clearChat", 		modalId:"", 			modelValueName:"",	 labelKey:"cmdmenu.chat"},
