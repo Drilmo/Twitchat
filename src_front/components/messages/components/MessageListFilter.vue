@@ -178,6 +178,7 @@
 					v-model="config.showGreetHere"
 					v-if="$store.params.chatColumnsConfig.length > 1" />
 
+
 				<div class="bgColor card-item">
 					<Icon name="color" />
 					<span class="title">{{ $t("chat.filters.background_color") }}</span>
@@ -306,6 +307,7 @@ export class MessageListFilter extends Vue {
 	public param_hideUsers:TwitchatDataTypes.ParameterData<string, string> = {type:"editablelist", value:"", labelKey:"chat.filters.hide_users", placeholderKey:"chat.filters.hide_users_placeholder", icon:"hide", maxLength:25, max:1000000};
 	public param_showPanelsHere:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_panels_here"};
 	public param_showGreetHere:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_greet_here"};
+	public param_showQueuesHere:TwitchatDataTypes.ParameterData<boolean>[] = [];
 	public param_backgroundColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:""};
 	public messageKeyToScope:{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchScopesString[]}|null = null;
 
@@ -1478,7 +1480,7 @@ export default toNative(MessageListFilter);
 			.showPanelsHere, .showGreetHere, .bgColor {
 				font-size: .9em;
 			}
-			.channelList, .bgColor {
+			.channelList, .bgColor, .queueList {
 				gap: .5em;
 				display: flex;
 				flex-direction: row;
@@ -1495,6 +1497,29 @@ export default toNative(MessageListFilter);
 					width: 1em;
 					height: 1em;
 					vertical-align: middle;
+				}
+			}
+			.queueList {
+				flex-direction: column;
+				.queues {
+					width: 100%;
+					display: flex;
+					flex-direction: column;
+					gap: .25em;
+					margin-top: .25em;
+					.queueItem {
+						margin-left: 1.5em;
+						font-size: .9em;
+						.queueToggle {
+							display: flex;
+							align-items: center;
+							justify-content: space-between;
+							gap: .5em;
+							.label {
+								flex-grow: 1;
+							}
+						}
+					}
 				}
 			}
 			.channelList {

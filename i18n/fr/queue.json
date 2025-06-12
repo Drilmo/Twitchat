@@ -32,6 +32,11 @@
             "move_to_progress_tt":"Déplacer vers en cours",
             "move_back_to_queue_tt":"Remettre dans la file",
             "remove_viewer_tt":"Retirer de la file"
-        }
+        },
+        "join":"Rejoindre la file",
+        "leave":"Quitter la file", 
+        "paused":"File en pause",
+        "position":"Votre position : {POS}",
+        "empty":"File vide"
     }
 }

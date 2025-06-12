@@ -95,6 +95,7 @@
 			"whispers_permissions": "Filtrer les personnes autorisées",
 			"show_panels_here": "Formulaires de sondage, prédiction, ...",
 			"show_greet_here": "Afficher \" @:greet.title \" dans cette colonne",
+			"queues": "Afficher les files d'attente",
 			"show_user_badges": "Afficher uniquement les personnes ayant le badge...",
 			"hide_user_badges": "Masquer les personnes ayant le badge...",
 			"background_color": "Couleur de fond",

@@ -32,6 +32,11 @@
             "move_to_progress_tt":"Move to in progress",
             "move_back_to_queue_tt":"Move back to queue",
             "remove_viewer_tt":"Remove from queue"
-        }
+        },
+        "join":"Join queue",
+        "leave":"Leave queue",
+        "paused":"Queue paused",
+        "position":"Your position: {POS}",
+        "empty":"Queue is empty"
     }
 }
