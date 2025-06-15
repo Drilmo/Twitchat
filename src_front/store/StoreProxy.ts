@@ -1600,6 +1600,12 @@ export interface IQueueActions {
         pauseQueue(id:string):void;
         resumeQueue(id:string):void;
         saveData():void;
+        handleQueueCommand(message: TwitchatDataTypes.MessageChatData): Promise<boolean>;
+        executeQueueJoin(queue: TwitchatDataTypes.QueueData, message: TwitchatDataTypes.MessageChatData): Promise<void>;
+        executeQueueLeave(queue: TwitchatDataTypes.QueueData, message: TwitchatDataTypes.MessageChatData): Promise<void>;
+        executeQueuePosition(queue: TwitchatDataTypes.QueueData, message: TwitchatDataTypes.MessageChatData): Promise<void>;
+        replacePlaceholders(template: string, values: {[key:string]:string}): string;
+        sendQueueResponse(originalMessage: TwitchatDataTypes.MessageChatData, responseText: string): Promise<void>;
 }
 
 

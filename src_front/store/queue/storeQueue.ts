@@ -86,16 +86,48 @@ export const storeQueue = defineStore('queue', {
         actions: {
                 populateData() {
                         const json = DataStore.get(DataStore.QUEUE_CONFIGS);
+                        console.log("[Queue Debug] Raw localStorage data:", json);
                         if(json) {
                                 const data = JSON.parse(json) as IStoreData;
+                                console.log("[Queue Debug] Parsed queue data:", data);
                                 this.queueList = data.queueList || [];
-                                //If queueList is empty, create a default queue
+                                console.log("[Queue Debug] Queue list after assignment:", this.queueList);
+                                //If queueList is empty, don't create a default queue
+                                //User explicitly deleted all queues, respect their choice
                                 if(this.queueList.length === 0) {
-                                        this.createQueue();
+                                        console.log("[Queue Debug] No queues found, keeping empty list");
                                 }
                                 //fallback defaults for new properties
-                                for (const q of this.queueList) {
+                                for (let i = 0; i < this.queueList.length; i++) {
+                                        const q = this.queueList[i];
+                                        const queueNumber = i + 1;
                                         if(q.inProgressEnabled === undefined) q.inProgressEnabled = true;
+                                        if(!q.commands) {
+                                                q.commands = {
+                                                        join: `!join${queueNumber}`,
+                                                        leave: `!leave${queueNumber}`,
+                                                        position: `!position${queueNumber}`,
+                                                };
+                                        } else {
+                                                // Migration: add position command if missing
+                                                if(!q.commands.position) {
+                                                        q.commands.position = `!position${queueNumber}`;
+                                                }
+                                        }
+                                        if(!q.messages) {
+                                                q.messages = {
+                                                        joinSuccess:"{USER} a rejoint la file à la position {POSITION}",
+                                                        joinAlreadyIn:"{USER}, tu es déjà dans la file à la position {POSITION}",
+                                                        joinFull:"La file est pleine !",
+                                                        joinPaused:"La file est actuellement en pause",
+                                                        joinDisabled:"La file est désactivée",
+                                                        leaveSuccess:"{USER} a quitté la file",
+                                                        leaveNotIn:"{USER}, tu n'es pas dans la file",
+                                                        position:"{USER}, tu es à la position {POSITION}/{TOTAL}",
+                                                        positionNotIn:"{USER}, tu n'es pas dans la file",
+                                                        positionPaused:"La file est en pause. {USER}, tu es à la position {POSITION}/{TOTAL}",
+                                                };
+                                        }
                                         if(!q.overlayParams) q.overlayParams = getDefaultOverlayParams();
                                         else {
                                                 const def = getDefaultOverlayParams();
@@ -161,10 +193,9 @@ export const storeQueue = defineStore('queue', {
                                         }
                                 }
                         }else{
-                                //Create a default queue on first start so users
-                                //immediately see one entry in the queue menu
-                                this.createQueue();
-                                this.saveData();
+                                //Don't create a default queue on first start
+                                //Let users create queues when they need them
+                                console.log("[Queue Debug] No localStorage data, starting with empty queue list");
                         }
                         PublicAPI.instance.addEventListener(TwitchatEvent.GET_QUEUE_STATE, (event:TwitchatEvent<{ id?:string }>)=> {
                                 if(event.data?.id) {
@@ -188,17 +219,35 @@ export const storeQueue = defineStore('queue', {
 
                 createQueue() {
                         if(!StoreProxy.auth.isPremium && this.queueList.length >= Config.instance.MAX_QUEUES) return;
+                        const queueNumber = this.queueList.length + 1;
                         const data:TwitchatDataTypes.QueueData = {
                                 id:Utils.getUUID(),
                                 enabled:true,
                                 title:StoreProxy.i18n.t('queue.default_title') as string,
-                                placeholderKey:'QUEUE_'+(this.queueList.length+1),
+                                placeholderKey:'QUEUE_'+queueNumber,
                                 maxPerUser:1,
                                 maxEntries:0,
                                 inProgressEnabled:true,
                                 paused:false,
                                 entries:[],
                                 inProgress:[],
+                                commands:{
+                                        join:`!join${queueNumber}`,
+                                        leave:`!leave${queueNumber}`,
+                                        position:`!position${queueNumber}`,
+                                },
+                                messages:{
+                                        joinSuccess:"{USER} a rejoint la file à la position {POSITION}",
+                                        joinAlreadyIn:"{USER}, tu es déjà dans la file à la position {POSITION}",
+                                        joinFull:"La file est pleine !",
+                                        joinPaused:"La file est actuellement en pause",
+                                        joinDisabled:"La file est désactivée",
+                                        leaveSuccess:"{USER} a quitté la file",
+                                        leaveNotIn:"{USER}, tu n'es pas dans la file",
+                                        position:"{USER}, tu es à la position {POSITION}/{TOTAL}",
+                                        positionNotIn:"{USER}, tu n'es pas dans la file",
+                                        positionPaused:"La file est en pause. {USER}, tu es à la position {POSITION}/{TOTAL}",
+                                },
                                 overlayParams:getDefaultOverlayParams(),
                         };
                         this.queueList.push(data);
@@ -208,6 +257,16 @@ export const storeQueue = defineStore('queue', {
                 deleteQueue(id:string) {
                         const idx = this.queueList.findIndex(q => q.id === id);
                         if(idx >= 0) this.queueList.splice(idx,1);
+                        
+                        // Clean up references in column configs
+                        const columns = StoreProxy.params.chatColumnsConfig;
+                        for(const col of columns) {
+                                if(col.queueIds && col.queueIds.includes(id)) {
+                                        col.queueIds = col.queueIds.filter(qId => qId !== id);
+                                }
+                        }
+                        StoreProxy.params.saveChatColumnConfs();
+                        
                         this.saveData();
                 },
 
@@ -281,6 +340,7 @@ export const storeQueue = defineStore('queue', {
                 },
 
                 saveData() {
+                        console.log("[Queue Debug] Saving queue data, current queueList:", this.queueList);
                         for(const q of this.queueList){
                                 if(!q.inProgressEnabled){
                                         q.inProgress = [];
@@ -289,7 +349,244 @@ export const storeQueue = defineStore('queue', {
                                 if(!q.overlayParams) q.overlayParams = getDefaultOverlayParams();
                         }
                         const data:IStoreData = { queueList:this.queueList };
+                        console.log("[Queue Debug] Data to save:", data);
                         DataStore.set(DataStore.QUEUE_CONFIGS, data as unknown as JsonObject);
+                        console.log("[Queue Debug] Data saved to localStorage");
+                },
+
+                async handleQueueCommand(message: TwitchatDataTypes.MessageChatData): Promise<boolean> {
+                        const messageText = message.message.trim().toLowerCase();
+                        
+                        // Check all queues for matching commands
+                        for(const queue of this.queueList) {
+                                if(!queue.commands) continue;
+                                
+                                // Check join command
+                                if(queue.commands.join && messageText === queue.commands.join.toLowerCase()) {
+                                        await this.executeQueueJoin(queue, message);
+                                        return true;
+                                }
+                                
+                                // Check leave command
+                                if(queue.commands.leave && messageText === queue.commands.leave.toLowerCase()) {
+                                        await this.executeQueueLeave(queue, message);
+                                        return true;
+                                }
+                                
+                                // Check position command
+                                if(queue.commands.position && messageText === queue.commands.position.toLowerCase()) {
+                                        await this.executeQueuePosition(queue, message);
+                                        return true;
+                                }
+                        }
+                        
+                        return false;
+                },
+
+                async executeQueueJoin(queue: TwitchatDataTypes.QueueData, message: TwitchatDataTypes.MessageChatData): Promise<void> {
+                        const user = message.user;
+                        const channelId = message.channel_id;
+                        
+                        // Check if queue is disabled
+                        if(!queue.enabled) {
+                                await this.sendQueueResponse(message, this.replacePlaceholders(queue.messages?.joinDisabled || "La file est désactivée", {
+                                        USER: user.displayName,
+                                        QUEUE_NAME: queue.title
+                                }));
+                                return;
+                        }
+                        
+                        // Check if queue is paused
+                        if(queue.paused) {
+                                await this.sendQueueResponse(message, this.replacePlaceholders(queue.messages?.joinPaused || "La file est actuellement en pause", {
+                                        USER: user.displayName,
+                                        QUEUE_NAME: queue.title
+                                }));
+                                return;
+                        }
+                        
+                        // Check queue limits
+                        const userEntryCount = queue.entries.filter(e => e.user.id === user.id).length + 
+                                              (queue.inProgress?.filter(e => e.user.id === user.id).length || 0);
+                        
+                        if(userEntryCount >= queue.maxPerUser) {
+                                await this.sendQueueResponse(message, this.replacePlaceholders(queue.messages?.joinFull || "Tu as atteint la limite pour cette file", {
+                                        USER: user.displayName,
+                                        MAX_PER_USER: queue.maxPerUser.toString(),
+                                        QUEUE_NAME: queue.title
+                                }));
+                                return;
+                        }
+                        
+                        if(queue.maxEntries > 0 && queue.entries.length >= queue.maxEntries) {
+                                await this.sendQueueResponse(message, this.replacePlaceholders(queue.messages?.joinFull || "La file est pleine !", {
+                                        USER: user.displayName,
+                                        QUEUE_NAME: queue.title
+                                }));
+                                return;
+                        }
+                        
+                        // Add user to queue
+                        this.addViewer(queue.id, user);
+                        
+                        // Send success message
+                        const position = queue.entries.length;
+                        await this.sendQueueResponse(message, this.replacePlaceholders(queue.messages?.joinSuccess || "{USER} a rejoint la file à la position {POSITION}", {
+                                USER: user.displayName,
+                                POSITION: position.toString(),
+                                TOTAL: queue.entries.length.toString(),
+                                QUEUE_NAME: queue.title
+                        }));
+                        
+                        // Send queue join message event
+                        const joinMessage: TwitchatDataTypes.MessageQueueJoinData = {
+                                id: Utils.getUUID(),
+                                type: TwitchatDataTypes.TwitchatMessageType.QUEUE_JOIN,
+                                date: Date.now(),
+                                platform: message.platform,
+                                channel_id: channelId,
+                                user: user,
+                                queueId: queue.id,
+                                queueTitle: queue.title,
+                                position: position
+                        };
+                        StoreProxy.chat.addMessage(joinMessage);
+                },
+
+                async executeQueueLeave(queue: TwitchatDataTypes.QueueData, message: TwitchatDataTypes.MessageChatData): Promise<void> {
+                        const user = message.user;
+                        const channelId = message.channel_id;
+                        
+                        // Find all entries for this user (only in the queue, not in progress)
+                        const userEntries = queue.entries.filter(e => e.user.id === user.id);
+                        
+                        if(userEntries.length === 0) {
+                                await this.sendQueueResponse(message, this.replacePlaceholders(queue.messages?.leaveNotIn || "{USER}, tu n'es pas dans la file", {
+                                        USER: user.displayName,
+                                        QUEUE_NAME: queue.title
+                                }));
+                                return;
+                        }
+                        
+                        // Remove only the last entry from queue
+                        // Find the last entry index
+                        let lastEntryIndex = -1;
+                        for(let i = queue.entries.length - 1; i >= 0; i--) {
+                                if(queue.entries[i].user.id === user.id) {
+                                        lastEntryIndex = i;
+                                        break;
+                                }
+                        }
+                        
+                        if(lastEntryIndex !== -1) {
+                                // Remove only the last entry
+                                queue.entries.splice(lastEntryIndex, 1);
+                                this.saveData();
+                                this.broadcastStates(queue.id);
+                        }
+                        
+                        // Send success message
+                        await this.sendQueueResponse(message, this.replacePlaceholders(queue.messages?.leaveSuccess || "{USER} a quitté la file", {
+                                USER: user.displayName,
+                                QUEUE_NAME: queue.title
+                        }));
+                        
+                        // Send queue leave message event
+                        const leaveMessage: TwitchatDataTypes.MessageQueueLeaveData = {
+                                id: Utils.getUUID(),
+                                type: TwitchatDataTypes.TwitchatMessageType.QUEUE_LEAVE,
+                                date: Date.now(),
+                                platform: message.platform,
+                                channel_id: channelId,
+                                user: user,
+                                queueId: queue.id,
+                                queueTitle: queue.title
+                        };
+                        StoreProxy.chat.addMessage(leaveMessage);
+                },
+
+                async executeQueuePosition(queue: TwitchatDataTypes.QueueData, message: TwitchatDataTypes.MessageChatData): Promise<void> {
+                        const user = message.user;
+                        
+                        // Find all entries for this user
+                        const userEntries = queue.entries.filter(e => e.user.id === user.id);
+                        const userInProgress = queue.inProgress?.filter(e => e.user.id === user.id) || [];
+                        
+                        if(userEntries.length === 0 && userInProgress.length === 0) {
+                                await this.sendQueueResponse(message, this.replacePlaceholders(queue.messages?.positionNotIn || "{USER}, tu n'es pas dans la file", {
+                                        USER: user.displayName,
+                                        QUEUE_NAME: queue.title
+                                }));
+                                return;
+                        }
+                        
+                        const total = queue.entries.length;
+                        let messageText = "";
+                        
+                        // Handle multiple entries in queue
+                        if(userEntries.length > 0) {
+                                const positions = userEntries.map(entry => queue.entries.indexOf(entry) + 1);
+                                const positionsText = positions.join(", ");
+                                
+                                const messageTemplate = queue.paused 
+                                        ? (queue.messages?.positionPaused || "La file est en pause. {USER}, tu es à la position {POSITION}/{TOTAL}")
+                                        : (queue.messages?.position || "{USER}, tu es à la position {POSITION}/{TOTAL}");
+                                
+                                messageText = this.replacePlaceholders(messageTemplate, {
+                                        USER: user.displayName,
+                                        POSITION: positionsText,
+                                        TOTAL: total.toString(),
+                                        QUEUE_NAME: queue.title,
+                                        QUEUE_STATUS: queue.paused ? "en pause" : "active"
+                                });
+                        }
+                        
+                        // Add in-progress status if applicable
+                        if(userInProgress.length > 0) {
+                                if(messageText) messageText += " - ";
+                                messageText += this.replacePlaceholders("{USER}, tu es en cours de traitement", {
+                                        USER: user.displayName
+                                });
+                        }
+                        
+                        await this.sendQueueResponse(message, messageText);
+                },
+
+                replacePlaceholders(template: string, values: {[key:string]:string}): string {
+                        let result = template;
+                        for(const [key, value] of Object.entries(values)) {
+                                result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
+                        }
+                        return result;
+                },
+
+                async sendQueueResponse(originalMessage: TwitchatDataTypes.MessageChatData, responseText: string): Promise<void> {
+                        // Import MessengerProxy dynamically to avoid circular dependencies
+                        const MessengerProxy = (await import('@/messaging/MessengerProxy')).default;
+                        
+                        // Send message based on platform
+                        if(originalMessage.platform === "twitch") {
+                                await MessengerProxy.instance.sendMessage(responseText, ["twitch"], originalMessage.channel_id);
+                        } else if(originalMessage.platform === "youtube") {
+                                await MessengerProxy.instance.sendMessage(responseText, ["youtube"], originalMessage.channel_id);
+                        } else if(originalMessage.platform === "tiktok") {
+                                // TikTok doesn't support sending messages back, just show locally
+                                const messageData: TwitchatDataTypes.MessageChatData = {
+                                        id: Utils.getUUID(),
+                                        date: Date.now(),
+                                        channel_id: originalMessage.channel_id,
+                                        user: StoreProxy.users.getUserFrom(originalMessage.platform, originalMessage.channel_id, originalMessage.channel_id),
+                                        answers: [],
+                                        is_short: false,
+                                        message: responseText,
+                                        message_html: responseText,
+                                        message_chunks: [],
+                                        message_size: 0,
+                                        platform: "twitchat",
+                                        type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+                                };
+                                StoreProxy.chat.addMessage(messageData);
+                        }
                 },
         } as IQueueActions
         & ThisType<IQueueActions

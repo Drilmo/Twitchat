@@ -57,6 +57,30 @@
                         <ParamItem :paramData="param_max_per_user[entry.id]" v-model="entry.maxPerUser" @change="save(entry)" v-tooltip="$t('queue.form.param_max_per_user_tt')" />
                         <ParamItem :paramData="param_max_entries[entry.id]" v-model="entry.maxEntries" @change="save(entry)" v-tooltip="$t('queue.form.param_max_entries_tt')" />
                         <ParamItem :paramData="param_enableInProgress[entry.id]" v-model="entry.inProgressEnabled" @change="save(entry)" v-tooltip="$t('queue.form.param_enable_in_progress_tt')" />
+                        
+                        <ToggleBlock class="commands" small :title="$t('queue.form.commands_title')" :open="false" v-tooltip="$t('queue.form.commands_tt')">
+                            <div class="commandInputs">
+                                <ParamItem :paramData="param_command_join[entry.id]" v-model="param_command_join[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_command_join_tt')" />
+                                <ParamItem :paramData="param_command_leave[entry.id]" v-model="param_command_leave[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_command_leave_tt')" />
+                                <ParamItem :paramData="param_command_position[entry.id]" v-model="param_command_position[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_command_position_tt')" />
+                            </div>
+                        </ToggleBlock>
+                        
+                        <ToggleBlock class="messages" small :title="$t('queue.form.messages_title')" :open="false" v-tooltip="$t('queue.form.messages_tt')">
+                            <div class="messageInputs">
+                                <ParamItem :paramData="param_message_join_success[entry.id]" v-model="param_message_join_success[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_join_success_tt')" />
+                                <ParamItem :paramData="param_message_join_already[entry.id]" v-model="param_message_join_already[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_join_already_tt')" />
+                                <ParamItem :paramData="param_message_join_full[entry.id]" v-model="param_message_join_full[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_join_full_tt')" />
+                                <ParamItem :paramData="param_message_join_paused[entry.id]" v-model="param_message_join_paused[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_join_paused_tt')" />
+                                <ParamItem :paramData="param_message_join_disabled[entry.id]" v-model="param_message_join_disabled[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_join_disabled_tt')" />
+                                <ParamItem :paramData="param_message_leave_success[entry.id]" v-model="param_message_leave_success[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_leave_success_tt')" />
+                                <ParamItem :paramData="param_message_leave_not_in[entry.id]" v-model="param_message_leave_not_in[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_leave_not_in_tt')" />
+                                <ParamItem :paramData="param_message_position[entry.id]" v-model="param_message_position[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_position_tt')" />
+                                <ParamItem :paramData="param_message_position_not_in[entry.id]" v-model="param_message_position_not_in[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_position_not_in_tt')" />
+                                <ParamItem :paramData="param_message_position_paused[entry.id]" v-model="param_message_position_paused[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_position_paused_tt')" />
+                            </div>
+                        </ToggleBlock>
+                        
                         <div class="ctas">
                             <TTButton icon="pause" v-if="!entry.paused" @click="$store.queue.pauseQueue(entry.id)">{{ $t('queue.pauseBt') }}</TTButton>
                             <TTButton icon="play" v-else @click="$store.queue.resumeQueue(entry.id)">{{ $t('queue.resumeBt') }}</TTButton>
@@ -118,6 +142,19 @@ class ParamsQueue extends Vue {
     public param_max_per_user:{[k:string]:TwitchatDataTypes.ParameterData<number>} = {};
     public param_max_entries:{[k:string]:TwitchatDataTypes.ParameterData<number>} = {};
     public param_enableInProgress:{[k:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+    public param_command_join:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
+    public param_command_leave:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
+    public param_command_position:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
+    public param_message_join_success:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
+    public param_message_join_already:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
+    public param_message_join_full:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
+    public param_message_join_paused:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
+    public param_message_join_disabled:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
+    public param_message_leave_success:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
+    public param_message_leave_not_in:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
+    public param_message_position:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
+    public param_message_position_not_in:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
+    public param_message_position_paused:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
 
     public mounted():void {
         this.initParams();
@@ -138,6 +175,21 @@ class ParamsQueue extends Vue {
             this.param_max_per_user[id] = {type:'number', value:q.maxPerUser, labelKey:'queue.form.param_max_per_user', icon:'group', min:1, max:100};
             this.param_max_entries[id] = {type:'number', value:q.maxEntries, labelKey:'queue.form.param_max_entries', icon:'list', min:0, max:100};
             this.param_enableInProgress[id] = {type:'boolean', value:q.inProgressEnabled ?? true, labelKey:'queue.form.param_enable_in_progress', icon:'list'};
+            this.param_command_join[id] = {type:'string', value:q.commands?.join || `!join${this.$store.queue.queueList.indexOf(q)+1}`, labelKey:'queue.form.param_command_join', icon:'chatCommand', maxLength:50};
+            this.param_command_leave[id] = {type:'string', value:q.commands?.leave || `!leave${this.$store.queue.queueList.indexOf(q)+1}`, labelKey:'queue.form.param_command_leave', icon:'chatCommand', maxLength:50};
+            this.param_command_position[id] = {type:'string', value:q.commands?.position || `!position${this.$store.queue.queueList.indexOf(q)+1}`, labelKey:'queue.form.param_command_position', icon:'chatCommand', maxLength:50};
+            
+            // Initialize message parameters with proper placeholders
+            this.param_message_join_success[id] = {type:'string', value:q.messages?.joinSuccess || "{USER} a rejoint la file à la position {POSITION}", labelKey:'queue.form.param_message_join_success', icon:'message', maxLength:500, placeholderKey:'{USER}, {POSITION}, {TOTAL}, {QUEUE_NAME}'};
+            this.param_message_join_already[id] = {type:'string', value:q.messages?.joinAlreadyIn || "{USER}, tu es déjà dans la file à la position {POSITION}", labelKey:'queue.form.param_message_join_already', icon:'message', maxLength:500, placeholderKey:'{USER}, {POSITION}, {QUEUE_NAME}'};
+            this.param_message_join_full[id] = {type:'string', value:q.messages?.joinFull || "La file est pleine !", labelKey:'queue.form.param_message_join_full', icon:'message', maxLength:500, placeholderKey:'{USER}, {MAX_PER_USER}, {QUEUE_NAME}'};
+            this.param_message_join_paused[id] = {type:'string', value:q.messages?.joinPaused || "La file est actuellement en pause", labelKey:'queue.form.param_message_join_paused', icon:'message', maxLength:500, placeholderKey:'{USER}, {QUEUE_NAME}'};
+            this.param_message_join_disabled[id] = {type:'string', value:q.messages?.joinDisabled || "La file est désactivée", labelKey:'queue.form.param_message_join_disabled', icon:'message', maxLength:500, placeholderKey:'{USER}, {QUEUE_NAME}'};
+            this.param_message_leave_success[id] = {type:'string', value:q.messages?.leaveSuccess || "{USER} a quitté la file", labelKey:'queue.form.param_message_leave_success', icon:'message', maxLength:500, placeholderKey:'{USER}, {QUEUE_NAME}'};
+            this.param_message_leave_not_in[id] = {type:'string', value:q.messages?.leaveNotIn || "{USER}, tu n'es pas dans la file", labelKey:'queue.form.param_message_leave_not_in', icon:'message', maxLength:500, placeholderKey:'{USER}, {QUEUE_NAME}'};
+            this.param_message_position[id] = {type:'string', value:q.messages?.position || "{USER}, tu es à la position {POSITION}/{TOTAL}", labelKey:'queue.form.param_message_position', icon:'message', maxLength:500, placeholderKey:'{USER}, {POSITION}, {TOTAL}, {QUEUE_NAME}'};
+            this.param_message_position_not_in[id] = {type:'string', value:q.messages?.positionNotIn || "{USER}, tu n'es pas dans la file", labelKey:'queue.form.param_message_position_not_in', icon:'message', maxLength:500, placeholderKey:'{USER}, {QUEUE_NAME}'};
+            this.param_message_position_paused[id] = {type:'string', value:q.messages?.positionPaused || "La file est en pause. {USER}, tu es à la position {POSITION}/{TOTAL}", labelKey:'queue.form.param_message_position_paused', icon:'message', maxLength:500, placeholderKey:'{USER}, {POSITION}, {TOTAL}, {QUEUE_NAME}, {QUEUE_STATUS}'};
         });
     }
 
@@ -145,10 +197,42 @@ class ParamsQueue extends Vue {
         this.param_max_per_user = {};
         this.param_max_entries = {};
         this.param_enableInProgress = {};
+        this.param_command_join = {};
+        this.param_command_leave = {};
+        this.param_command_position = {};
+        this.param_message_join_success = {};
+        this.param_message_join_already = {};
+        this.param_message_join_full = {};
+        this.param_message_join_paused = {};
+        this.param_message_join_disabled = {};
+        this.param_message_leave_success = {};
+        this.param_message_leave_not_in = {};
+        this.param_message_position = {};
+        this.param_message_position_not_in = {};
+        this.param_message_position_paused = {};
         this.initParams();
     }
 
     public save(entry:TwitchatDataTypes.QueueData):void {
+        // Update commands from params
+        if(!entry.commands) entry.commands = {};
+        entry.commands.join = this.param_command_join[entry.id].value;
+        entry.commands.leave = this.param_command_leave[entry.id].value;
+        entry.commands.position = this.param_command_position[entry.id].value;
+        
+        // Update messages from params
+        if(!entry.messages) entry.messages = {};
+        entry.messages.joinSuccess = this.param_message_join_success[entry.id].value;
+        entry.messages.joinAlreadyIn = this.param_message_join_already[entry.id].value;
+        entry.messages.joinFull = this.param_message_join_full[entry.id].value;
+        entry.messages.joinPaused = this.param_message_join_paused[entry.id].value;
+        entry.messages.joinDisabled = this.param_message_join_disabled[entry.id].value;
+        entry.messages.leaveSuccess = this.param_message_leave_success[entry.id].value;
+        entry.messages.leaveNotIn = this.param_message_leave_not_in[entry.id].value;
+        entry.messages.position = this.param_message_position[entry.id].value;
+        entry.messages.positionNotIn = this.param_message_position_not_in[entry.id].value;
+        entry.messages.positionPaused = this.param_message_position_paused[entry.id].value;
+        
         this.$store.queue.saveData();
     }
 
@@ -352,6 +436,19 @@ export default toNative(ParamsQueue);
     .queueIcon {
         width: 1em;
         z-index: 1;
+    }
+    
+    .commands,
+    .messages {
+        margin-top: .5em;
+        
+        .commandInputs,
+        .messageInputs {
+            display: flex;
+            flex-direction: column;
+            gap: .5em;
+            padding: .5em 0;
+        }
     }
 }
 </style>

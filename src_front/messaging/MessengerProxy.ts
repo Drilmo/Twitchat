@@ -407,8 +407,49 @@ export default class MessengerProxy {
 			return true
 		}else
 
+		// Check for queue-specific commands first
+		for(const queue of StoreProxy.queue.queueList) {
+			if(queue.commands?.join && cmd === queue.commands.join.toLowerCase()) {
+				// Handle custom join command
+				const messageObj:TwitchatDataTypes.MessageChatData = {
+					id: Utils.getUUID(),
+					type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+					date: Date.now(),
+					platform: "twitch",
+					channel_id: channelId,
+					user: me,
+					message: message,
+					message_html: message,
+					is_short: false,
+					message_chunks: chunks,
+					message_size: 0,
+					answers: [],
+				};
+				return await this.handleQueueJoin(queue, messageObj, StoreProxy.users.getUserFrom("twitch", channelId, channelId, me.login, me.login));
+			}
+			if(queue.commands?.leave && cmd === queue.commands.leave.toLowerCase()) {
+				// Handle custom leave command
+				const messageObj:TwitchatDataTypes.MessageChatData = {
+					id: Utils.getUUID(),
+					type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+					date: Date.now(),
+					platform: "twitch",
+					channel_id: channelId,
+					user: me,
+					message: message,
+					message_html: message,
+					is_short: false,
+					message_chunks: chunks,
+					message_size: 0,
+					answers: [],
+				};
+				return await this.handleQueueLeave(queue, messageObj, StoreProxy.users.getUserFrom("twitch", channelId, channelId, me.login, me.login));
+			}
+		}
+
 		if(cmd == "/join") {
 			//Join a queue
+			const channel = StoreProxy.users.getUserFrom("twitch", channelId, channelId, me.login, me.login);
 			const queueRef = params.join(" ").trim();
 			if(!queueRef) {
 				StoreProxy.chat.addMessage({
@@ -470,9 +511,23 @@ export default class MessengerProxy {
 			}
 			
 			//Add current user to queue
-			if(message.user.id && message.user.id !== channel.id) {
-				const existingEntry = queue.entries.find(e => e.user.id === message.user.id);
-				const inProgress = queue.inProgress?.find(e => e.user.id === message.user.id);
+			const messageObj:TwitchatDataTypes.MessageChatData = {
+				id: Utils.getUUID(),
+				type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				date: Date.now(),
+				platform: "twitch",
+				channel_id: channelId,
+				user: me,
+				message: message,
+				message_html: message,
+				is_short: false,
+				message_chunks: chunks,
+				message_size: 0,
+				answers: [],
+			};
+			if(messageObj.user.id && messageObj.user.id !== channelId) {
+				const existingEntry = queue.entries.find(e => e.user.id === messageObj.user.id);
+				const inProgress = queue.inProgress?.find(e => e.user.id === messageObj.user.id);
 				
 				if(existingEntry || inProgress) {
 					const position = existingEntry ? queue.entries.indexOf(existingEntry) + 1 : 0;
@@ -495,7 +550,7 @@ export default class MessengerProxy {
 						type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 					});
 				} else {
-					StoreProxy.queue.addViewer(queue.id, message.user);
+					StoreProxy.queue.addViewer(queue.id, messageObj.user);
 					const position = queue.entries.length;
 					StoreProxy.chat.addMessage({
 						id: Utils.getUUID(),
@@ -518,6 +573,7 @@ export default class MessengerProxy {
 
 		if(cmd == "/leave") {
 			//Leave a queue
+			const channel = StoreProxy.users.getUserFrom("twitch", channelId, channelId, me.login, me.login);
 			const queueRef = params.join(" ").trim();
 			if(!queueRef) {
 				StoreProxy.chat.addMessage({
@@ -560,13 +616,28 @@ export default class MessengerProxy {
 				return true;
 			}
 			
-			if(message.user.id && message.user.id !== channel.id) {
-				StoreProxy.queue.removeViewer(queue.id, message.user.id);
+			//Remove current user from queue  
+			const leaveMessageObj:TwitchatDataTypes.MessageChatData = {
+				id: Utils.getUUID(),
+				type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				date: Date.now(),
+				platform: "twitch",
+				channel_id: channelId,
+				user: me,
+				message: message,
+				message_html: message,
+				is_short: false,
+				message_chunks: chunks,
+				message_size: 0,
+				answers: [],
+			};
+			if(leaveMessageObj.user.id && leaveMessageObj.user.id !== channelId) {
+				StoreProxy.queue.removeViewer(queue.id, leaveMessageObj.user.id);
 				StoreProxy.chat.addMessage({
 					id: Utils.getUUID(),
 					date: Date.now(),
-					channel_id: channel.id,
-					user: StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.login),
+					channel_id: channelId,
+					user: StoreProxy.users.getUserFrom("twitch", channelId, channelId, me.login, me.login),
 					answers: [],
 					is_short: false,
 					message: StoreProxy.i18n.t("chat.commands.left_queue", {queue: queue.title}),
@@ -582,6 +653,7 @@ export default class MessengerProxy {
 
 		if(cmd == "/queue") {
 			//List queues and user positions
+			const channel = StoreProxy.users.getUserFrom("twitch", channelId, channelId, me.login, me.login);
 			const enabledQueues = StoreProxy.queue.queueList.filter(q => q.enabled && !q.paused);
 			
 			if(enabledQueues.length === 0) {
@@ -604,8 +676,8 @@ export default class MessengerProxy {
 			
 			let messageText = StoreProxy.i18n.t("chat.commands.available_queues") + "\n";
 			enabledQueues.forEach(queue => {
-				const userEntry = queue.entries.find(e => e.user.id === message.user.id);
-				const userInProgress = queue.inProgress?.find(e => e.user.id === message.user.id);
+				const userEntry = queue.entries.find(e => e.user.id === me.id);
+				const userInProgress = queue.inProgress?.find(e => e.user.id === me.id);
 				const position = userEntry ? queue.entries.indexOf(userEntry) + 1 : 0;
 				
 				if(userInProgress) {
@@ -620,8 +692,8 @@ export default class MessengerProxy {
 			StoreProxy.chat.addMessage({
 				id: Utils.getUUID(),
 				date: Date.now(),
-				channel_id: channel.id,
-				user: StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.login),
+				channel_id: channelId,
+				user: StoreProxy.users.getUserFrom("twitch", channelId, channelId, me.login, me.login),
 				answers: [],
 				is_short: false,
 				message: messageText,
@@ -1195,5 +1267,113 @@ export default class MessengerProxy {
 			duration += value * coeff;
 		}
 		return duration
+	}
+
+	private async handleQueueJoin(queue: TwitchatDataTypes.QueueData, message: TwitchatDataTypes.MessageChatData, channel: TwitchatDataTypes.TwitchatUser): Promise<boolean> {
+		if(!queue.enabled || queue.paused) {
+			StoreProxy.chat.addMessage({
+				id: Utils.getUUID(),
+				date: Date.now(),
+				channel_id: channel.id,
+				user: channel,
+				answers: [],
+				is_short: false,
+				message: StoreProxy.i18n.t("chat.commands.queue_unavailable", {queue: queue.title}),
+				message_html: StoreProxy.i18n.t("chat.commands.queue_unavailable", {queue: queue.title}),
+				message_chunks: [],
+				message_size: 0,
+				platform: "twitchat",
+				type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+			});
+			return true;
+		}
+		
+		//Add current user to queue
+		if(message.user.id && message.user.id !== channel.id) {
+			const existingEntry = queue.entries.find(e => e.user.id === message.user.id);
+			const inProgress = queue.inProgress?.find(e => e.user.id === message.user.id);
+			
+			if(existingEntry || inProgress) {
+				const position = existingEntry ? queue.entries.indexOf(existingEntry) + 1 : 0;
+				StoreProxy.chat.addMessage({
+					id: Utils.getUUID(),
+					date: Date.now(),
+					channel_id: channel.id,
+					user: channel,
+					answers: [],
+					is_short: false,
+					message: inProgress ? 
+						StoreProxy.i18n.t("chat.commands.already_in_progress", {queue: queue.title}) :
+						StoreProxy.i18n.t("chat.commands.already_in_queue", {queue: queue.title, position}),
+					message_html: inProgress ? 
+						StoreProxy.i18n.t("chat.commands.already_in_progress", {queue: queue.title}) :
+						StoreProxy.i18n.t("chat.commands.already_in_queue", {queue: queue.title, position}),
+					message_chunks: [],
+					message_size: 0,
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				});
+			} else {
+				StoreProxy.queue.addViewer(queue.id, message.user);
+				const position = queue.entries.length;
+				StoreProxy.chat.addMessage({
+					id: Utils.getUUID(),
+					date: Date.now(),
+					channel_id: channel.id,
+					user: channel,
+					answers: [],
+					is_short: false,
+					message: StoreProxy.i18n.t("chat.commands.joined_queue", {queue: queue.title, position}),
+					message_html: StoreProxy.i18n.t("chat.commands.joined_queue", {queue: queue.title, position}),
+					message_chunks: [],
+					message_size: 0,
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				});
+			}
+		}
+		return true;
+	}
+
+	private async handleQueueLeave(queue: TwitchatDataTypes.QueueData, message: TwitchatDataTypes.MessageChatData, channel: TwitchatDataTypes.TwitchatUser): Promise<boolean> {
+		//Remove current user from queue
+		if(message.user.id && message.user.id !== channel.id) {
+			const entryIndex = queue.entries.findIndex(e => e.user.id === message.user.id);
+			const inProgressIndex = queue.inProgress?.findIndex(e => e.user.id === message.user.id) ?? -1;
+			
+			if(entryIndex !== -1 || inProgressIndex !== -1) {
+				StoreProxy.queue.removeViewer(queue.id, message.user.id);
+				StoreProxy.chat.addMessage({
+					id: Utils.getUUID(),
+					date: Date.now(),
+					channel_id: channel.id,
+					user: channel,
+					answers: [],
+					is_short: false,
+					message: StoreProxy.i18n.t("chat.commands.left_queue", {queue: queue.title}),
+					message_html: StoreProxy.i18n.t("chat.commands.left_queue", {queue: queue.title}),
+					message_chunks: [],
+					message_size: 0,
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				});
+			} else {
+				StoreProxy.chat.addMessage({
+					id: Utils.getUUID(),
+					date: Date.now(),
+					channel_id: channel.id,
+					user: channel,
+					answers: [],
+					is_short: false,
+					message: StoreProxy.i18n.t("chat.commands.not_in_queue", {queue: queue.title}),
+					message_html: StoreProxy.i18n.t("chat.commands.not_in_queue", {queue: queue.title}),
+					message_chunks: [],
+					message_size: 0,
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				});
+			}
+		}
+		return true;
 	}
 }

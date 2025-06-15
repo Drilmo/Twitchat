@@ -12,7 +12,7 @@ export namespace TwitchatDataTypes {
 
 	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatPoll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "queue" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams" | "groqHistory";
 
-	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
+	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid" | "queue";
 
         export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext" | "customtrain" | "queue";
 
@@ -201,6 +201,14 @@ export namespace TwitchatDataTypes {
 		 * true if the "greet them" should show up on this col
 		 */
 		showGreetHere:boolean;
+		/**
+		 * IDs of the queues to display in this column
+		 */
+		queueIds?:string[];
+		/**
+		 * Whether the queue list is collapsed in this column
+		 */
+		queueCollapsed?:boolean;
 		/**
 		 * Filter params of the col
 		 */
@@ -6411,6 +6419,23 @@ export interface MessageTwitchComboData extends AbstractTwitchatMessage {
                paused:boolean;
                 entries:QueueEntry[];
                 inProgress?:QueueEntry[];
+                commands?:{
+                        join?:string;
+                        leave?:string;
+                        position?:string;
+                };
+                messages?:{
+                        joinSuccess?:string;
+                        joinAlreadyIn?:string;
+                        joinFull?:string;
+                        joinPaused?:string;
+                        joinDisabled?:string;
+                        leaveSuccess?:string;
+                        leaveNotIn?:string;
+                        position?:string;
+                        positionNotIn?:string;
+                        positionPaused?:string;
+                };
                 overlayParams?:{
                         showInProgress:boolean;
                         rotateDelay:number;

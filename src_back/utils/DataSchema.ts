@@ -309,7 +309,7 @@ const UserDataSchema = {
 	},
 
 	type:"object",
-	additionalProperties: false,
+	additionalProperties: true, // Temporarily allow other properties to avoid breaking existing data
 	properties:{
 		obsConnectionEnabled: {type:"boolean"},
 		obsConf_muteUnmute: {
@@ -1585,6 +1585,13 @@ const UserDataSchema = {
 					whispersPermissions: { $ref: "defs.json#/definitions/permissions" },
 					showPanelsHere: { type:"boolean" },
 					showGreetHere: { type:"boolean" },
+					queueIds: {
+						type:"array",
+						minItems:0,
+						maxItems:100,
+						items:{type:"string", maxLength:40},
+					},
+					queueCollapsed: { type:"boolean" },
 					backgroundColor: { type:"string", maxLength:11 },
 					mandatoryBadges_flag: { type:"boolean" },
 					forbiddenBadges_flag: { type:"boolean" },

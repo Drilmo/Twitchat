@@ -1,9 +1,17 @@
 <template>
-	<div class="queuestate" v-if="activeQueues.length > 0" v-show="showList || !collapsible">
-		<div class="header" @click="toggleList()" :class="{ clickable: collapsible }">
+	<div class="queuestate">
+		<div v-if="activeQueues.length === 0 && queueIds && queueIds.length > 0" class="no-queues">
+			{{ $t('queue.empty') }}
+		</div>
+		
+		<template v-if="activeQueues.length > 0">
+		<div class="header">
 			<div class="title">
 				<h1>{{ $t("queue.default_title") }} <span class="count" v-if="totalCount > 0">({{ totalCount }})</span></h1>
 			</div>
+			<button class="toggleBt" @click="removeQueue()" v-tooltip="$t('global.hide')">
+				<Icon name="cross" />
+			</button>
 		</div>
 		<div class="messageList" v-if="showList || !collapsible">
 			<div v-for="queue in activeQueues" :key="queue.id" class="queue-item">
@@ -11,6 +19,17 @@
 					<Icon name="list" class="icon" />
 					<span class="title">{{ queue.title || $t('queue.default_title') }}</span>
 					<span class="status" v-if="queue.paused">({{ $t('queue.paused') }})</span>
+					<div class="header-buttons">
+						<button class="headerBt" @click="pickFirst(queue)" v-if="queue.entries.length > 0" v-tooltip="$t('queue.pick_first_tt')">
+							<Icon name="next" />
+						</button>
+						<button class="headerBt" @click="pickRandom(queue)" v-if="queue.entries.length > 0" v-tooltip="$t('queue.pick_random_tt')">
+							<Icon name="dice" />
+						</button>
+						<button class="headerBt" @click="togglePause(queue)" v-tooltip="queue.paused ? $t('queue.form.resume_queue_tt') : $t('queue.form.pause_queue_tt')">
+							<Icon :name="queue.paused ? 'play' : 'pause'" />
+						</button>
+					</div>
 				</div>
 				
 				<div class="columns-container">
@@ -33,7 +52,7 @@
 									<button class="actionBt" @click="moveToInProgress(queue.id, entry.user.id)" v-if="queue.inProgressEnabled" v-tooltip="$t('queue.form.move_to_progress_tt')">
 										<Icon name="next" class="icon" />
 									</button>
-									<button class="actionBt delete" @click="removeViewer(queue.id, entry.user.id)" v-tooltip="$t('queue.form.remove_viewer_tt')">
+									<button class="actionBt delete" @click="removeEntry(queue.id, index)" v-tooltip="$t('queue.form.remove_viewer_tt')">
 										<Icon name="trash" class="icon" />
 									</button>
 								</div>
@@ -49,15 +68,32 @@
 					<div class="column in-progress" v-if="queue.inProgressEnabled && queue.inProgress && queue.inProgress.length > 0">
 						<div class="section-title">{{ $t('queue.form.list_in_progress') }} <span class="count">({{ queue.inProgress.length }})</span></div>
 						<div class="user-list">
-							<div v-for="entry in queue.inProgress" :key="entry.user.id" class="messageListItem user-entry in-progress">
+							<div v-for="(entry, indexProgress) in queue.inProgress" :key="entry.user.id" class="messageListItem user-entry in-progress">
 								<Icon :name="entry.user.platform" class="platform-icon" />
 								<img :src="entry.user.avatarPath" class="avatar" v-if="entry.user.avatarPath" />
 								<span class="username">{{ entry.user.displayName }}</span>
 								<div class="actions">
-									<button class="actionBt" @click="moveToQueue(queue.id, entry.user.id)" v-tooltip="$t('queue.form.move_back_to_queue_tt')">
+									<button class="actionBt" @click="moveToQueue(queue.id, indexProgress)" v-tooltip="$t('queue.form.move_back_to_queue_tt')">
 										<Icon name="prev" class="icon" />
 									</button>
-									<button class="actionBt delete" @click="removeViewer(queue.id, entry.user.id)" v-tooltip="$t('queue.form.remove_viewer_tt')">
+									<button class="actionBt delete" @click="removeInProgressEntry(queue.id, indexProgress)" v-tooltip="$t('queue.form.remove_viewer_tt')">
+										<Icon name="trash" class="icon" />
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Recently removed entries column (only if in progress is disabled) -->
+					<div class="column removed" v-else-if="!queue.inProgressEnabled && removedUsers[queue.id] && removedUsers[queue.id].length > 0">
+						<div class="section-title">{{ $t('queue.recently_removed') }} <span class="count">({{ removedUsers[queue.id].length }})</span></div>
+						<div class="user-list">
+							<div v-for="(entry, indexRemoved) in removedUsers[queue.id]" :key="'removed_'+entry.user.id+'_'+indexRemoved" class="messageListItem user-entry removed">
+								<Icon :name="entry.user.platform" class="platform-icon" />
+								<img :src="entry.user.avatarPath" class="avatar" v-if="entry.user.avatarPath" />
+								<span class="username">{{ entry.user.displayName }}</span>
+								<div class="actions">
+									<button class="actionBt delete" @click="removeFromRemovedList(queue.id, indexRemoved)" v-tooltip="$t('queue.remove_permanently_tt')">
 										<Icon name="trash" class="icon" />
 									</button>
 								</div>
@@ -67,18 +103,20 @@
 				</div>
 			</div>
 		</div>
+		</template>
 	</div>
 </template>
 
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Vue, toNative, Prop } from 'vue-facing-decorator';
+import { Component, Vue, toNative, Prop, Watch } from 'vue-facing-decorator';
 
 @Component({
 	components:{
 		Icon,
-	}
+	},
+	emits:["update:collapsed", "remove"]
 })
 class QueueState extends Vue {
 
@@ -88,16 +126,35 @@ class QueueState extends Vue {
 	@Prop({ default: true })
 	public collapsible!: boolean;
 
+	@Prop({ default: false })
+	public collapsed!: boolean;
+
 	public showList: boolean = true;
+	public removedUsers:{[queueId:string]:TwitchatDataTypes.QueueEntry[]} = {};
+
+	public mounted():void {
+		// Only apply collapsed state if collapsible is true
+		if (this.collapsible) {
+			this.showList = !this.collapsed;
+		}
+	}
+
+	@Watch('collapsed')
+	public onCollapsedChange(newVal: boolean):void {
+		this.showList = !newVal;
+	}
 
 	public get activeQueues():TwitchatDataTypes.QueueData[] {
 		// Filter by enabled queues and optionally by specific queue IDs
 		return this.$store.queue.queueList.filter(q => {
-			if(!q.enabled) return false;
-			if(this.queueIds && this.queueIds.length > 0) {
+			// If queueIds is provided AND not empty, only show queues that are in the list
+			// In this case, ignore the enabled state
+			if(this.queueIds !== undefined && this.queueIds.length > 0) {
+				// Only include if the queue ID is in the list AND the queue still exists
 				return this.queueIds.includes(q.id);
 			}
-			return true;
+			// If no queueIds provided or empty array, show all enabled queues
+			return q.enabled;
 		});
 	}
 
@@ -112,6 +169,14 @@ class QueueState extends Vue {
 	public toggleList():void {
 		if (this.collapsible) {
 			this.showList = !this.showList;
+			this.$emit('update:collapsed', !this.showList);
+		}
+	}
+
+	public removeQueue():void {
+		// Emit event to remove all queues from this column
+		if (this.queueIds) {
+			this.$emit('remove', this.queueIds);
 		}
 	}
 
@@ -137,18 +202,103 @@ class QueueState extends Vue {
 		this.$store.queue.moveToInProgress(queueId, userId);
 	}
 
-	public moveToQueue(queueId:string, userId:string):void {
+	public moveToQueue(queueId:string, index:number):void {
 		const queue = this.activeQueues.find(q => q.id === queueId);
-		if(!queue || !queue.inProgress) return;
-		const entry = queue.inProgress.find(e => e.user.id === userId);
-		if(!entry) return;
-		queue.inProgress = queue.inProgress.filter(e => e.user.id !== userId);
+		if(!queue || !queue.inProgress || index < 0 || index >= queue.inProgress.length) return;
+		const entry = queue.inProgress[index];
+		queue.inProgress.splice(index, 1);
 		queue.entries.push(entry);
 		this.$store.queue.saveData();
+		this.$store.queue.broadcastStates(queueId);
 	}
 
 	public removeViewer(queueId:string, userId:string):void {
 		this.$store.queue.removeViewer(queueId, userId);
+	}
+
+	public removeEntry(queueId:string, index:number):void {
+		const queue = this.activeQueues.find(q => q.id === queueId);
+		if(!queue || index < 0 || index >= queue.entries.length) return;
+		queue.entries.splice(index, 1);
+		this.$store.queue.saveData();
+		this.$store.queue.broadcastStates(queueId);
+	}
+
+	public removeInProgressEntry(queueId:string, index:number):void {
+		const queue = this.activeQueues.find(q => q.id === queueId);
+		if(!queue || !queue.inProgress || index < 0 || index >= queue.inProgress.length) return;
+		queue.inProgress.splice(index, 1);
+		this.$store.queue.saveData();
+		this.$store.queue.broadcastStates(queueId);
+	}
+
+	public togglePause(queue:TwitchatDataTypes.QueueData):void {
+		if(queue.paused) {
+			this.$store.queue.resumeQueue(queue.id);
+		} else {
+			this.$store.queue.pauseQueue(queue.id);
+		}
+	}
+
+	public pickFirst(queue:TwitchatDataTypes.QueueData):void {
+		if(queue.entries.length === 0) return;
+		
+		const entry = queue.entries[0];
+		
+		// Move to in progress if enabled, otherwise add to removed list
+		if(queue.inProgressEnabled) {
+			this.$store.queue.moveToInProgress(queue.id, entry.user.id);
+		} else {
+			// Remove from queue
+			queue.entries.splice(0, 1);
+			
+			// Add to removed list
+			if(!this.removedUsers[queue.id]) {
+				this.removedUsers[queue.id] = [];
+			}
+			this.removedUsers[queue.id].push(entry);
+			
+			this.$store.queue.saveData();
+			this.$store.queue.broadcastStates(queue.id);
+		}
+	}
+
+	public pickRandom(queue:TwitchatDataTypes.QueueData):void {
+		if(queue.entries.length === 0) return;
+		
+		const randomIndex = Math.floor(Math.random() * queue.entries.length);
+		const entry = queue.entries[randomIndex];
+		
+		// Move to in progress if enabled, otherwise add to removed list
+		if(queue.inProgressEnabled) {
+			// First remove from queue
+			queue.entries.splice(randomIndex, 1);
+			// Then add to in progress
+			if(!queue.inProgress) queue.inProgress = [];
+			queue.inProgress.push(entry);
+			this.$store.queue.saveData();
+			this.$store.queue.broadcastStates(queue.id);
+		} else {
+			// Remove from queue
+			queue.entries.splice(randomIndex, 1);
+			
+			// Add to removed list
+			if(!this.removedUsers[queue.id]) {
+				this.removedUsers[queue.id] = [];
+			}
+			this.removedUsers[queue.id].push(entry);
+			
+			this.$store.queue.saveData();
+			this.$store.queue.broadcastStates(queue.id);
+		}
+	}
+
+	public removeFromRemovedList(queueId:string, index:number):void {
+		if(!this.removedUsers[queueId] || index < 0 || index >= this.removedUsers[queueId].length) return;
+		this.removedUsers[queueId].splice(index, 1);
+		if(this.removedUsers[queueId].length === 0) {
+			delete this.removedUsers[queueId];
+		}
 	}
 
 }
@@ -165,19 +315,23 @@ export default toNative(QueueState);
 	position: relative;
 	margin-bottom: .5em;
 	overflow: visible;
+	width: 100%;
+	box-sizing: border-box;
 
 	.header {
 		background-color: var(--color-primary);
 		padding: .5em 0;
 		flex-shrink: 0;
-		&.clickable {
-			cursor: pointer;
-		}
+		display: flex;
+		align-items: center;
+		position: relative;
+		
 		.title {
 			display: flex;
 			flex-direction: row;
 			justify-content: center;
 			color: var(--color-light);
+			flex-grow: 1;
 			h1 {
 				text-align: center;
 				margin: 0 10px;
@@ -187,6 +341,32 @@ export default toNative(QueueState);
 					font-size: .65em;
 					font-weight: normal;
 				}
+			}
+		}
+		
+		.toggleBt {
+			position: absolute;
+			right: .5em;
+			top: 50%;
+			transform: translateY(-50%);
+			background: none;
+			border: none;
+			color: var(--color-light);
+			cursor: pointer;
+			padding: .25em;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: .25em;
+			transition: background-color .2s;
+			
+			&:hover {
+				background-color: rgba(255, 255, 255, 0.2);
+			}
+			
+			.icon {
+				width: 1.2em;
+				height: 1.2em;
 			}
 		}
 	}
@@ -237,6 +417,71 @@ export default toNative(QueueState);
 					opacity: .7;
 					font-weight: normal;
 				}
+				
+				.header-buttons {
+					display: flex;
+					gap: .25em;
+					
+					.headerBt {
+						background: none;
+						border: none;
+						color: var(--color-light);
+						cursor: pointer;
+						padding: .25em;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						border-radius: .25em;
+						transition: background-color .2s;
+						
+						&:hover {
+							background-color: rgba(255, 255, 255, 0.2);
+						}
+						
+						.icon {
+							width: 1.2em;
+							height: 1.2em;
+							filter: brightness(0) invert(1);
+						}
+					}
+				}
+			}
+			
+			.picked-user {
+				display: flex;
+				align-items: center;
+				gap: .5em;
+				padding: .5em;
+				background-color: var(--color-secondary-fader);
+				border-radius: var(--border-radius);
+				margin-bottom: .5em;
+				
+				.icon {
+					width: 1em;
+					height: 1em;
+					filter: brightness(0) invert(1);
+					opacity: 0.8;
+				}
+				
+				.label {
+					font-size: .9em;
+					opacity: .8;
+				}
+				
+				.platform-icon {
+					width: 1em;
+					height: 1em;
+				}
+				
+				.avatar {
+					width: 1.5em;
+					height: 1.5em;
+					border-radius: 50%;
+				}
+				
+				.username {
+					font-weight: bold;
+				}
 			}
 			
 			.columns-container {
@@ -254,6 +499,10 @@ export default toNative(QueueState);
 					}
 					
 					&.in-progress {
+						padding-left: 1em;
+					}
+					
+					&.removed {
 						padding-left: 1em;
 					}
 				}
@@ -402,5 +651,15 @@ export default toNative(QueueState);
 			}
 		}
 	}
+}
+
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
 }
 </style>

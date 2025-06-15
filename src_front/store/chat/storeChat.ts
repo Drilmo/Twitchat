@@ -1111,6 +1111,13 @@ export const storeChat = defineStore('chat', {
 							let words = [sAuth.twitch.user.login, ...(sParams.appearance.highlightMentions_custom.value as string[] || [])];
 							message.hasMention = new RegExp(words.map(word=> "\\b"+word+"\\b").join("|"), "gim")
 												.test(message.message ?? "");
+							
+							// Check if this is a queue command
+							const isQueueCommand = await StoreProxy.queue.handleQueueCommand(message);
+							if(isQueueCommand) {
+								// Don't add the command message to chat, it was handled
+								return;
+							}
 						}
 
 						//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)

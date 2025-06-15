@@ -110,6 +110,8 @@ export const storeParams = defineStore('params', {
 				liveLockCount: 3,
 				showPanelsHere:false,
 				showGreetHere:false,
+				queueIds: [],
+				queueCollapsed: false,
 				commandsBlockList: [],
 				userBlockList: [],
 				whispersPermissions:Utils.getDefaultPermissions(),
@@ -180,6 +182,8 @@ export const storeParams = defineStore('params', {
 				liveLockCount: 3,
 				showPanelsHere:true,
 				showGreetHere:true,
+				queueIds: [],
+				queueCollapsed: false,
 				commandsBlockList: [],
 				userBlockList: [],
 				whispersPermissions:Utils.getDefaultPermissions(),
@@ -300,6 +304,14 @@ export const storeParams = defineStore('params', {
 				this.chatColumnsConfig = JSON.parse(chatColConfs);
 				for (let i = 0; i < this.chatColumnsConfig.length; i++) {
 					this.chatColumnsConfig[i].id = Utils.getUUID();
+					// Add queueIds if missing (migration)
+					if(this.chatColumnsConfig[i].queueIds === undefined) {
+						this.chatColumnsConfig[i].queueIds = [];
+					}
+					// Add queueCollapsed if missing (migration)
+					if(this.chatColumnsConfig[i].queueCollapsed === undefined) {
+						this.chatColumnsConfig[i].queueCollapsed = false;
+					}
 				}
 				DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig);
 			}
@@ -376,6 +388,8 @@ export const storeParams = defineStore('params', {
 				liveLockCount:3,
 				showPanelsHere:false,
 				showGreetHere:false,
+				queueIds:[],
+				queueCollapsed:false,
 				commandsBlockList:[],
 				userBlockList:[],
 				whispersPermissions:Utils.getDefaultPermissions(),
