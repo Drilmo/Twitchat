@@ -48,6 +48,8 @@
             "param_message_join_already_tt":"Message envoyé quand l'utilisateur essaie de rejoindre mais est déjà dans la file",
             "param_message_join_full":"File pleine",
             "param_message_join_full_tt":"Message envoyé quand l'utilisateur essaie de rejoindre mais la file est pleine",
+            "param_message_join_max_per_user":"Limite d'entrées atteinte",
+            "param_message_join_max_per_user_tt":"Message envoyé quand l'utilisateur essaie de rejoindre mais a atteint sa limite d'entrées",
             "param_message_join_paused":"File en pause",
             "param_message_join_paused_tt":"Message envoyé quand l'utilisateur essaie de rejoindre mais la file est en pause",
             "param_message_join_disabled":"File désactivée",
@@ -63,7 +65,10 @@
             "param_message_position_paused":"Position - file en pause",
             "param_message_position_paused_tt":"Message envoyé quand l'utilisateur vérifie sa position alors que la file est en pause",
             "pause_queue_tt":"Mettre la file en pause",
-            "resume_queue_tt":"Reprendre la file"
+            "resume_queue_tt":"Reprendre la file",
+            "command_exists_error":"Cette commande existe déjà",
+            "command_duplicate_error":"Cette commande est déjà utilisée par une autre file",
+        "command_must_start_with_exclamation":"Les commandes doivent commencer par !"
         },
         "join":"Rejoindre la file",
         "leave":"Quitter la file", 

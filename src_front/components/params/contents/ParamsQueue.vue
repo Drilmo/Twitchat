@@ -60,9 +60,9 @@
                         
                         <ToggleBlock class="commands" small :title="$t('queue.form.commands_title')" :open="false" v-tooltip="$t('queue.form.commands_tt')">
                             <div class="commandInputs">
-                                <ParamItem :paramData="param_command_join[entry.id]" v-model="param_command_join[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_command_join_tt')" />
-                                <ParamItem :paramData="param_command_leave[entry.id]" v-model="param_command_leave[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_command_leave_tt')" />
-                                <ParamItem :paramData="param_command_position[entry.id]" v-model="param_command_position[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_command_position_tt')" />
+                                <ParamItem :paramData="param_command_join[entry.id]" v-model="param_command_join[entry.id].value" @change="onCommandChange(entry, 'join')" v-tooltip="$t('queue.form.param_command_join_tt')" />
+                                <ParamItem :paramData="param_command_leave[entry.id]" v-model="param_command_leave[entry.id].value" @change="onCommandChange(entry, 'leave')" v-tooltip="$t('queue.form.param_command_leave_tt')" />
+                                <ParamItem :paramData="param_command_position[entry.id]" v-model="param_command_position[entry.id].value" @change="onCommandChange(entry, 'position')" v-tooltip="$t('queue.form.param_command_position_tt')" />
                             </div>
                         </ToggleBlock>
                         
@@ -71,6 +71,7 @@
                                 <ParamItem :paramData="param_message_join_success[entry.id]" v-model="param_message_join_success[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_join_success_tt')" />
                                 <ParamItem :paramData="param_message_join_already[entry.id]" v-model="param_message_join_already[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_join_already_tt')" />
                                 <ParamItem :paramData="param_message_join_full[entry.id]" v-model="param_message_join_full[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_join_full_tt')" />
+                                <ParamItem :paramData="param_message_join_max_per_user[entry.id]" v-model="param_message_join_max_per_user[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_join_max_per_user_tt')" />
                                 <ParamItem :paramData="param_message_join_paused[entry.id]" v-model="param_message_join_paused[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_join_paused_tt')" />
                                 <ParamItem :paramData="param_message_join_disabled[entry.id]" v-model="param_message_join_disabled[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_join_disabled_tt')" />
                                 <ParamItem :paramData="param_message_leave_success[entry.id]" v-model="param_message_leave_success[entry.id].value" @change="save(entry)" v-tooltip="$t('queue.form.param_message_leave_success_tt')" />
@@ -130,6 +131,7 @@ import PlaceholderField from '@/components/PlaceholderField.vue';
 import ParamItem from '../ParamItem.vue';
 import draggable from 'vuedraggable';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 
 @Component({
     components:{Icon, TTButton, ToggleBlock, ToggleButton, PlaceholderField, ParamItem, draggable}
@@ -148,6 +150,7 @@ class ParamsQueue extends Vue {
     public param_message_join_success:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
     public param_message_join_already:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
     public param_message_join_full:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
+    public param_message_join_max_per_user:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
     public param_message_join_paused:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
     public param_message_join_disabled:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
     public param_message_leave_success:{[k:string]:TwitchatDataTypes.ParameterData<string>} = {};
@@ -160,6 +163,19 @@ class ParamsQueue extends Vue {
         this.initParams();
         this.$watch(()=>this.$store.queue.queueList,
             ()=>this.rebuildParams(), {deep:true, immediate:true});
+        
+        // Validate all commands on mount and after params are initialized
+        this.$nextTick(() => {
+            setTimeout(() => {
+                this.$store.queue.queueList.forEach(queue => {
+                    if(queue.commands) {
+                        this.validateCommand(queue, 'join');
+                        this.validateCommand(queue, 'leave');
+                        this.validateCommand(queue, 'position');
+                    }
+                });
+            }, 100);
+        });
     }
 
     public get canCreateQueues():boolean {
@@ -175,14 +191,15 @@ class ParamsQueue extends Vue {
             this.param_max_per_user[id] = {type:'number', value:q.maxPerUser, labelKey:'queue.form.param_max_per_user', icon:'group', min:1, max:100};
             this.param_max_entries[id] = {type:'number', value:q.maxEntries, labelKey:'queue.form.param_max_entries', icon:'list', min:0, max:100};
             this.param_enableInProgress[id] = {type:'boolean', value:q.inProgressEnabled ?? true, labelKey:'queue.form.param_enable_in_progress', icon:'list'};
-            this.param_command_join[id] = {type:'string', value:q.commands?.join || `!join${this.$store.queue.queueList.indexOf(q)+1}`, labelKey:'queue.form.param_command_join', icon:'chatCommand', maxLength:50};
-            this.param_command_leave[id] = {type:'string', value:q.commands?.leave || `!leave${this.$store.queue.queueList.indexOf(q)+1}`, labelKey:'queue.form.param_command_leave', icon:'chatCommand', maxLength:50};
-            this.param_command_position[id] = {type:'string', value:q.commands?.position || `!position${this.$store.queue.queueList.indexOf(q)+1}`, labelKey:'queue.form.param_command_position', icon:'chatCommand', maxLength:50};
+            this.param_command_join[id] = {type:'string', value:q.commands?.join || `!join${this.$store.queue.queueList.indexOf(q)+1}`, labelKey:'queue.form.param_command_join', icon:'chatCommand', maxLength:50, allowedCharsRegex:'^[a-zA-Z0-9!_-]+$'};
+            this.param_command_leave[id] = {type:'string', value:q.commands?.leave || `!leave${this.$store.queue.queueList.indexOf(q)+1}`, labelKey:'queue.form.param_command_leave', icon:'chatCommand', maxLength:50, allowedCharsRegex:'^[a-zA-Z0-9!_-]+$'};
+            this.param_command_position[id] = {type:'string', value:q.commands?.position || `!position${this.$store.queue.queueList.indexOf(q)+1}`, labelKey:'queue.form.param_command_position', icon:'chatCommand', maxLength:50, allowedCharsRegex:'^[a-zA-Z0-9!_-]+$'};
             
             // Initialize message parameters with proper placeholders
             this.param_message_join_success[id] = {type:'string', value:q.messages?.joinSuccess || "{USER} a rejoint la file à la position {POSITION}", labelKey:'queue.form.param_message_join_success', icon:'message', maxLength:500, placeholderKey:'{USER}, {POSITION}, {TOTAL}, {QUEUE_NAME}'};
             this.param_message_join_already[id] = {type:'string', value:q.messages?.joinAlreadyIn || "{USER}, tu es déjà dans la file à la position {POSITION}", labelKey:'queue.form.param_message_join_already', icon:'message', maxLength:500, placeholderKey:'{USER}, {POSITION}, {QUEUE_NAME}'};
-            this.param_message_join_full[id] = {type:'string', value:q.messages?.joinFull || "La file est pleine !", labelKey:'queue.form.param_message_join_full', icon:'message', maxLength:500, placeholderKey:'{USER}, {MAX_PER_USER}, {QUEUE_NAME}'};
+            this.param_message_join_full[id] = {type:'string', value:q.messages?.joinFull || "La file est pleine !", labelKey:'queue.form.param_message_join_full', icon:'message', maxLength:500, placeholderKey:'{USER}, {QUEUE_NAME}'};
+            this.param_message_join_max_per_user[id] = {type:'string', value:q.messages?.joinMaxPerUser || "{USER}, tu as atteint la limite de {MAX_PER_USER} entrée(s). Tu es déjà à la/aux position(s) : {POSITIONS}", labelKey:'queue.form.param_message_join_max_per_user', icon:'message', maxLength:500, placeholderKey:'{USER}, {MAX_PER_USER}, {POSITIONS}, {QUEUE_NAME}'};
             this.param_message_join_paused[id] = {type:'string', value:q.messages?.joinPaused || "La file est actuellement en pause", labelKey:'queue.form.param_message_join_paused', icon:'message', maxLength:500, placeholderKey:'{USER}, {QUEUE_NAME}'};
             this.param_message_join_disabled[id] = {type:'string', value:q.messages?.joinDisabled || "La file est désactivée", labelKey:'queue.form.param_message_join_disabled', icon:'message', maxLength:500, placeholderKey:'{USER}, {QUEUE_NAME}'};
             this.param_message_leave_success[id] = {type:'string', value:q.messages?.leaveSuccess || "{USER} a quitté la file", labelKey:'queue.form.param_message_leave_success', icon:'message', maxLength:500, placeholderKey:'{USER}, {QUEUE_NAME}'};
@@ -203,6 +220,7 @@ class ParamsQueue extends Vue {
         this.param_message_join_success = {};
         this.param_message_join_already = {};
         this.param_message_join_full = {};
+        this.param_message_join_max_per_user = {};
         this.param_message_join_paused = {};
         this.param_message_join_disabled = {};
         this.param_message_leave_success = {};
@@ -213,7 +231,190 @@ class ParamsQueue extends Vue {
         this.initParams();
     }
 
+    public onCommandChange(entry:TwitchatDataTypes.QueueData, commandType: 'join' | 'leave' | 'position'):void {
+        // Validate this command
+        this.validateCommand(entry, commandType);
+        
+        // Revalidate all commands of all queues since changing one might affect others
+        this.$store.queue.queueList.forEach(queue => {
+            if(queue.commands) {
+                this.validateCommand(queue, 'join');
+                this.validateCommand(queue, 'leave');
+                this.validateCommand(queue, 'position');
+            }
+        });
+        
+        // Only save if there are no errors
+        this.save(entry);
+    }
+
+    public validateCommand(entry:TwitchatDataTypes.QueueData, commandType: 'join' | 'leave' | 'position'):void {
+        const id = entry.id;
+        let commandValue: string;
+        
+        // Type-safe access to command parameters
+        if (commandType === 'join') {
+            commandValue = this.param_command_join[id].value;
+        } else if (commandType === 'leave') {
+            commandValue = this.param_command_leave[id].value;
+        } else {
+            commandValue = this.param_command_position[id].value;
+        }
+        
+        // Reset error state
+        if (commandType === 'join') {
+            this.param_command_join[id].error = undefined;
+            this.param_command_join[id].errorMessage = undefined;
+        } else if (commandType === 'leave') {
+            this.param_command_leave[id].error = undefined;
+            this.param_command_leave[id].errorMessage = undefined;
+        } else {
+            this.param_command_position[id].error = undefined;
+            this.param_command_position[id].errorMessage = undefined;
+        }
+        
+        // Don't validate empty commands
+        if (!commandValue) return;
+        
+        // Force command to start with "!"
+        if (!commandValue.startsWith('!')) {
+            commandValue = '!' + commandValue;
+            
+            // Type-safe assignment
+            if (commandType === 'join') {
+                this.param_command_join[id].value = commandValue;
+            } else if (commandType === 'leave') {
+                this.param_command_leave[id].value = commandValue;
+            } else {
+                this.param_command_position[id].value = commandValue;
+            }
+            
+            entry.commands = entry.commands || {};
+            entry.commands[commandType] = commandValue;
+        }
+        
+        // Remove any "/" at the beginning
+        if (commandValue.startsWith('/')) {
+            // Type-safe error assignment
+            if (commandType === 'join') {
+                this.param_command_join[id].error = true;
+                this.param_command_join[id].errorMessage = this.$t("queue.form.command_must_start_with_exclamation");
+            } else if (commandType === 'leave') {
+                this.param_command_leave[id].error = true;
+                this.param_command_leave[id].errorMessage = this.$t("queue.form.command_must_start_with_exclamation");
+            } else {
+                this.param_command_position[id].error = true;
+                this.param_command_position[id].errorMessage = this.$t("queue.form.command_must_start_with_exclamation");
+            }
+            return;
+        }
+        
+        commandValue = commandValue.toLowerCase();
+        
+        // Get all existing "!" commands only
+        const existingCommands = new Set<string>();
+        
+        // Add trigger custom "!" commands only
+        const triggerCommands = this.$store.triggers.triggerList.filter(t => 
+            t.type === TriggerTypes.CHAT_COMMAND && 
+            t.enabled && 
+            t.chatCommand &&
+            t.chatCommand.startsWith('!')
+        );
+        triggerCommands.forEach(t => {
+            if(t.chatCommand) existingCommands.add(t.chatCommand.toLowerCase());
+        });
+        
+        // Check for conflicts with commands in the same queue
+        const currentQueueCommands = [
+            { type: 'join' as const, value: this.param_command_join[id].value?.toLowerCase() },
+            { type: 'leave' as const, value: this.param_command_leave[id].value?.toLowerCase() },
+            { type: 'position' as const, value: this.param_command_position[id].value?.toLowerCase() }
+        ];
+        
+        // Check if current command conflicts with other commands in the same queue
+        currentQueueCommands.forEach(cmd => {
+            if (cmd.type !== commandType && cmd.value === commandValue) {
+                // Type-safe error assignment
+                if (commandType === 'join') {
+                    this.param_command_join[id].error = true;
+                    this.param_command_join[id].errorMessage = this.$t("queue.form.command_duplicate_error");
+                } else if (commandType === 'leave') {
+                    this.param_command_leave[id].error = true;
+                    this.param_command_leave[id].errorMessage = this.$t("queue.form.command_duplicate_error");
+                } else {
+                    this.param_command_position[id].error = true;
+                    this.param_command_position[id].errorMessage = this.$t("queue.form.command_duplicate_error");
+                }
+            }
+        });
+        
+        // Check for conflicts with other queue commands
+        this.$store.queue.queueList.forEach(queue => {
+            if(queue.id === entry.id || !queue.commands) return;
+            
+            if(queue.commands.join?.toLowerCase() === commandValue ||
+               queue.commands.leave?.toLowerCase() === commandValue ||
+               queue.commands.position?.toLowerCase() === commandValue) {
+                // Type-safe error assignment
+                if (commandType === 'join') {
+                    this.param_command_join[id].error = true;
+                    this.param_command_join[id].errorMessage = this.$t("queue.form.command_duplicate_error");
+                } else if (commandType === 'leave') {
+                    this.param_command_leave[id].error = true;
+                    this.param_command_leave[id].errorMessage = this.$t("queue.form.command_duplicate_error");
+                } else {
+                    this.param_command_position[id].error = true;
+                    this.param_command_position[id].errorMessage = this.$t("queue.form.command_duplicate_error");
+                }
+            }
+        });
+        
+        // Check against existing "!" trigger commands
+        let hasError = false;
+        if (commandType === 'join') {
+            hasError = this.param_command_join[id].error || false;
+        } else if (commandType === 'leave') {
+            hasError = this.param_command_leave[id].error || false;
+        } else {
+            hasError = this.param_command_position[id].error || false;
+        }
+        
+        if(existingCommands.has(commandValue) && !hasError) {
+            // Type-safe error assignment
+            if (commandType === 'join') {
+                this.param_command_join[id].error = true;
+                this.param_command_join[id].errorMessage = this.$t("queue.form.command_exists_error");
+            } else if (commandType === 'leave') {
+                this.param_command_leave[id].error = true;
+                this.param_command_leave[id].errorMessage = this.$t("queue.form.command_exists_error");
+            } else {
+                this.param_command_position[id].error = true;
+                this.param_command_position[id].errorMessage = this.$t("queue.form.command_exists_error");
+            }
+        }
+    }
+
     public save(entry:TwitchatDataTypes.QueueData):void {
+        const id = entry.id;
+        
+        // Check if there are any errors in ANY queue before saving
+        let hasErrors = false;
+        this.$store.queue.queueList.forEach(queue => {
+            const qid = queue.id;
+            if(this.param_command_join[qid]?.error || 
+               this.param_command_leave[qid]?.error || 
+               this.param_command_position[qid]?.error) {
+                hasErrors = true;
+            }
+        });
+        
+        if(hasErrors) {
+            // Don't save if there are validation errors in any queue
+            console.log("Cannot save: validation errors present");
+            return;
+        }
+        
         // Update commands from params
         if(!entry.commands) entry.commands = {};
         entry.commands.join = this.param_command_join[entry.id].value;
@@ -225,6 +426,7 @@ class ParamsQueue extends Vue {
         entry.messages.joinSuccess = this.param_message_join_success[entry.id].value;
         entry.messages.joinAlreadyIn = this.param_message_join_already[entry.id].value;
         entry.messages.joinFull = this.param_message_join_full[entry.id].value;
+        entry.messages.joinMaxPerUser = this.param_message_join_max_per_user[entry.id].value;
         entry.messages.joinPaused = this.param_message_join_paused[entry.id].value;
         entry.messages.joinDisabled = this.param_message_join_disabled[entry.id].value;
         entry.messages.leaveSuccess = this.param_message_leave_success[entry.id].value;

@@ -6453,6 +6453,7 @@ export interface MessageTwitchComboData extends AbstractTwitchatMessage {
                         joinSuccess?:string;
                         joinAlreadyIn?:string;
                         joinFull?:string;
+                        joinMaxPerUser?:string;
                         joinPaused?:string;
                         joinDisabled?:string;
                         leaveSuccess?:string;

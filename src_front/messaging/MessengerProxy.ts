@@ -427,7 +427,8 @@ export default class MessengerProxy {
 					message_size: 0,
 					answers: [],
 				};
-				return await this.handleQueueJoin(queue, messageObj, StoreProxy.users.getUserFrom("twitch", channelId, channelId, me.login, me.login));
+				await this.handleQueueJoin(queue, messageObj, StoreProxy.users.getUserFrom("twitch", channelId, channelId, me.login, me.login));
+				return false; // Allow message to be sent to chat
 			}
 			if(queue.commands?.leave && cmd === queue.commands.leave.toLowerCase()) {
 				// Handle custom leave command
@@ -445,7 +446,8 @@ export default class MessengerProxy {
 					message_size: 0,
 					answers: [],
 				};
-				return await this.handleQueueLeave(queue, messageObj, StoreProxy.users.getUserFrom("twitch", channelId, channelId, me.login, me.login));
+				await this.handleQueueLeave(queue, messageObj, StoreProxy.users.getUserFrom("twitch", channelId, channelId, me.login, me.login));
+				return false; // Allow message to be sent to chat
 			}
 		}
 

@@ -14,24 +14,25 @@
 			</button>
 		</div>
 		<div class="messageList" v-if="showList || !collapsible">
-			<div v-for="queue in activeQueues" :key="queue.id" class="queue-item">
+			<div v-for="queue in activeQueues" :key="queue.id" :class="['queue-item', {disabled: !queue.enabled}]">
 				<div class="queue-header">
 					<Icon name="list" class="icon" />
 					<div class="title-wrapper">
 						<span class="title">{{ queue.title || $t('queue.default_title') }}</span>
+						<span class="disabled-badge" v-if="!queue.enabled">{{ $t('global.disabled') }}</span>
 						<button class="copyIdBt" @click="copyQueueId(queue)" v-tooltip="copiedId === queue.id ? $t('global.copied') : $t('queue.copy_id_tt')">
 							<Icon name="copy" />
 						</button>
 					</div>
 					<span class="status" v-if="queue.paused">({{ $t('queue.paused') }})</span>
 					<div class="header-buttons">
-						<button class="headerBt" @click="pickFirst(queue)" v-if="queue.entries.length > 0" v-tooltip="$t('queue.pick_first_tt')">
+						<button class="headerBt" @click="pickFirst(queue)" v-if="queue.entries.length > 0 && queue.enabled" v-tooltip="$t('queue.pick_first_tt')">
 							<Icon name="next" />
 						</button>
-						<button class="headerBt" @click="pickRandom(queue)" v-if="queue.entries.length > 0" v-tooltip="$t('queue.pick_random_tt')">
+						<button class="headerBt" @click="pickRandom(queue)" v-if="queue.entries.length > 0 && queue.enabled" v-tooltip="$t('queue.pick_random_tt')">
 							<Icon name="dice" />
 						</button>
-						<button class="headerBt" @click="togglePause(queue)" v-tooltip="queue.paused ? $t('queue.form.resume_queue_tt') : $t('queue.form.pause_queue_tt')">
+						<button class="headerBt" @click="togglePause(queue)" v-if="queue.enabled" v-tooltip="queue.paused ? $t('queue.form.resume_queue_tt') : $t('queue.form.pause_queue_tt')">
 							<Icon :name="queue.paused ? 'play' : 'pause'" />
 						</button>
 					</div>
@@ -42,7 +43,7 @@
 					<div class="column entries" v-if="queue.entries.length > 0 || (queue.entries.length === 0 && (!queue.inProgress || queue.inProgress.length === 0))">
 						<div class="section-title">
 							<span>{{ $t('queue.form.list_entries') }} <span class="count">({{ queue.entries.length }})</span></span>
-							<div class="clearActions" v-if="queue.entries.length > 0">
+							<div class="clearActions" v-if="queue.entries.length > 0 && queue.enabled">
 								<button class="clearBt" @click="toggleClearConfirm('queue_'+queue.id)" v-if="!confirmingClear['queue_'+queue.id]" v-tooltip="$t('queue.clear_queue_tt')">
 									<Icon name="trash" />
 								</button>
@@ -63,16 +64,16 @@
 								<img :src="entry.user.avatarPath" class="avatar" v-if="entry.user.avatarPath" />
 								<span class="username">{{ entry.user.displayName }}</span>
 								<div class="actions">
-									<button class="actionBt" @click="moveUp(queue.id, entry.user.id, index)" v-if="index > 0" v-tooltip="$t('queue.form.move_up_tt')">
+									<button class="actionBt" @click="moveUp(queue.id, entry.user.id, index)" v-if="index > 0 && queue.enabled" v-tooltip="$t('queue.form.move_up_tt')">
 										<Icon name="arrowDown" class="icon up" />
 									</button>
-									<button class="actionBt" @click="moveDown(queue.id, entry.user.id, index)" v-if="index < queue.entries.length - 1" v-tooltip="$t('queue.form.move_down_tt')">
+									<button class="actionBt" @click="moveDown(queue.id, entry.user.id, index)" v-if="index < queue.entries.length - 1 && queue.enabled" v-tooltip="$t('queue.form.move_down_tt')">
 										<Icon name="arrowDown" class="icon" />
 									</button>
-									<button class="actionBt" @click="moveToInProgress(queue.id, entry.user.id)" v-if="queue.inProgressEnabled" v-tooltip="$t('queue.form.move_to_progress_tt')">
+									<button class="actionBt" @click="moveToInProgress(queue.id, entry.user.id)" v-if="queue.inProgressEnabled && queue.enabled" v-tooltip="$t('queue.form.move_to_progress_tt')">
 										<Icon name="next" class="icon" />
 									</button>
-									<button class="actionBt delete" @click="removeEntry(queue.id, index)" v-tooltip="$t('queue.form.remove_viewer_tt')">
+									<button class="actionBt delete" @click="removeEntry(queue.id, index)" v-if="queue.enabled" v-tooltip="$t('queue.form.remove_viewer_tt')">
 										<Icon name="trash" class="icon" />
 									</button>
 								</div>
@@ -88,7 +89,7 @@
 					<div class="column in-progress" v-if="queue.inProgressEnabled && queue.inProgress && queue.inProgress.length > 0">
 						<div class="section-title">
 							<span>{{ $t('queue.form.list_in_progress') }} <span class="count">({{ queue.inProgress.length }})</span></span>
-							<div class="clearActions" v-if="queue.inProgress.length > 0">
+							<div class="clearActions" v-if="queue.inProgress.length > 0 && queue.enabled">
 								<button class="clearBt" @click="toggleClearConfirm('progress_'+queue.id)" v-if="!confirmingClear['progress_'+queue.id]" v-tooltip="$t('queue.clear_in_progress_tt')">
 									<Icon name="trash" />
 								</button>
@@ -108,10 +109,10 @@
 								<img :src="entry.user.avatarPath" class="avatar" v-if="entry.user.avatarPath" />
 								<span class="username">{{ entry.user.displayName }}</span>
 								<div class="actions">
-									<button class="actionBt" @click="moveToQueue(queue.id, indexProgress)" v-tooltip="$t('queue.form.move_back_to_queue_tt')">
+									<button class="actionBt" @click="moveToQueue(queue.id, indexProgress)" v-if="queue.enabled" v-tooltip="$t('queue.form.move_back_to_queue_tt')">
 										<Icon name="prev" class="icon" />
 									</button>
-									<button class="actionBt delete" @click="removeInProgressEntry(queue.id, indexProgress)" v-tooltip="$t('queue.form.remove_viewer_tt')">
+									<button class="actionBt delete" @click="removeInProgressEntry(queue.id, indexProgress)" v-if="queue.enabled" v-tooltip="$t('queue.form.remove_viewer_tt')">
 										<Icon name="trash" class="icon" />
 									</button>
 								</div>
@@ -217,16 +218,15 @@ class QueueState extends Vue {
 	}
 
 	public get activeQueues():TwitchatDataTypes.QueueData[] {
-		// Filter by enabled queues and optionally by specific queue IDs
+		// Filter by specific queue IDs if provided, otherwise show all queues
 		return this.$store.queue.queueList.filter(q => {
 			// If queueIds is provided AND not empty, only show queues that are in the list
-			// In this case, ignore the enabled state
 			if(this.queueIds !== undefined && this.queueIds.length > 0) {
-				// Only include if the queue ID is in the list AND the queue still exists
+				// Only include if the queue ID is in the list
 				return this.queueIds.includes(q.id);
 			}
-			// If no queueIds provided or empty array, show all enabled queues
-			return q.enabled;
+			// If no queueIds provided or empty array, show all queues (enabled and disabled)
+			return true;
 		});
 	}
 
@@ -556,6 +556,26 @@ export default toNative(QueueState);
 				margin-bottom: 1em;
 			}
 			
+			&.disabled {
+				opacity: 0.6;
+				
+				.queue-header {
+					background-color: var(--color-dark-fadest);
+				}
+				
+				.header-buttons .headerBt {
+					cursor: not-allowed;
+					opacity: 0.5;
+					pointer-events: none;
+				}
+				
+				.actionBt {
+					cursor: not-allowed;
+					opacity: 0.5;
+					pointer-events: none;
+				}
+			}
+			
 			.queue-header {
 				display: flex;
 				align-items: center;
@@ -582,6 +602,16 @@ export default toNative(QueueState);
 				
 				.title {
 					font-size: 1.1em;
+				}
+				
+				.disabled-badge {
+					background-color: var(--color-alert);
+					color: var(--color-light);
+					padding: .2em .5em;
+					border-radius: var(--border-radius);
+					font-size: .75em;
+					font-weight: normal;
+					margin-left: .5em;
 				}
 				
 				.status {

@@ -1134,11 +1134,9 @@ export const storeChat = defineStore('chat', {
 												.test(message.message ?? "");
 							
 							// Check if this is a queue command
-							const isQueueCommand = await StoreProxy.queue.handleQueueCommand(message);
-							if(isQueueCommand) {
-								// Don't add the command message to chat, it was handled
-								return;
-							}
+							await StoreProxy.queue.handleQueueCommand(message);
+							// Continue processing the message even if it's a queue command
+							// This allows the command to be displayed in chat like trigger commands
 						}
 
 						//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)

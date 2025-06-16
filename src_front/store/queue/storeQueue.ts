@@ -412,13 +412,27 @@ export const storeQueue = defineStore('queue', {
                         }
                         
                         // Check queue limits
-                        const userEntryCount = queue.entries.filter(e => e.user.id === user.id).length + 
-                                              (queue.inProgress?.filter(e => e.user.id === user.id).length || 0);
+                        const userEntries = queue.entries.filter(e => e.user.id === user.id);
+                        const userInProgress = queue.inProgress?.filter(e => e.user.id === user.id) || [];
+                        const userEntryCount = userEntries.length + userInProgress.length;
                         
                         if(userEntryCount >= queue.maxPerUser) {
-                                await this.sendQueueResponse(message, this.replacePlaceholders(queue.messages?.joinFull || "Tu as atteint la limite pour cette file", {
+                                // Calculate positions for the user
+                                const positions: number[] = [];
+                                userEntries.forEach((entry, index) => {
+                                        const position = queue.entries.indexOf(entry) + 1;
+                                        positions.push(position);
+                                });
+                                if(userInProgress.length > 0) {
+                                        positions.push(0); // 0 indicates in progress
+                                }
+                                
+                                const positionsStr = positions.map(p => p === 0 ? "en cours" : p.toString()).join(", ");
+                                
+                                await this.sendQueueResponse(message, this.replacePlaceholders(queue.messages?.joinMaxPerUser || "{USER}, tu as atteint la limite de {MAX_PER_USER} entrée(s). Tu es déjà à la/aux position(s) : {POSITIONS}", {
                                         USER: user.displayName,
                                         MAX_PER_USER: queue.maxPerUser.toString(),
+                                        POSITIONS: positionsStr,
                                         QUEUE_NAME: queue.title
                                 }));
                                 return;
