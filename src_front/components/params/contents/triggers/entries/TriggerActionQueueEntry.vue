@@ -64,6 +64,11 @@ class TriggerActionQueueEntry extends AbstractTriggerActionEntry {
 			{value:"remove", label:this.$t("triggers.actions.queue.param_action_remove")},
 			{value:"pause", label:this.$t("triggers.actions.queue.param_action_pause")},
 			{value:"resume", label:this.$t("triggers.actions.queue.param_action_resume")},
+			{value:"clear", label:this.$t("triggers.actions.queue.param_action_clear")},
+			{value:"clear_progress", label:this.$t("triggers.actions.queue.param_action_clear_progress")},
+			{value:"clear_removed", label:this.$t("triggers.actions.queue.param_action_clear_removed")},
+			{value:"pick_first", label:this.$t("triggers.actions.queue.param_action_pick_first")},
+			{value:"pick_random", label:this.$t("triggers.actions.queue.param_action_pick_random")},
 		];
 
 		this.updateAction();
@@ -101,6 +106,17 @@ class TriggerActionQueueEntry extends AbstractTriggerActionEntry {
 				break;
 			case "resume":
 				this.param_action.icon = "play";
+				break;
+			case "clear":
+			case "clear_progress":
+			case "clear_removed":
+				this.param_action.icon = "trash";
+				break;
+			case "pick_first":
+				this.param_action.icon = "next";
+				break;
+			case "pick_random":
+				this.param_action.icon = "dice";
 				break;
 		}
 	}

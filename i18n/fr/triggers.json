@@ -703,6 +703,11 @@
 				"param_action_remove": "Retirer de la file",
 				"param_action_pause": "Mettre en pause",
 				"param_action_resume": "Reprendre",
+				"param_action_clear": "Vider la file",
+				"param_action_clear_progress": "Vider la liste des en cours",
+				"param_action_clear_removed": "Vider la liste des récemment supprimés",
+				"param_action_pick_first": "Sélectionner le premier",
+				"param_action_pick_random": "Sélectionner aléatoirement",
 				"param_user": "Utilisateur à affecter",
 				"param_user_placeholder": "Entrer un placeholder utilisateur"
 			},

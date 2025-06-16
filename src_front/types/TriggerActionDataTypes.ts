@@ -580,7 +580,7 @@ export interface TriggerActionQueueData extends TriggerActionData{
 	/**
 	 * Action to perform on the queue
 	 */
-	action:"join"|"leave"|"move_to_progress"|"remove"|"pause"|"resume";
+	action:"join"|"leave"|"move_to_progress"|"remove"|"pause"|"resume"|"clear"|"clear_progress"|"clear_removed"|"pick_first"|"pick_random";
 	/**
 	 * Queue ID to perform action on
 	 */

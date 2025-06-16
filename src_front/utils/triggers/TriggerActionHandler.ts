@@ -2049,6 +2049,38 @@ export default class TriggerActionHandler {
 								StoreProxy.queue.resumeQueue(queue.id);
 								logStep.messages.push({date:Date.now(), value:"✔ Resumed queue \""+queue.title+"\""});
 								break;
+							case "clear":
+								StoreProxy.queue.clearQueue(queue.id);
+								logStep.messages.push({date:Date.now(), value:"✔ Cleared queue \""+queue.title+"\""});
+								break;
+							case "clear_progress":
+								StoreProxy.queue.clearInProgress(queue.id);
+								logStep.messages.push({date:Date.now(), value:"✔ Cleared in-progress list of queue \""+queue.title+"\""});
+								break;
+							case "clear_removed":
+								StoreProxy.queue.broadcastClearRemoved(queue.id);
+								logStep.messages.push({date:Date.now(), value:"✔ Cleared recently removed list of queue \""+queue.title+"\""});
+								break;
+							case "pick_first":
+								const firstUser = StoreProxy.queue.pickFirstUser(queue.id);
+								if(firstUser) {
+									logStep.messages.push({date:Date.now(), value:"✔ Picked first user "+firstUser.displayNameOriginal+" from queue \""+queue.title+"\""});
+								} else {
+									logStep.messages.push({date:Date.now(), value:"❌ Queue \""+queue.title+"\" is empty"});
+									log.error = true;
+									logStep.error = true;
+								}
+								break;
+							case "pick_random":
+								const randomUser = StoreProxy.queue.pickRandomUser(queue.id);
+								if(randomUser) {
+									logStep.messages.push({date:Date.now(), value:"✔ Randomly picked "+randomUser.displayNameOriginal+" from queue \""+queue.title+"\""});
+								} else {
+									logStep.messages.push({date:Date.now(), value:"❌ Queue \""+queue.title+"\" is empty"});
+									log.error = true;
+									logStep.error = true;
+								}
+								break;
 							default:
 								logStep.messages.push({date:Date.now(), value:"❌ Unknown queue action: "+step.action});
 								log.error = true;

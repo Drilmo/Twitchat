@@ -1,3 +1,5 @@
+import EventBus from '@/events/EventBus';
+import GlobalEvent from '@/events/GlobalEvent';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
@@ -209,6 +211,10 @@ export const storeQueue = defineStore('queue', {
                         });
                 },
 
+                broadcastClearRemoved(queueId:string) {
+                        EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.QUEUE_CLEAR_REMOVED, { queueId }));
+                },
+                
                 broadcastStates(id?:string) {
                         for (let i = 0; i < this.queueList.length; i++) {
                                 const entry = this.queueList[i];

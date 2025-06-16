@@ -703,6 +703,11 @@
 				"param_action_remove": "Remove from queue",
 				"param_action_pause": "Pause queue",
 				"param_action_resume": "Resume queue",
+				"param_action_clear": "Clear queue",
+				"param_action_clear_progress": "Clear in-progress list",
+				"param_action_clear_removed": "Clear recently removed list",
+				"param_action_pick_first": "Pick first user",
+				"param_action_pick_random": "Pick random user",
 				"param_user": "User to affect",
 				"param_user_placeholder": "Enter a user placeholder"
 			},
