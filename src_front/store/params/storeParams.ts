@@ -158,6 +158,7 @@ export const storeParams = defineStore('params', {
 					twitch_charity_donation:false,
 					community_boost_complete: false,
 					community_challenge_contribution: false,
+					queue_command: false,
 				},
 				messageFilters: {
 					automod: false,
@@ -229,6 +230,7 @@ export const storeParams = defineStore('params', {
 					twitch_charity_donation:true,
 					community_boost_complete: true,
 					community_challenge_contribution: true,
+					queue_command: true,
 				},
 				messageFilters: {
 					automod: true,
@@ -435,6 +437,7 @@ export const storeParams = defineStore('params', {
 					twitch_charity_donation:false,
 					community_boost_complete:false,
 					community_challenge_contribution:false,
+					queue_command:true,
 				},
 				messageFilters:{
 					automod:true,

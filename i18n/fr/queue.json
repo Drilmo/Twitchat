@@ -77,6 +77,7 @@
         "remove_permanently_tt":"Supprimer définitivement",
         "clear_queue_tt":"Vider la file",
         "clear_in_progress_tt":"Vider la liste en cours",
-        "clear_removed_tt":"Vider la liste des supprimés"
+        "clear_removed_tt":"Vider la liste des supprimés",
+        "copy_id_tt":"Copier l'ID de la file"
     }
 }

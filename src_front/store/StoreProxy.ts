@@ -1606,6 +1606,10 @@ export interface IQueueActions {
         executeQueuePosition(queue: TwitchatDataTypes.QueueData, message: TwitchatDataTypes.MessageChatData): Promise<void>;
         replacePlaceholders(template: string, values: {[key:string]:string}): string;
         sendQueueResponse(originalMessage: TwitchatDataTypes.MessageChatData, responseText: string): Promise<void>;
+        clearQueue(id:string):void;
+        clearInProgress(id:string):void;
+        pickFirstUser(id:string):TwitchatDataTypes.TwitchatUser;
+        pickRandomUser(id:string):TwitchatDataTypes.TwitchatUser;
 }
 
 

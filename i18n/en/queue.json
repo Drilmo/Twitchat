@@ -77,6 +77,7 @@
         "remove_permanently_tt":"Remove permanently",
         "clear_queue_tt":"Clear queue",
         "clear_in_progress_tt":"Clear in progress list",
-        "clear_removed_tt":"Clear removed list"
+        "clear_removed_tt":"Clear removed list",
+        "copy_id_tt":"Copy queue ID"
     }
 }

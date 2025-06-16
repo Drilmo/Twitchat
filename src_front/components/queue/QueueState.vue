@@ -17,7 +17,12 @@
 			<div v-for="queue in activeQueues" :key="queue.id" class="queue-item">
 				<div class="queue-header">
 					<Icon name="list" class="icon" />
-					<span class="title">{{ queue.title || $t('queue.default_title') }}</span>
+					<div class="title-wrapper">
+						<span class="title">{{ queue.title || $t('queue.default_title') }}</span>
+						<button class="copyIdBt" @click="copyQueueId(queue)" v-tooltip="copiedId === queue.id ? $t('global.copied') : $t('queue.copy_id_tt')">
+							<Icon name="copy" />
+						</button>
+					</div>
 					<span class="status" v-if="queue.paused">({{ $t('queue.paused') }})</span>
 					<div class="header-buttons">
 						<button class="headerBt" @click="pickFirst(queue)" v-if="queue.entries.length > 0" v-tooltip="$t('queue.pick_first_tt')">
@@ -156,6 +161,8 @@
 import Icon from '@/components/Icon.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue, toNative, Prop, Watch } from 'vue-facing-decorator';
+import EventBus from '@/events/EventBus';
+import GlobalEvent from '@/events/GlobalEvent';
 
 @Component({
 	components:{
@@ -177,12 +184,30 @@ class QueueState extends Vue {
 	public showList: boolean = true;
 	public removedUsers:{[queueId:string]:TwitchatDataTypes.QueueEntry[]} = {};
 	public confirmingClear:{[key:string]:boolean} = {};
+	public copiedId: string | null = null;
 	private clearTimeouts:{[key:string]:number} = {};
+	private copiedTimeout: number = -1;
+	private queueUserRemovedHandler!: (e: GlobalEvent) => void;
+	private queueClearRemovedHandler!: (e: GlobalEvent) => void;
 
 	public mounted():void {
 		// Only apply collapsed state if collapsible is true
 		if (this.collapsible) {
 			this.showList = !this.collapsed;
+		}
+		
+		// Listen for queue events
+		this.queueUserRemovedHandler = (e: GlobalEvent) => this.onQueueUserRemoved(e);
+		this.queueClearRemovedHandler = (e: GlobalEvent) => this.onQueueClearRemoved(e);
+		EventBus.instance.addEventListener(GlobalEvent.QUEUE_USER_REMOVED, this.queueUserRemovedHandler);
+		EventBus.instance.addEventListener(GlobalEvent.QUEUE_CLEAR_REMOVED, this.queueClearRemovedHandler);
+	}
+	
+	public beforeUnmount():void {
+		EventBus.instance.removeEventListener(GlobalEvent.QUEUE_USER_REMOVED, this.queueUserRemovedHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.QUEUE_CLEAR_REMOVED, this.queueClearRemovedHandler);
+		if(this.copiedTimeout !== -1) {
+			clearTimeout(this.copiedTimeout);
 		}
 	}
 
@@ -286,6 +311,22 @@ class QueueState extends Vue {
 			this.$store.queue.pauseQueue(queue.id);
 		}
 	}
+	
+	public copyQueueId(queue:TwitchatDataTypes.QueueData):void {
+		navigator.clipboard.writeText(queue.id);
+		this.copiedId = queue.id;
+		
+		// Clear any existing timeout
+		if(this.copiedTimeout !== -1) {
+			clearTimeout(this.copiedTimeout);
+		}
+		
+		// Reset after 2 seconds
+		this.copiedTimeout = window.setTimeout(() => {
+			this.copiedId = null;
+			this.copiedTimeout = -1;
+		}, 2000);
+	}
 
 	public pickFirst(queue:TwitchatDataTypes.QueueData):void {
 		if(queue.entries.length === 0) return;
@@ -367,6 +408,27 @@ class QueueState extends Vue {
 	public clearRemovedList(queueId:string):void {
 		if(!this.removedUsers[queueId]) return;
 		delete this.removedUsers[queueId];
+	}
+	
+	private onQueueUserRemoved(e: GlobalEvent):void {
+		const data = e.data as { queueId: string, entry: TwitchatDataTypes.QueueEntry };
+		
+		// Only add to removed users if this QueueState is displaying the relevant queue
+		if(!this.queueIds || this.queueIds.includes(data.queueId)) {
+			if(!this.removedUsers[data.queueId]) {
+				this.removedUsers[data.queueId] = [];
+			}
+			this.removedUsers[data.queueId].push(data.entry);
+		}
+	}
+	
+	private onQueueClearRemoved(e: GlobalEvent):void {
+		const data = e.data as { queueId: string };
+		
+		// Only clear if this QueueState is displaying the relevant queue
+		if(!this.queueIds || this.queueIds.includes(data.queueId)) {
+			this.clearRemovedList(data.queueId);
+		}
 	}
 
 	public toggleClearConfirm(key:string):void {
@@ -512,8 +574,13 @@ export default toNative(QueueState);
 					opacity: 0.8;
 				}
 				
-				.title {
+				.title-wrapper {
+					display: flex;
+					align-items: center;
 					flex-grow: 1;
+				}
+				
+				.title {
 					font-size: 1.1em;
 				}
 				
@@ -522,6 +589,48 @@ export default toNative(QueueState);
 					font-style: italic;
 					opacity: .7;
 					font-weight: normal;
+				}
+				
+				.copyIdBt {
+					background: none;
+					border: none;
+					cursor: pointer;
+					padding: 0;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					border-radius: .25em;
+					transition: background-color .2s, color .2s;
+					width: 1.4em;
+					height: 1.4em;
+					box-sizing: border-box;
+					color: var(--color-text-fade);
+					margin-left: .5em;
+					
+					&:hover {
+						background-color: rgba(255, 255, 255, 0.1);
+						color: var(--color-text);
+					}
+					
+					.icon {
+						width: .8em;
+						height: .8em;
+						filter: brightness(0) invert(1);
+						opacity: 0.7;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						transition: opacity .2s;
+						
+						:deep(svg) {
+							width: 100%;
+							height: 100%;
+						}
+					}
+					
+					&:hover .icon {
+						opacity: 0.9;
+					}
 				}
 				
 				.header-buttons {

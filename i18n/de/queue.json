@@ -17,6 +17,7 @@
             "param_rotate_delay":"Rotation delay (s)",
             "list_entries":"Viewers in queue",
             "list_in_progress":"Viewers in progress"
-        }
+        },
+        "copy_id_tt":"Copy queue ID"
     }
 }

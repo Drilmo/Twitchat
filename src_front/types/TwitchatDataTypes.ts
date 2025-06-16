@@ -2756,6 +2756,7 @@ export namespace TwitchatDataTypes {
 		QUEUE_LEAVE:"queue_leave",
 		QUEUE_MOVE_TO_PROGRESS:"queue_move_to_progress",
 		QUEUE_COMPLETE:"queue_complete",
+		QUEUE_COMMAND:"queue_command",
 	} as const;
 
 	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
@@ -2885,6 +2886,7 @@ export namespace TwitchatDataTypes {
 		queue_leave:true,
 		queue_move_to_progress:true,
 		queue_complete:true,
+		queue_command:true,
 	} as const satisfies Record<ChatMessageTypes["type"], boolean>;
 
 
@@ -3047,6 +3049,7 @@ export namespace TwitchatDataTypes {
 									| MessageQueueLeaveData
 									| MessageQueueMoveToProgressData
 									| MessageQueueCompleteData
+									| MessageQueueCommandData
 	;
 
 	/**
@@ -3101,6 +3104,7 @@ export namespace TwitchatDataTypes {
 							| typeof TwitchatMessageType.MESSAGE
 							| typeof TwitchatMessageType.PRIVATE_MOD_MESSAGE
 							| typeof TwitchatMessageType.STREAMSOCKET_ACTION
+							| typeof TwitchatMessageType.QUEUE_COMMAND
 							;
 
 	export const MessageListFilterTypes:{type:AllowFilterTypes, labelKey:string, icon:string, scopes:TwitchScopesString[], newFlag:number}[] = [
@@ -3137,6 +3141,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.COUNTDOWN,							labelKey:"chat.filters.message_types.countdown",							icon:"countdown",		scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.STREAM_ONLINE,						labelKey:"chat.filters.message_types.stream_online",						icon:"online",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,					labelKey:"chat.filters.message_types.music_added_to_queue",					icon:"music",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.QUEUE_COMMAND,						labelKey:"chat.filters.message_types.queue_command",						icon:"list",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.AD_BREAK_START_CHAT,					labelKey:"chat.filters.message_types.ad_break_start_chat",					icon:"ad",				scopes:[TwitchScopes.ADS_READ],	newFlag:0},
 		{type:TwitchatMessageType.STREAMSOCKET_ACTION,					labelKey:"chat.filters.message_types.stream_socket_action",					icon:"streamsocket",	scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V16},
 		{type:TwitchatMessageType.JOIN,									labelKey:"chat.filters.message_types.join",									icon:"enter",			scopes:[],	newFlag:0},
@@ -4758,6 +4763,26 @@ export namespace TwitchatDataTypes {
 		 * Queue title
 		 */
 		queueTitle:string;
+	}
+
+	/**
+	 * Represents a queue command message
+	 * This is used for slash commands that manage queues
+	 */
+	export interface MessageQueueCommandData extends AbstractTwitchatMessage {
+		type:"queue_command";
+		/**
+		 * Command message
+		 */
+		message:string;
+		/**
+		 * Queue ID (optional)
+		 */
+		queueId?:string;
+		/**
+		 * Queue title (optional)
+		 */
+		queueTitle?:string;
 	}
 
 	/**

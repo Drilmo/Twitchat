@@ -588,6 +588,49 @@ export const storeQueue = defineStore('queue', {
                                 StoreProxy.chat.addMessage(messageData);
                         }
                 },
+
+                clearQueue(id:string) {
+                        const q = this.queueList.find(v=>v.id==id);
+                        if(!q) return;
+                        q.entries = [];
+                        this.saveData();
+                        this.broadcastStates(id);
+                },
+
+                clearInProgress(id:string) {
+                        const q = this.queueList.find(v=>v.id==id);
+                        if(!q) return;
+                        q.inProgress = [];
+                        this.saveData();
+                        this.broadcastStates(id);
+                },
+
+                pickFirstUser(id:string):TwitchatDataTypes.TwitchatUser {
+                        const q = this.queueList.find(v=>v.id==id);
+                        if(!q || q.entries.length === 0) throw new Error("Queue empty or not found");
+                        if(!q.inProgressEnabled) throw new Error("In-progress not enabled");
+                        
+                        const entry = q.entries.shift()!;
+                        q.inProgress = q.inProgress || [];
+                        q.inProgress.push(entry);
+                        this.saveData();
+                        this.broadcastStates(id);
+                        return entry.user;
+                },
+
+                pickRandomUser(id:string):TwitchatDataTypes.TwitchatUser {
+                        const q = this.queueList.find(v=>v.id==id);
+                        if(!q || q.entries.length === 0) throw new Error("Queue empty or not found");
+                        if(!q.inProgressEnabled) throw new Error("In-progress not enabled");
+                        
+                        const randomIndex = Math.floor(Math.random() * q.entries.length);
+                        const entry = q.entries.splice(randomIndex, 1)[0];
+                        q.inProgress = q.inProgress || [];
+                        q.inProgress.push(entry);
+                        this.saveData();
+                        this.broadcastStates(id);
+                        return entry.user;
+                },
         } as IQueueActions
         & ThisType<IQueueActions
                 & UnwrapRef<IQueueState>
