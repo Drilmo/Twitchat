@@ -489,4 +489,17 @@ export default toNative(AutocompleteChatForm);
 		}
 	}
 }
+
+/* Safari-specific fix for icon spacing */
+@supports (-webkit-appearance: none) {
+	.autocompletechatform {
+		.item {
+			.icon {
+				display: inline-flex;
+				align-items: center;
+				line-height: 1;
+			}
+		}
+	}
+}
 </style>
