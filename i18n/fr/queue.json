@@ -74,6 +74,9 @@
         "pick_random_tt":"Prendre un utilisateur aléatoire",
         "user_picked":"Utilisateur sélectionné",
         "recently_removed":"Récemment supprimés",
-        "remove_permanently_tt":"Supprimer définitivement"
+        "remove_permanently_tt":"Supprimer définitivement",
+        "clear_queue_tt":"Vider la file",
+        "clear_in_progress_tt":"Vider la liste en cours",
+        "clear_removed_tt":"Vider la liste des supprimés"
     }
 }

@@ -35,7 +35,22 @@
 				<div class="columns-container">
 					<!-- Queue entries column -->
 					<div class="column entries" v-if="queue.entries.length > 0 || (queue.entries.length === 0 && (!queue.inProgress || queue.inProgress.length === 0))">
-						<div class="section-title">{{ $t('queue.form.list_entries') }} <span class="count">({{ queue.entries.length }})</span></div>
+						<div class="section-title">
+							<span>{{ $t('queue.form.list_entries') }} <span class="count">({{ queue.entries.length }})</span></span>
+							<div class="clearActions" v-if="queue.entries.length > 0">
+								<button class="clearBt" @click="toggleClearConfirm('queue_'+queue.id)" v-if="!confirmingClear['queue_'+queue.id]" v-tooltip="$t('queue.clear_queue_tt')">
+									<Icon name="trash" />
+								</button>
+								<template v-else>
+									<button class="confirmBt" @click="confirmClear('queue_'+queue.id, 'queue', queue.id)" v-tooltip="$t('global.confirm')">
+										<Icon name="checkmark" />
+									</button>
+									<button class="cancelBt" @click="cancelClear('queue_'+queue.id)" v-tooltip="$t('global.cancel')">
+										<Icon name="cross" />
+									</button>
+								</template>
+							</div>
+						</div>
 						<div class="user-list" v-if="queue.entries.length > 0">
 							<div v-for="(entry, index) in queue.entries" :key="entry.user.id" class="messageListItem user-entry">
 								<span class="position">{{ index + 1 }}.</span>
@@ -66,7 +81,22 @@
 					
 					<!-- In progress entries column -->
 					<div class="column in-progress" v-if="queue.inProgressEnabled && queue.inProgress && queue.inProgress.length > 0">
-						<div class="section-title">{{ $t('queue.form.list_in_progress') }} <span class="count">({{ queue.inProgress.length }})</span></div>
+						<div class="section-title">
+							<span>{{ $t('queue.form.list_in_progress') }} <span class="count">({{ queue.inProgress.length }})</span></span>
+							<div class="clearActions" v-if="queue.inProgress.length > 0">
+								<button class="clearBt" @click="toggleClearConfirm('progress_'+queue.id)" v-if="!confirmingClear['progress_'+queue.id]" v-tooltip="$t('queue.clear_in_progress_tt')">
+									<Icon name="trash" />
+								</button>
+								<template v-else>
+									<button class="confirmBt" @click="confirmClear('progress_'+queue.id, 'progress', queue.id)" v-tooltip="$t('global.confirm')">
+										<Icon name="checkmark" />
+									</button>
+									<button class="cancelBt" @click="cancelClear('progress_'+queue.id)" v-tooltip="$t('global.cancel')">
+										<Icon name="cross" />
+									</button>
+								</template>
+							</div>
+						</div>
 						<div class="user-list">
 							<div v-for="(entry, indexProgress) in queue.inProgress" :key="entry.user.id" class="messageListItem user-entry in-progress">
 								<Icon :name="entry.user.platform" class="platform-icon" />
@@ -86,7 +116,22 @@
 					
 					<!-- Recently removed entries column (only if in progress is disabled) -->
 					<div class="column removed" v-else-if="!queue.inProgressEnabled && removedUsers[queue.id] && removedUsers[queue.id].length > 0">
-						<div class="section-title">{{ $t('queue.recently_removed') }} <span class="count">({{ removedUsers[queue.id].length }})</span></div>
+						<div class="section-title">
+							<span>{{ $t('queue.recently_removed') }} <span class="count">({{ removedUsers[queue.id].length }})</span></span>
+							<div class="clearActions" v-if="removedUsers[queue.id].length > 0">
+								<button class="clearBt" @click="toggleClearConfirm('removed_'+queue.id)" v-if="!confirmingClear['removed_'+queue.id]" v-tooltip="$t('queue.clear_removed_tt')">
+									<Icon name="trash" />
+								</button>
+								<template v-else>
+									<button class="confirmBt" @click="confirmClear('removed_'+queue.id, 'removed', queue.id)" v-tooltip="$t('global.confirm')">
+										<Icon name="checkmark" />
+									</button>
+									<button class="cancelBt" @click="cancelClear('removed_'+queue.id)" v-tooltip="$t('global.cancel')">
+										<Icon name="cross" />
+									</button>
+								</template>
+							</div>
+						</div>
 						<div class="user-list">
 							<div v-for="(entry, indexRemoved) in removedUsers[queue.id]" :key="'removed_'+entry.user.id+'_'+indexRemoved" class="messageListItem user-entry removed">
 								<Icon :name="entry.user.platform" class="platform-icon" />
@@ -131,6 +176,8 @@ class QueueState extends Vue {
 
 	public showList: boolean = true;
 	public removedUsers:{[queueId:string]:TwitchatDataTypes.QueueEntry[]} = {};
+	public confirmingClear:{[key:string]:boolean} = {};
+	private clearTimeouts:{[key:string]:number} = {};
 
 	public mounted():void {
 		// Only apply collapsed state if collapsible is true
@@ -301,6 +348,65 @@ class QueueState extends Vue {
 		}
 	}
 
+	public clearQueue(queueId:string):void {
+		const queue = this.activeQueues.find(q => q.id === queueId);
+		if(!queue) return;
+		queue.entries = [];
+		this.$store.queue.saveData();
+		this.$store.queue.broadcastStates(queueId);
+	}
+
+	public clearInProgress(queueId:string):void {
+		const queue = this.activeQueues.find(q => q.id === queueId);
+		if(!queue || !queue.inProgress) return;
+		queue.inProgress = [];
+		this.$store.queue.saveData();
+		this.$store.queue.broadcastStates(queueId);
+	}
+
+	public clearRemovedList(queueId:string):void {
+		if(!this.removedUsers[queueId]) return;
+		delete this.removedUsers[queueId];
+	}
+
+	public toggleClearConfirm(key:string):void {
+		// Clear any existing timeout
+		if(this.clearTimeouts[key]) {
+			clearTimeout(this.clearTimeouts[key]);
+		}
+		
+		// Toggle confirmation state
+		this.confirmingClear[key] = true;
+		
+		// Set timeout to reset after 3 seconds
+		this.clearTimeouts[key] = window.setTimeout(() => {
+			this.confirmingClear[key] = false;
+			delete this.clearTimeouts[key];
+		}, 3000);
+	}
+
+	public cancelClear(key:string):void {
+		if(this.clearTimeouts[key]) {
+			clearTimeout(this.clearTimeouts[key]);
+			delete this.clearTimeouts[key];
+		}
+		this.confirmingClear[key] = false;
+	}
+
+	public confirmClear(key:string, type:'queue'|'progress'|'removed', queueId:string):void {
+		if(this.clearTimeouts[key]) {
+			clearTimeout(this.clearTimeouts[key]);
+			delete this.clearTimeouts[key];
+		}
+		this.confirmingClear[key] = false;
+		
+		switch(type) {
+			case 'queue': this.clearQueue(queueId); break;
+			case 'progress': this.clearInProgress(queueId); break;
+			case 'removed': this.clearRemovedList(queueId); break;
+		}
+	}
+
 }
 export default toNative(QueueState);
 </script>
@@ -427,12 +533,15 @@ export default toNative(QueueState);
 						border: none;
 						color: var(--color-light);
 						cursor: pointer;
-						padding: .25em;
+						padding: 0;
 						display: flex;
 						align-items: center;
 						justify-content: center;
 						border-radius: .25em;
 						transition: background-color .2s;
+						width: 1.8em;
+						height: 1.8em;
+						box-sizing: border-box;
 						
 						&:hover {
 							background-color: rgba(255, 255, 255, 0.2);
@@ -442,6 +551,13 @@ export default toNative(QueueState);
 							width: 1.2em;
 							height: 1.2em;
 							filter: brightness(0) invert(1);
+							display: flex;
+							align-items: center;
+							justify-content: center;
+							:deep(svg) {
+								width: 100%;
+								height: 100%;
+							}
 						}
 					}
 				}
@@ -509,6 +625,9 @@ export default toNative(QueueState);
 			}
 			
 			.section-title {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
 				font-size: .9em;
 				font-weight: bold;
 				margin-bottom: .5em;
@@ -519,6 +638,63 @@ export default toNative(QueueState);
 					font-size: .8em;
 					font-weight: normal;
 					opacity: .7;
+				}
+				
+				.clearActions {
+					display: flex;
+					gap: .25em;
+					
+					.clearBt, .confirmBt, .cancelBt {
+						background: none;
+						border: none;
+						cursor: pointer;
+						padding: 0;
+						border-radius: .25em;
+						transition: background-color .2s;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						width: 1.4em;
+						height: 1.4em;
+						box-sizing: border-box;
+						
+						.icon {
+							width: .8em;
+							height: .8em;
+							filter: brightness(0) invert(1);
+							display: flex;
+							align-items: center;
+							justify-content: center;
+							:deep(svg) {
+								width: 100%;
+								height: 100%;
+							}
+						}
+					}
+					
+					.clearBt {
+						background-color: var(--color-alert-fader);
+						
+						&:hover {
+							background-color: var(--color-alert-fade);
+						}
+					}
+					
+					.confirmBt {
+						background-color: var(--color-secondary-fader);
+						
+						&:hover {
+							background-color: var(--color-secondary-fade);
+						}
+					}
+					
+					.cancelBt {
+						background-color: var(--color-alert-fader);
+						
+						&:hover {
+							background-color: var(--color-alert-fade);
+						}
+					}
 				}
 			}
 			
@@ -606,7 +782,7 @@ export default toNative(QueueState);
 					z-index: 10;
 					
 					.actionBt {
-						padding: .2em;
+						padding: 0;
 						border-radius: .25em;
 						background-color: var(--color-primary-fader);
 						border: none;
@@ -615,6 +791,9 @@ export default toNative(QueueState);
 						display: flex;
 						align-items: center;
 						justify-content: center;
+						width: 1.4em;
+						height: 1.4em;
+						box-sizing: border-box;
 						
 						&:hover {
 							background-color: var(--color-primary-fade);
@@ -632,9 +811,17 @@ export default toNative(QueueState);
 							width: .8em;
 							height: .8em;
 							filter: brightness(0) invert(1);
+							display: flex;
+							align-items: center;
+							justify-content: center;
 							
 							&.up {
 								transform: rotate(180deg);
+							}
+							
+							:deep(svg) {
+								width: 100%;
+								height: 100%;
 							}
 						}
 					}

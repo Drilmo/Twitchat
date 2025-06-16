@@ -74,6 +74,9 @@
         "pick_random_tt":"Pick random user",
         "user_picked":"User picked",
         "recently_removed":"Recently removed",
-        "remove_permanently_tt":"Remove permanently"
+        "remove_permanently_tt":"Remove permanently",
+        "clear_queue_tt":"Clear queue",
+        "clear_in_progress_tt":"Clear in progress list",
+        "clear_removed_tt":"Clear removed list"
     }
 }
