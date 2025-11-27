@@ -127,6 +127,7 @@
 			"discord": "Discord",
 			"premium": "Premium",
 			"timers": "Minuteurs",
+			"queues": "Files d'attente",
 			"exporter": "Export params"
 		},
 		"botMessages": {

@@ -10,11 +10,11 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
 
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatPoll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams" | "groqHistory";
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatPoll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "queue" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams" | "groqHistory";
 
-	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
+	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid" | "queue";
 
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext" | "customtrain";
+	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext" | "customtrain" | "queue";
 
 	export const ParamDeepSections = {
 		AD: "ad",
@@ -77,6 +77,7 @@ export namespace TwitchatDataTypes {
 		CONNECTIONS: "connexions",
 		PREMIUM: "premium",
 		TIMERS: "timers",
+		QUEUES: "queues",
 		EXPORTER: "exporter",
 	} as const;
 	export type ParameterPagesStringType = typeof ParameterPages[keyof typeof ParameterPages];
@@ -2714,6 +2715,7 @@ export namespace TwitchatDataTypes {
 		| "qna"
 		| "chatSugg"
 		| "timer"
+		| "queue"
 		| "streamInfo"
 		| "extensions"
 		| "clearChat"
@@ -2730,6 +2732,7 @@ export namespace TwitchatDataTypes {
 		{id:"qna",			isModal:true,	icon:"qna", 			modalId:"qnaForm",		modelValueName:"",	 labelKey:"cmdmenu.qna"},
 		{id:"chatSugg",		isModal:true,	icon:"chatSugg", 		modalId:"chatsuggForm",	modelValueName:"",	 labelKey:"cmdmenu.suggestions"},
 		{id:"timer",		isModal:true,	icon:"timer", 			modalId:"timer",		modelValueName:"",	 labelKey:"cmdmenu.timer"},
+		{id:"queue",		isModal:true,	icon:"list", 			modalId:"queue",		modelValueName:"",	 labelKey:"cmdmenu.queue"},
 		{id:"streamInfo",	isModal:true,	icon:"info", 			modalId:"streamInfo",	modelValueName:"",	 labelKey:"cmdmenu.info"},
 		{id:"extensions",	isModal:true,	icon:"extension", 		modalId:"extensions",	modelValueName:"",	 labelKey:"cmdmenu.extensions"},
 		{id:"clearChat",	isModal:false,	icon:"clearChat", 		modalId:"", 			modelValueName:"",	 labelKey:"cmdmenu.chat"},
@@ -2864,6 +2867,11 @@ export namespace TwitchatDataTypes {
 		OBS_PLAYBACK_STATE_UPDATE:"obs_playback_state_update",
 		OBS_WS_CONNECT_STATE_CHANGE:"obs_ws_connect_state_change",
 		COMMUNITY_CHALLENGE_CONTRIBUTION:"community_challenge_contribution",
+		QUEUE_JOIN:"queue_join",
+		QUEUE_LEAVE:"queue_leave",
+		QUEUE_MOVE_TO_PROGRESS:"queue_move_to_progress",
+		QUEUE_COMPLETE:"queue_complete",
+		QUEUE_COMMAND:"queue_command",
 	} as const;
 
 	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
@@ -2991,6 +2999,11 @@ export namespace TwitchatDataTypes {
 		obs_playback_state_update:false,
 		obs_ws_connect_state_change:false,
 		community_challenge_contribution:true,
+		queue_join:true,
+		queue_leave:true,
+		queue_move_to_progress:true,
+		queue_complete:true,
+		queue_command:true,
 	} as const satisfies Record<ChatMessageTypes["type"], boolean>;
 
 
@@ -3151,6 +3164,11 @@ export namespace TwitchatDataTypes {
 									| MessageTwitchComboData
 									| MessageObsWsConnectStateChangeData
 									| MessageManyRepliesData
+									| MessageQueueJoinData
+									| MessageQueueLeaveData
+									| MessageQueueMoveToProgressData
+									| MessageQueueCompleteData
+									| MessageQueueCommandData
 	;
 
 	/**
@@ -6463,6 +6481,208 @@ export namespace TwitchatDataTypes {
 		 * New connection state
 		 */
 		message: MessageChatData;
+	}
 
+	/**
+	 * Represents an entry in a viewer queue
+	 */
+	export interface QueueEntry {
+		user:TwitchatUser;
+		joined_at:number;
+	}
+
+	/**
+	 * Represents a viewer queue configuration
+	 */
+	export interface QueueData {
+		id:string;
+		enabled:boolean;
+		title:string;
+		placeholderKey:string;
+		maxPerUser:number;
+		maxEntries:number;
+		inProgressEnabled:boolean;
+		paused:boolean;
+		entries:QueueEntry[];
+		inProgress?:QueueEntry[];
+		commands?:{
+			join?:string;
+			leave?:string;
+			position?:string;
+		};
+		messages?:{
+			joinSuccess?:string;
+			joinAlreadyIn?:string;
+			joinFull?:string;
+			joinMaxPerUser?:string;
+			joinPaused?:string;
+			joinDisabled?:string;
+			leaveSuccess?:string;
+			leaveNotIn?:string;
+			position?:string;
+			positionNotIn?:string;
+			positionPaused?:string;
+		};
+		overlayParams?:{
+			showInProgress:boolean;
+			rotateDelay:number;
+			position:ScreenPosition;
+			titleFont:string;
+			titleSize:number;
+			titleColor:string;
+			titleBgColor?:string;
+			titleBgOpacity?:number;
+			subTitleFont:string;
+			subTitleSize:number;
+			subTitleColor:string;
+			subTitleBgColor?:string;
+			subTitleBgOpacity?:number;
+			queueLabelFont:string;
+			queueLabelSize:number;
+			queueLabelColor:string;
+			queueBgColor?:string;
+			queueBgOpacity?:number;
+			queueEntryFont:string;
+			queueEntrySize:number;
+			queueEntryColor:string;
+			queueEntryBgColor?:string;
+			queueEntryBgOpacity?:number;
+			progressEntryFont:string;
+			progressEntrySize:number;
+			progressEntryColor:string;
+			progressBgColor?:string;
+			progressBgOpacity?:number;
+			stateFont:string;
+			stateSize:number;
+			stateColor:string;
+			stateBgColor?:string;
+			stateBgOpacity?:number;
+			statePausedFont?:string;
+			statePausedSize?:number;
+			statePausedColor?:string;
+			statePausedBgColor?:string;
+			statePausedBgOpacity?:number;
+			stateRunningFont?:string;
+			stateRunningSize?:number;
+			stateRunningColor?:string;
+			stateRunningBgColor?:string;
+			stateRunningBgOpacity?:number;
+			title:string;
+			subTitle:string;
+			queueLabel:string;
+			progressLabel:string;
+			showEmptyQueueMessage:boolean;
+			emptyQueueMessage:string;
+			emptyQueueFont?:string;
+			emptyQueueSize?:number;
+			emptyQueueColor?:string;
+			emptyQueueBgColor?:string;
+			emptyQueueBgOpacity?:number;
+			statePaused:string;
+			stateRunning:string;
+			showPausedState:boolean;
+			showRunningState:boolean;
+			sectionsOrder?:string[];
+		}
+	}
+
+	/**
+	 * Represents a queue join message
+	 */
+	export interface MessageQueueJoinData extends AbstractTwitchatMessage {
+		type:"queue_join";
+		/**
+		 * User that joined the queue
+		 */
+		user:TwitchatUser;
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+		/**
+		 * Position in the queue
+		 */
+		position:number;
+	}
+
+	/**
+	 * Represents a queue leave message
+	 */
+	export interface MessageQueueLeaveData extends AbstractTwitchatMessage {
+		type:"queue_leave";
+		/**
+		 * User that left the queue
+		 */
+		user:TwitchatUser;
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+	}
+
+	/**
+	 * Represents a queue move to progress message
+	 */
+	export interface MessageQueueMoveToProgressData extends AbstractTwitchatMessage {
+		type:"queue_move_to_progress";
+		/**
+		 * User that was moved to progress
+		 */
+		user:TwitchatUser;
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+	}
+
+	/**
+	 * Represents a queue complete message
+	 */
+	export interface MessageQueueCompleteData extends AbstractTwitchatMessage {
+		type:"queue_complete";
+		/**
+		 * User that completed their queue session
+		 */
+		user:TwitchatUser;
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+	}
+
+	/**
+	 * Represents a queue command message
+	 * This is used for slash commands that manage queues
+	 */
+	export interface MessageQueueCommandData extends AbstractTwitchatMessage {
+		type:"queue_command";
+		/**
+		 * Command message
+		 */
+		message:string;
+		/**
+		 * Queue ID (optional)
+		 */
+		queueId?:string;
+		/**
+		 * Queue title (optional)
+		 */
+		queueTitle?:string;
 	}
 }

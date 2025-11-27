@@ -127,6 +127,7 @@
 			"discord": "Discord",
 			"premium": "Premium",
 			"timers": "Timers",
+			"queues": "Queues",
 			"exporter": "Export settings"
 		},
 		"botMessages": {

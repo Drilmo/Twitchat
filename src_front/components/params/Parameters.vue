@@ -110,6 +110,7 @@
 				<ParamsDonate v-if="content == ParameterPages.DONATE" ref="currentContent" />
 				<ParamsValues v-if="content == ParameterPages.VALUES" ref="currentContent" />
 				<ParamsTimer v-if="content == ParameterPages.TIMERS" ref="currentContent" />
+				<ParamsQueue v-if="content == ParameterPages.QUEUES" ref="currentContent" />
 				<ParamsExporter v-if="content == ParameterPages.EXPORTER" ref="currentContent" />
 
 				<div class="searchResult" v-if="search">
@@ -161,6 +162,7 @@ import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
 import { VueDraggable } from 'vue-draggable-plus';
 import ParamsTimer from './contents/ParamsTimer.vue';
+import ParamsQueue from './contents/ParamsQueue.vue';
 import ParamsExporter from './contents/ParamsExporter.vue';
 
 @Component({
@@ -190,6 +192,7 @@ import ParamsExporter from './contents/ParamsExporter.vue';
 		ParamsEmergency,
 		ParamsTwitchatAd,
 		ParamsConnections,
+		ParamsQueue,
 	}
 })
 
