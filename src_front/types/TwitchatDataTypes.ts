@@ -247,6 +247,10 @@ export namespace TwitchatDataTypes {
 		 * Channel IDs to show
 		 */
 		channelIDs?:{[uid:string]:{platform:ChatPlatform, date:number}};
+		/**
+		 * Queue IDs to show for queue_command messages
+		 */
+		queueIDs?:{[queueId:string]:boolean};
 	}
 
 	/**
@@ -2872,6 +2876,16 @@ export namespace TwitchatDataTypes {
 		QUEUE_MOVE_TO_PROGRESS:"queue_move_to_progress",
 		QUEUE_COMPLETE:"queue_complete",
 		QUEUE_COMMAND:"queue_command",
+		QUEUE_PAUSE:"queue_pause",
+		QUEUE_RESUME:"queue_resume",
+		QUEUE_USER_PICKED:"queue_user_picked",
+		QUEUE_USER_REMOVED:"queue_user_removed",
+		QUEUE_IN_PROGRESS_USER_REMOVED:"queue_in_progress_user_removed",
+		QUEUE_CLEARED:"queue_cleared",
+		QUEUE_IN_PROGRESS_CLEARED:"queue_in_progress_cleared",
+		QUEUE_USER_MOVED_UP:"queue_user_moved_up",
+		QUEUE_USER_MOVED_DOWN:"queue_user_moved_down",
+		QUEUE_USER_MOVED_BACK:"queue_user_moved_back",
 	} as const;
 
 	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
@@ -3004,6 +3018,16 @@ export namespace TwitchatDataTypes {
 		queue_move_to_progress:true,
 		queue_complete:true,
 		queue_command:true,
+		queue_pause:true,
+		queue_resume:true,
+		queue_user_picked:true,
+		queue_user_removed:true,
+		queue_in_progress_user_removed:true,
+		queue_cleared:true,
+		queue_in_progress_cleared:true,
+		queue_user_moved_up:true,
+		queue_user_moved_down:true,
+		queue_user_moved_back:true,
 	} as const satisfies Record<ChatMessageTypes["type"], boolean>;
 
 
@@ -3169,6 +3193,16 @@ export namespace TwitchatDataTypes {
 									| MessageQueueMoveToProgressData
 									| MessageQueueCompleteData
 									| MessageQueueCommandData
+									| MessageQueuePauseData
+									| MessageQueueResumeData
+									| MessageQueueUserPickedData
+									| MessageQueueUserRemovedData
+									| MessageQueueInProgressUserRemovedData
+									| MessageQueueClearedData
+									| MessageQueueInProgressClearedData
+									| MessageQueueUserMovedUpData
+									| MessageQueueUserMovedDownData
+									| MessageQueueUserMovedBackData
 	;
 
 	/**
@@ -3223,6 +3257,7 @@ export namespace TwitchatDataTypes {
 							| typeof TwitchatMessageType.MESSAGE
 							| typeof TwitchatMessageType.PRIVATE_MOD_MESSAGE
 							| typeof TwitchatMessageType.STREAMSOCKET_ACTION
+							| typeof TwitchatMessageType.QUEUE_COMMAND
 							;
 
 	export const MessageListFilterTypes:{type:AllowFilterTypes, labelKey:string, icon:string, scopes:TwitchScopesString[], newFlag:number}[] = [
@@ -3261,6 +3296,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,					labelKey:"chat.filters.message_types.music_added_to_queue",					icon:"music",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.AD_BREAK_START_CHAT,					labelKey:"chat.filters.message_types.ad_break_start_chat",					icon:"ad",				scopes:[TwitchScopes.ADS_READ],	newFlag:0},
 		{type:TwitchatMessageType.STREAMSOCKET_ACTION,					labelKey:"chat.filters.message_types.stream_socket_action",					icon:"streamsocket",	scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V16},
+		{type:TwitchatMessageType.QUEUE_COMMAND,						labelKey:"chat.filters.message_types.queue_command",						icon:"list",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.JOIN,									labelKey:"chat.filters.message_types.join",									icon:"enter",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.LEAVE,								labelKey:"chat.filters.message_types.leave",								icon:"leave",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.USER_WATCH_STREAK,					labelKey:"chat.filters.message_types.user_watch_streak",					icon:"watchStreak",		scopes:[],	newFlag:0},
@@ -6684,5 +6720,203 @@ export namespace TwitchatDataTypes {
 		 * Queue title (optional)
 		 */
 		queueTitle?:string;
+	}
+
+	/**
+	 * Represents a queue pause message
+	 */
+	export interface MessageQueuePauseData extends AbstractTwitchatMessage {
+		type:"queue_pause";
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+	}
+
+	/**
+	 * Represents a queue resume message
+	 */
+	export interface MessageQueueResumeData extends AbstractTwitchatMessage {
+		type:"queue_resume";
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+	}
+
+	/**
+	 * Represents a queue user picked message (pick first or random)
+	 */
+	export interface MessageQueueUserPickedData extends AbstractTwitchatMessage {
+		type:"queue_user_picked";
+		/**
+		 * User that was picked
+		 */
+		user:TwitchatUser;
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+		/**
+		 * Pick method (first or random)
+		 */
+		pickMethod:"first"|"random";
+	}
+
+	/**
+	 * Represents a queue user removed message
+	 */
+	export interface MessageQueueUserRemovedData extends AbstractTwitchatMessage {
+		type:"queue_user_removed";
+		/**
+		 * User that was removed
+		 */
+		user:TwitchatUser;
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+	}
+
+	/**
+	 * Represents a queue in-progress user removed message
+	 */
+	export interface MessageQueueInProgressUserRemovedData extends AbstractTwitchatMessage {
+		type:"queue_in_progress_user_removed";
+		/**
+		 * User that was removed from in-progress
+		 */
+		user:TwitchatUser;
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+	}
+
+	/**
+	 * Represents a queue cleared message (all entries removed)
+	 */
+	export interface MessageQueueClearedData extends AbstractTwitchatMessage {
+		type:"queue_cleared";
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+		/**
+		 * Number of entries that were cleared
+		 */
+		count:number;
+	}
+
+	/**
+	 * Represents a queue in progress cleared message
+	 */
+	export interface MessageQueueInProgressClearedData extends AbstractTwitchatMessage {
+		type:"queue_in_progress_cleared";
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+		/**
+		 * Number of in-progress entries that were cleared
+		 */
+		count:number;
+	}
+
+	/**
+	 * Represents a queue user moved up message
+	 */
+	export interface MessageQueueUserMovedUpData extends AbstractTwitchatMessage {
+		type:"queue_user_moved_up";
+		/**
+		 * User that was moved
+		 */
+		user:TwitchatUser;
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+		/**
+		 * New position in queue (1-based)
+		 */
+		newPosition:number;
+	}
+
+	/**
+	 * Represents a queue user moved down message
+	 */
+	export interface MessageQueueUserMovedDownData extends AbstractTwitchatMessage {
+		type:"queue_user_moved_down";
+		/**
+		 * User that was moved
+		 */
+		user:TwitchatUser;
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+		/**
+		 * New position in queue (1-based)
+		 */
+		newPosition:number;
+	}
+
+	/**
+	 * Represents a queue user moved back to queue from in-progress
+	 */
+	export interface MessageQueueUserMovedBackData extends AbstractTwitchatMessage {
+		type:"queue_user_moved_back";
+		/**
+		 * User that was moved back
+		 */
+		user:TwitchatUser;
+		/**
+		 * Queue ID
+		 */
+		queueId:string;
+		/**
+		 * Queue title
+		 */
+		queueTitle:string;
+		/**
+		 * New position in queue (1-based)
+		 */
+		newPosition:number;
 	}
 }

@@ -274,31 +274,113 @@ export const storeQueue = defineStore('queue', {
                         q.entries.push({user, joined_at:Date.now()});
                         this.saveData();
                         this.broadcastStates(id);
+
+                        // Emit queue join event
+                        const position = q.entries.length;
+                        const joinMessage: TwitchatDataTypes.MessageQueueJoinData = {
+                                id: Utils.getUUID(),
+                                type: TwitchatDataTypes.TwitchatMessageType.QUEUE_JOIN,
+                                date: Date.now(),
+                                platform: user.platform || "twitchat",
+                                channel_id: StoreProxy.auth.twitch.user.id,
+                                user: user,
+                                queueId: q.id,
+                                queueTitle: q.title,
+                                position: position
+                        };
+                        StoreProxy.chat.addMessage(joinMessage);
                 },
 
                 removeViewer(id:string, userId:string) {
                         const q = this.queueList.find((v:TwitchatDataTypes.QueueData)=>v.id==id);
                         if(!q) return;
+
+                        // Find entries before removing
+                        const removedFromQueue = q.entries.find((e:TwitchatDataTypes.QueueEntry)=>e.user.id==userId);
+                        const removedFromProgress = q.inProgress?.find((e:TwitchatDataTypes.QueueEntry)=>e.user.id==userId);
+
                         q.entries = q.entries.filter((e:TwitchatDataTypes.QueueEntry)=>e.user.id!=userId);
                         q.inProgress = q.inProgress?.filter((e:TwitchatDataTypes.QueueEntry)=>e.user.id!=userId);
                         this.saveData();
                         this.broadcastStates(id);
+
+                        // Emit user removed event for queue entry
+                        if(removedFromQueue) {
+                                const removedMessage: TwitchatDataTypes.MessageQueueUserRemovedData = {
+                                        id: Utils.getUUID(),
+                                        type: TwitchatDataTypes.TwitchatMessageType.QUEUE_USER_REMOVED,
+                                        date: Date.now(),
+                                        platform: "twitchat",
+                                        channel_id: StoreProxy.auth.twitch.user.id,
+                                        queueId: q.id,
+                                        queueTitle: q.title,
+                                        user: removedFromQueue.user
+                                };
+                                StoreProxy.chat.addMessage(removedMessage);
+                        }
+
+                        // Emit user removed event for in-progress entry
+                        if(removedFromProgress) {
+                                const removedMessage: TwitchatDataTypes.MessageQueueInProgressUserRemovedData = {
+                                        id: Utils.getUUID(),
+                                        type: TwitchatDataTypes.TwitchatMessageType.QUEUE_IN_PROGRESS_USER_REMOVED,
+                                        date: Date.now(),
+                                        platform: "twitchat",
+                                        channel_id: StoreProxy.auth.twitch.user.id,
+                                        queueId: q.id,
+                                        queueTitle: q.title,
+                                        user: removedFromProgress.user
+                                };
+                                StoreProxy.chat.addMessage(removedMessage);
+                        }
                 },
 
                 removeViewerFromQueue(id:string, userId:string) {
                         const q = this.queueList.find((v:TwitchatDataTypes.QueueData)=>v.id==id);
                         if(!q) return;
+                        const removedEntry = q.entries.find((e:TwitchatDataTypes.QueueEntry)=>e.user.id==userId);
                         q.entries = q.entries.filter((e:TwitchatDataTypes.QueueEntry)=>e.user.id!=userId);
                         this.saveData();
                         this.broadcastStates(id);
+
+                        // Emit user removed event
+                        if(removedEntry) {
+                                const removedMessage: TwitchatDataTypes.MessageQueueUserRemovedData = {
+                                        id: Utils.getUUID(),
+                                        type: TwitchatDataTypes.TwitchatMessageType.QUEUE_USER_REMOVED,
+                                        date: Date.now(),
+                                        platform: "twitchat",
+                                        channel_id: StoreProxy.auth.twitch.user.id,
+                                        queueId: q.id,
+                                        queueTitle: q.title,
+                                        user: removedEntry.user
+                                };
+                                StoreProxy.chat.addMessage(removedMessage);
+                        }
                 },
 
                 removeViewerFromInProgress(id:string, userId:string) {
                         const q = this.queueList.find((v:TwitchatDataTypes.QueueData)=>v.id==id);
                         if(!q) return;
+                        const removedEntry = q.inProgress?.find((e:TwitchatDataTypes.QueueEntry)=>e.user.id==userId);
                         q.inProgress = q.inProgress?.filter((e:TwitchatDataTypes.QueueEntry)=>e.user.id!=userId);
                         this.saveData();
                         this.broadcastStates(id);
+
+                        // Emit in-progress user removed event (different from queue removed)
+                        if(removedEntry) {
+                                const removedMessage: TwitchatDataTypes.MessageQueueInProgressUserRemovedData = {
+                                        id: Utils.getUUID(),
+                                        type: TwitchatDataTypes.TwitchatMessageType.QUEUE_IN_PROGRESS_USER_REMOVED,
+                                        date: Date.now(),
+                                        platform: "twitchat",
+                                        channel_id: StoreProxy.auth.twitch.user.id,
+                                        queueId: q.id,
+                                        queueTitle: q.title,
+                                        user: removedEntry.user
+                                };
+                                StoreProxy.chat.addMessage(removedMessage);
+                        }
                 },
 
                 moveToInProgress(id:string, userId:string) {
@@ -312,6 +394,19 @@ export const storeQueue = defineStore('queue', {
                                 q.inProgress.push(entry);
                                 this.saveData();
                                 this.broadcastStates(id);
+
+                                // Emit move to progress event
+                                const moveMessage: TwitchatDataTypes.MessageQueueMoveToProgressData = {
+                                        id: Utils.getUUID(),
+                                        type: TwitchatDataTypes.TwitchatMessageType.QUEUE_MOVE_TO_PROGRESS,
+                                        date: Date.now(),
+                                        platform: "twitchat",
+                                        channel_id: StoreProxy.auth.twitch.user.id,
+                                        queueId: q.id,
+                                        queueTitle: q.title,
+                                        user: entry.user
+                                };
+                                StoreProxy.chat.addMessage(moveMessage);
                         }
                 },
 
@@ -321,6 +416,25 @@ export const storeQueue = defineStore('queue', {
                         q.paused = true;
                         this.saveData();
                         this.broadcastStates(id);
+
+                        // Emit pause event
+                        const channelId = StoreProxy.auth.twitch.user?.id;
+                        console.log("[Queue Debug] pauseQueue - channelId:", channelId, "queueId:", q.id);
+                        if(!channelId) {
+                                console.warn("[Queue Debug] Cannot emit pause event - no channel ID");
+                                return;
+                        }
+                        const pauseMessage: TwitchatDataTypes.MessageQueuePauseData = {
+                                id: Utils.getUUID(),
+                                type: TwitchatDataTypes.TwitchatMessageType.QUEUE_PAUSE,
+                                date: Date.now(),
+                                platform: "twitchat",
+                                channel_id: channelId,
+                                queueId: q.id,
+                                queueTitle: q.title
+                        };
+                        console.log("[Queue Debug] Adding pause message:", pauseMessage);
+                        StoreProxy.chat.addMessage(pauseMessage);
                 },
 
                 resumeQueue(id:string) {
@@ -329,6 +443,18 @@ export const storeQueue = defineStore('queue', {
                         q.paused = false;
                         this.saveData();
                         this.broadcastStates(id);
+
+                        // Emit resume event
+                        const resumeMessage: TwitchatDataTypes.MessageQueueResumeData = {
+                                id: Utils.getUUID(),
+                                type: TwitchatDataTypes.TwitchatMessageType.QUEUE_RESUME,
+                                date: Date.now(),
+                                platform: "twitchat",
+                                channel_id: StoreProxy.auth.twitch.user.id,
+                                queueId: q.id,
+                                queueTitle: q.title
+                        };
+                        StoreProxy.chat.addMessage(resumeMessage);
                 },
 
                 saveData() {
@@ -598,17 +724,49 @@ export const storeQueue = defineStore('queue', {
                 clearQueue(id:string) {
                         const q = this.queueList.find((v:TwitchatDataTypes.QueueData)=>v.id==id);
                         if(!q) return;
+                        const count = q.entries.length;
                         q.entries = [];
                         this.saveData();
                         this.broadcastStates(id);
+
+                        // Emit cleared event
+                        if(count > 0) {
+                                const clearedMessage: TwitchatDataTypes.MessageQueueClearedData = {
+                                        id: Utils.getUUID(),
+                                        type: TwitchatDataTypes.TwitchatMessageType.QUEUE_CLEARED,
+                                        date: Date.now(),
+                                        platform: "twitchat",
+                                        channel_id: StoreProxy.auth.twitch.user.id,
+                                        queueId: q.id,
+                                        queueTitle: q.title,
+                                        count: count
+                                };
+                                StoreProxy.chat.addMessage(clearedMessage);
+                        }
                 },
 
                 clearInProgress(id:string) {
                         const q = this.queueList.find((v:TwitchatDataTypes.QueueData)=>v.id==id);
                         if(!q) return;
+                        const count = q.inProgress?.length || 0;
                         q.inProgress = [];
                         this.saveData();
                         this.broadcastStates(id);
+
+                        // Emit in-progress cleared event
+                        if(count > 0) {
+                                const clearedMessage: TwitchatDataTypes.MessageQueueInProgressClearedData = {
+                                        id: Utils.getUUID(),
+                                        type: TwitchatDataTypes.TwitchatMessageType.QUEUE_IN_PROGRESS_CLEARED,
+                                        date: Date.now(),
+                                        platform: "twitchat",
+                                        channel_id: StoreProxy.auth.twitch.user.id,
+                                        queueId: q.id,
+                                        queueTitle: q.title,
+                                        count: count
+                                };
+                                StoreProxy.chat.addMessage(clearedMessage);
+                        }
                 },
 
                 pickFirstUser(id:string):TwitchatDataTypes.TwitchatUser {
@@ -621,6 +779,21 @@ export const storeQueue = defineStore('queue', {
                         q.inProgress.push(entry);
                         this.saveData();
                         this.broadcastStates(id);
+
+                        // Emit user picked event
+                        const pickedMessage: TwitchatDataTypes.MessageQueueUserPickedData = {
+                                id: Utils.getUUID(),
+                                type: TwitchatDataTypes.TwitchatMessageType.QUEUE_USER_PICKED,
+                                date: Date.now(),
+                                platform: "twitchat",
+                                channel_id: StoreProxy.auth.twitch.user.id,
+                                queueId: q.id,
+                                queueTitle: q.title,
+                                user: entry.user,
+                                pickMethod: "first"
+                        };
+                        StoreProxy.chat.addMessage(pickedMessage);
+
                         return entry.user;
                 },
 
@@ -635,7 +808,121 @@ export const storeQueue = defineStore('queue', {
                         q.inProgress.push(entry);
                         this.saveData();
                         this.broadcastStates(id);
+
+                        // Emit user picked event
+                        const pickedMessage: TwitchatDataTypes.MessageQueueUserPickedData = {
+                                id: Utils.getUUID(),
+                                type: TwitchatDataTypes.TwitchatMessageType.QUEUE_USER_PICKED,
+                                date: Date.now(),
+                                platform: "twitchat",
+                                channel_id: StoreProxy.auth.twitch.user.id,
+                                queueId: q.id,
+                                queueTitle: q.title,
+                                user: entry.user,
+                                pickMethod: "random"
+                        };
+                        StoreProxy.chat.addMessage(pickedMessage);
+
                         return entry.user;
+                },
+
+                moveUserUp(id:string, userId:string) {
+                        console.log("[Queue Debug] moveUserUp called - id:", id, "userId:", userId);
+                        const q = this.queueList.find((v:TwitchatDataTypes.QueueData)=>v.id==id);
+                        if(!q) {
+                                console.log("[Queue Debug] moveUserUp - queue not found");
+                                return;
+                        }
+                        const idx = q.entries.findIndex((e:TwitchatDataTypes.QueueEntry)=>e.user.id==userId);
+                        console.log("[Queue Debug] moveUserUp - idx:", idx);
+                        if(idx <= 0) {
+                                console.log("[Queue Debug] moveUserUp - idx <= 0, cannot move up");
+                                return;
+                        }
+
+                        const entry = q.entries[idx];
+                        q.entries.splice(idx, 1);
+                        q.entries.splice(idx - 1, 0, entry);
+                        this.saveData();
+                        this.broadcastStates(id);
+
+                        // Emit move up event
+                        const channelId = StoreProxy.auth.twitch.user?.id;
+                        console.log("[Queue Debug] moveUserUp - channelId:", channelId);
+                        if(!channelId) {
+                                console.log("[Queue Debug] moveUserUp - no channelId, skipping message");
+                                return;
+                        }
+                        const moveMessage: TwitchatDataTypes.MessageQueueUserMovedUpData = {
+                                id: Utils.getUUID(),
+                                type: TwitchatDataTypes.TwitchatMessageType.QUEUE_USER_MOVED_UP,
+                                date: Date.now(),
+                                platform: "twitchat",
+                                channel_id: channelId,
+                                queueId: q.id,
+                                queueTitle: q.title,
+                                user: entry.user,
+                                newPosition: idx // idx is now the new position (0-based), so position is idx (since we moved from idx to idx-1)
+                        };
+                        console.log("[Queue Debug] moveUserUp - adding message:", moveMessage);
+                        StoreProxy.chat.addMessage(moveMessage);
+                },
+
+                moveUserDown(id:string, userId:string) {
+                        const q = this.queueList.find((v:TwitchatDataTypes.QueueData)=>v.id==id);
+                        if(!q) return;
+                        const idx = q.entries.findIndex((e:TwitchatDataTypes.QueueEntry)=>e.user.id==userId);
+                        if(idx < 0 || idx >= q.entries.length - 1) return;
+
+                        const entry = q.entries[idx];
+                        q.entries.splice(idx, 1);
+                        q.entries.splice(idx + 1, 0, entry);
+                        this.saveData();
+                        this.broadcastStates(id);
+
+                        // Emit move down event
+                        const channelId = StoreProxy.auth.twitch.user?.id;
+                        if(!channelId) return;
+                        const moveMessage: TwitchatDataTypes.MessageQueueUserMovedDownData = {
+                                id: Utils.getUUID(),
+                                type: TwitchatDataTypes.TwitchatMessageType.QUEUE_USER_MOVED_DOWN,
+                                date: Date.now(),
+                                platform: "twitchat",
+                                channel_id: channelId,
+                                queueId: q.id,
+                                queueTitle: q.title,
+                                user: entry.user,
+                                newPosition: idx + 2 // new position is idx+1 (0-based), so 1-based is idx+2
+                        };
+                        StoreProxy.chat.addMessage(moveMessage);
+                },
+
+                moveUserBackToQueue(id:string, userId:string) {
+                        const q = this.queueList.find((v:TwitchatDataTypes.QueueData)=>v.id==id);
+                        if(!q || !q.inProgress) return;
+                        const idx = q.inProgress.findIndex((e:TwitchatDataTypes.QueueEntry)=>e.user.id==userId);
+                        if(idx < 0) return;
+
+                        const entry = q.inProgress.splice(idx, 1)[0];
+                        q.entries.push(entry);
+                        this.saveData();
+                        this.broadcastStates(id);
+
+                        // Emit move back event
+                        const channelId = StoreProxy.auth.twitch.user?.id;
+                        if(!channelId) return;
+                        const moveMessage: TwitchatDataTypes.MessageQueueUserMovedBackData = {
+                                id: Utils.getUUID(),
+                                type: TwitchatDataTypes.TwitchatMessageType.QUEUE_USER_MOVED_BACK,
+                                date: Date.now(),
+                                platform: "twitchat",
+                                channel_id: channelId,
+                                queueId: q.id,
+                                queueTitle: q.title,
+                                user: entry.user,
+                                newPosition: q.entries.length // new position is the last one
+                        };
+                        StoreProxy.chat.addMessage(moveMessage);
                 },
         } as IQueueActions
         & ThisType<IQueueActions

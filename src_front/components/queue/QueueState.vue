@@ -61,8 +61,8 @@
 							<div v-for="(entry, index) in queue.entries" :key="entry.user.id" class="messageListItem user-entry">
 								<span class="position">{{ index + 1 }}.</span>
 								<Icon :name="entry.user.platform" class="platform-icon" />
-								<img :src="entry.user.avatarPath" class="avatar" v-if="entry.user.avatarPath" />
-								<span class="username">{{ entry.user.displayName }}</span>
+								<img :src="entry.user.avatarPath" class="avatar" v-if="entry.user.avatarPath" @click.stop="openUserCard(entry.user)" />
+								<a class="username" @click.stop="openUserCard(entry.user)">{{ entry.user.displayName }}</a>
 								<div class="actions">
 									<button class="actionBt" @click="moveUp(queue.id, entry.user.id, index)" v-if="index > 0 && queue.enabled" v-tooltip="$t('queue.form.move_up_tt')">
 										<Icon name="arrowDown" class="icon up" />
@@ -73,7 +73,7 @@
 									<button class="actionBt" @click="moveToInProgress(queue.id, entry.user.id)" v-if="queue.inProgressEnabled && queue.enabled" v-tooltip="$t('queue.form.move_to_progress_tt')">
 										<Icon name="next" class="icon" />
 									</button>
-									<button class="actionBt delete" @click="removeEntry(queue.id, index)" v-if="queue.enabled" v-tooltip="$t('queue.form.remove_viewer_tt')">
+									<button class="actionBt delete" @click="removeEntry(queue.id, entry.user.id)" v-if="queue.enabled" v-tooltip="$t('queue.form.remove_viewer_tt')">
 										<Icon name="trash" class="icon" />
 									</button>
 								</div>
@@ -106,13 +106,13 @@
 						<div class="user-list">
 							<div v-for="(entry, indexProgress) in queue.inProgress" :key="entry.user.id" class="messageListItem user-entry in-progress">
 								<Icon :name="entry.user.platform" class="platform-icon" />
-								<img :src="entry.user.avatarPath" class="avatar" v-if="entry.user.avatarPath" />
-								<span class="username">{{ entry.user.displayName }}</span>
+								<img :src="entry.user.avatarPath" class="avatar" v-if="entry.user.avatarPath" @click.stop="openUserCard(entry.user)" />
+								<a class="username" @click.stop="openUserCard(entry.user)">{{ entry.user.displayName }}</a>
 								<div class="actions">
-									<button class="actionBt" @click="moveToQueue(queue.id, indexProgress)" v-if="queue.enabled" v-tooltip="$t('queue.form.move_back_to_queue_tt')">
+									<button class="actionBt" @click="moveToQueue(queue.id, entry.user.id)" v-if="queue.enabled" v-tooltip="$t('queue.form.move_back_to_queue_tt')">
 										<Icon name="prev" class="icon" />
 									</button>
-									<button class="actionBt delete" @click="removeInProgressEntry(queue.id, indexProgress)" v-if="queue.enabled" v-tooltip="$t('queue.form.remove_viewer_tt')">
+									<button class="actionBt delete" @click="removeInProgressEntry(queue.id, entry.user.id)" v-if="queue.enabled" v-tooltip="$t('queue.form.remove_viewer_tt')">
 										<Icon name="trash" class="icon" />
 									</button>
 								</div>
@@ -141,8 +141,8 @@
 						<div class="user-list">
 							<div v-for="(entry, indexRemoved) in removedUsers[queue.id]" :key="'removed_'+entry.user.id+'_'+indexRemoved" class="messageListItem user-entry removed">
 								<Icon :name="entry.user.platform" class="platform-icon" />
-								<img :src="entry.user.avatarPath" class="avatar" v-if="entry.user.avatarPath" />
-								<span class="username">{{ entry.user.displayName }}</span>
+								<img :src="entry.user.avatarPath" class="avatar" v-if="entry.user.avatarPath" @click.stop="openUserCard(entry.user)" />
+								<a class="username" @click.stop="openUserCard(entry.user)">{{ entry.user.displayName }}</a>
 								<div class="actions">
 									<button class="actionBt delete" @click="removeFromRemovedList(queue.id, indexRemoved)" v-tooltip="$t('queue.remove_permanently_tt')">
 										<Icon name="trash" class="icon" />
@@ -253,55 +253,31 @@ class QueueState extends Vue {
 	}
 
 	public moveUp(queueId:string, userId:string, index:number):void {
-		const queue = this.activeQueues.find(q => q.id === queueId);
-		if(!queue || index <= 0) return;
-		const entry = queue.entries[index];
-		queue.entries.splice(index, 1);
-		queue.entries.splice(index - 1, 0, entry);
-		this.$store.queue.saveData();
+		this.$store.queue.moveUserUp(queueId, userId);
 	}
 
 	public moveDown(queueId:string, userId:string, index:number):void {
-		const queue = this.activeQueues.find(q => q.id === queueId);
-		if(!queue || index >= queue.entries.length - 1) return;
-		const entry = queue.entries[index];
-		queue.entries.splice(index, 1);
-		queue.entries.splice(index + 1, 0, entry);
-		this.$store.queue.saveData();
+		this.$store.queue.moveUserDown(queueId, userId);
 	}
 
 	public moveToInProgress(queueId:string, userId:string):void {
 		this.$store.queue.moveToInProgress(queueId, userId);
 	}
 
-	public moveToQueue(queueId:string, index:number):void {
-		const queue = this.activeQueues.find(q => q.id === queueId);
-		if(!queue || !queue.inProgress || index < 0 || index >= queue.inProgress.length) return;
-		const entry = queue.inProgress[index];
-		queue.inProgress.splice(index, 1);
-		queue.entries.push(entry);
-		this.$store.queue.saveData();
-		this.$store.queue.broadcastStates(queueId);
+	public moveToQueue(queueId:string, userId:string):void {
+		this.$store.queue.moveUserBackToQueue(queueId, userId);
 	}
 
 	public removeViewer(queueId:string, userId:string):void {
 		this.$store.queue.removeViewer(queueId, userId);
 	}
 
-	public removeEntry(queueId:string, index:number):void {
-		const queue = this.activeQueues.find(q => q.id === queueId);
-		if(!queue || index < 0 || index >= queue.entries.length) return;
-		queue.entries.splice(index, 1);
-		this.$store.queue.saveData();
-		this.$store.queue.broadcastStates(queueId);
+	public removeEntry(queueId:string, userId:string):void {
+		this.$store.queue.removeViewerFromQueue(queueId, userId);
 	}
 
-	public removeInProgressEntry(queueId:string, index:number):void {
-		const queue = this.activeQueues.find(q => q.id === queueId);
-		if(!queue || !queue.inProgress || index < 0 || index >= queue.inProgress.length) return;
-		queue.inProgress.splice(index, 1);
-		this.$store.queue.saveData();
-		this.$store.queue.broadcastStates(queueId);
+	public removeInProgressEntry(queueId:string, userId:string):void {
+		this.$store.queue.removeViewerFromInProgress(queueId, userId);
 	}
 
 	public togglePause(queue:TwitchatDataTypes.QueueData):void {
@@ -330,22 +306,26 @@ class QueueState extends Vue {
 
 	public pickFirst(queue:TwitchatDataTypes.QueueData):void {
 		if(queue.entries.length === 0) return;
-		
+
 		const entry = queue.entries[0];
-		
+
 		// Move to in progress if enabled, otherwise add to removed list
 		if(queue.inProgressEnabled) {
-			this.$store.queue.moveToInProgress(queue.id, entry.user.id);
+			try {
+				this.$store.queue.pickFirstUser(queue.id);
+			} catch(e) {
+				// Queue empty or in-progress not enabled
+			}
 		} else {
 			// Remove from queue
 			queue.entries.splice(0, 1);
-			
+
 			// Add to removed list
 			if(!this.removedUsers[queue.id]) {
 				this.removedUsers[queue.id] = [];
 			}
 			this.removedUsers[queue.id].push(entry);
-			
+
 			this.$store.queue.saveData();
 			this.$store.queue.broadcastStates(queue.id);
 		}
@@ -353,29 +333,27 @@ class QueueState extends Vue {
 
 	public pickRandom(queue:TwitchatDataTypes.QueueData):void {
 		if(queue.entries.length === 0) return;
-		
-		const randomIndex = Math.floor(Math.random() * queue.entries.length);
-		const entry = queue.entries[randomIndex];
-		
+
+		const entry = queue.entries[Math.floor(Math.random() * queue.entries.length)];
+
 		// Move to in progress if enabled, otherwise add to removed list
 		if(queue.inProgressEnabled) {
-			// First remove from queue
-			queue.entries.splice(randomIndex, 1);
-			// Then add to in progress
-			if(!queue.inProgress) queue.inProgress = [];
-			queue.inProgress.push(entry);
-			this.$store.queue.saveData();
-			this.$store.queue.broadcastStates(queue.id);
+			try {
+				this.$store.queue.pickRandomUser(queue.id);
+			} catch(e) {
+				// Queue empty or in-progress not enabled
+			}
 		} else {
 			// Remove from queue
-			queue.entries.splice(randomIndex, 1);
-			
+			const index = queue.entries.findIndex(e => e.user.id === entry.user.id);
+			if(index > -1) queue.entries.splice(index, 1);
+
 			// Add to removed list
 			if(!this.removedUsers[queue.id]) {
 				this.removedUsers[queue.id] = [];
 			}
 			this.removedUsers[queue.id].push(entry);
-			
+
 			this.$store.queue.saveData();
 			this.$store.queue.broadcastStates(queue.id);
 		}
@@ -390,19 +368,11 @@ class QueueState extends Vue {
 	}
 
 	public clearQueue(queueId:string):void {
-		const queue = this.activeQueues.find(q => q.id === queueId);
-		if(!queue) return;
-		queue.entries = [];
-		this.$store.queue.saveData();
-		this.$store.queue.broadcastStates(queueId);
+		this.$store.queue.clearQueue(queueId);
 	}
 
 	public clearInProgress(queueId:string):void {
-		const queue = this.activeQueues.find(q => q.id === queueId);
-		if(!queue || !queue.inProgress) return;
-		queue.inProgress = [];
-		this.$store.queue.saveData();
-		this.$store.queue.broadcastStates(queueId);
+		this.$store.queue.clearInProgress(queueId);
 	}
 
 	public clearRemovedList(queueId:string):void {
@@ -461,12 +431,16 @@ class QueueState extends Vue {
 			delete this.clearTimeouts[key];
 		}
 		this.confirmingClear[key] = false;
-		
+
 		switch(type) {
 			case 'queue': this.clearQueue(queueId); break;
 			case 'progress': this.clearInProgress(queueId); break;
 			case 'removed': this.clearRemovedList(queueId); break;
 		}
+	}
+
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
+		this.$store.users.openUserCard(user);
 	}
 
 }
@@ -901,8 +875,13 @@ export default toNative(QueueState);
 					height: 1.5em;
 					border-radius: 50%;
 					flex-shrink: 0;
+					cursor: pointer;
+					transition: transform .1s;
+					&:hover {
+						transform: scale(1.1);
+					}
 				}
-				
+
 				.username {
 					font-size: .95em;
 					overflow: hidden;
@@ -910,6 +889,11 @@ export default toNative(QueueState);
 					white-space: nowrap;
 					color: var(--color-text);
 					flex-grow: 1;
+					cursor: pointer;
+					text-decoration: none;
+					&:hover {
+						text-decoration: underline;
+					}
 				}
 
 				.actions {

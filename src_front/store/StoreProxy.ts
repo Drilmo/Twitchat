@@ -3990,4 +3990,16 @@ export interface IQueueActions {
 	 * Pick a random user from queue and move to progress
 	 */
 	pickRandomUser(id:string):TwitchatDataTypes.TwitchatUser;
+	/**
+	 * Move a user up in the queue
+	 */
+	moveUserUp(id:string, userId:string):void;
+	/**
+	 * Move a user down in the queue
+	 */
+	moveUserDown(id:string, userId:string):void;
+	/**
+	 * Move a user back to queue from in-progress
+	 */
+	moveUserBackToQueue(id:string, userId:string):void;
 }

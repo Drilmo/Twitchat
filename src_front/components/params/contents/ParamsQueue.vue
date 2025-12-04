@@ -444,63 +444,30 @@ class ParamsQueue extends Vue {
 
     public moveUp(queue:TwitchatDataTypes.QueueData, index:number):void {
         if(index === 0) return;
-        const temp = queue.entries[index];
-        queue.entries[index] = queue.entries[index - 1];
-        queue.entries[index - 1] = temp;
-        this.$store.queue.saveData();
-        this.$store.queue.broadcastStates(queue.id);
+        const entry = queue.entries[index];
+        this.$store.queue.moveUserUp(queue.id, entry.user.id);
     }
 
     public moveDown(queue:TwitchatDataTypes.QueueData, index:number):void {
         if(index >= queue.entries.length - 1) return;
-        const temp = queue.entries[index];
-        queue.entries[index] = queue.entries[index + 1];
-        queue.entries[index + 1] = temp;
-        this.$store.queue.saveData();
-        this.$store.queue.broadcastStates(queue.id);
+        const entry = queue.entries[index];
+        this.$store.queue.moveUserDown(queue.id, entry.user.id);
     }
 
     public moveToProgress(queue:TwitchatDataTypes.QueueData, entry:TwitchatDataTypes.QueueEntry):void {
-        const index = queue.entries.findIndex(e => e.user.id === entry.user.id);
-        if(index === -1) return;
-        
-        queue.entries.splice(index, 1);
-        if(!queue.inProgress) queue.inProgress = [];
-        queue.inProgress.push(entry);
-        this.$store.queue.saveData();
-        this.$store.queue.broadcastStates(queue.id);
+        this.$store.queue.moveToInProgress(queue.id, entry.user.id);
     }
 
     public removeViewer(queue:TwitchatDataTypes.QueueData, entry:TwitchatDataTypes.QueueEntry):void {
-        const index = queue.entries.findIndex(e => e.user.id === entry.user.id);
-        if(index === -1) return;
-        
-        queue.entries.splice(index, 1);
-        this.$store.queue.saveData();
-        this.$store.queue.broadcastStates(queue.id);
+        this.$store.queue.removeViewerFromQueue(queue.id, entry.user.id);
     }
 
     public removeFromProgress(queue:TwitchatDataTypes.QueueData, entry:TwitchatDataTypes.QueueEntry):void {
-        if(!queue.inProgress) return;
-        
-        const index = queue.inProgress.findIndex(e => e.user.id === entry.user.id);
-        if(index === -1) return;
-        
-        queue.inProgress.splice(index, 1);
-        this.$store.queue.saveData();
-        this.$store.queue.broadcastStates(queue.id);
+        this.$store.queue.removeViewerFromInProgress(queue.id, entry.user.id);
     }
 
     public moveBackToQueue(queue:TwitchatDataTypes.QueueData, entry:TwitchatDataTypes.QueueEntry):void {
-        if(!queue.inProgress) return;
-        
-        const index = queue.inProgress.findIndex(e => e.user.id === entry.user.id);
-        if(index === -1) return;
-        
-        queue.inProgress.splice(index, 1);
-        queue.entries.push(entry);
-        this.$store.queue.saveData();
-        this.$store.queue.broadcastStates(queue.id);
+        this.$store.queue.moveUserBackToQueue(queue.id, entry.user.id);
     }
 
     public openPremium():void {

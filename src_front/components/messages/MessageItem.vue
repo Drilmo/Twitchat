@@ -285,6 +285,16 @@ class MessageItem extends Vue {
 			queue_move_to_progress:			ChatQueueCommand,
 			queue_complete:					ChatQueueCommand,
 			queue_command:					ChatQueueCommand,
+			queue_pause:					ChatQueueCommand,
+			queue_resume:					ChatQueueCommand,
+			queue_user_picked:				ChatQueueCommand,
+			queue_user_removed:				ChatQueueCommand,
+			queue_in_progress_user_removed:	ChatQueueCommand,
+			queue_cleared:					ChatQueueCommand,
+			queue_in_progress_cleared:		ChatQueueCommand,
+			queue_user_moved_up:			ChatQueueCommand,
+			queue_user_moved_down:			ChatQueueCommand,
+			queue_user_moved_back:			ChatQueueCommand,
 		};
 		if(!Object.hasOwn(map, this.messageData.type)) {
 			console.warn("MISSING MESSAGE COMPONENT FOR TYPE:", this.messageData.type);

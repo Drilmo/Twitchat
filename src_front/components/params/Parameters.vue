@@ -233,6 +233,7 @@ class Parameters extends Vue {
 		{pinned:true, icon:"user", page:TwitchatDataTypes.ParameterPages.ACCOUNT, labelKey:'params.categories.account'},
 		{pinned:false, icon:"info", page:TwitchatDataTypes.ParameterPages.ABOUT, labelKey:'params.categories.about', newflag:{date:1693519200000, id:'params_about'}},
 		{pinned:false, icon:"timer", page:TwitchatDataTypes.ParameterPages.TIMERS, labelKey:'params.categories.timers', newflag:{date:Config.instance.NEW_FLAGS_DATE_V16, id:'params_timers'}},
+		{pinned:false, icon:"list", page:TwitchatDataTypes.ParameterPages.QUEUES, labelKey:'params.categories.queues'},
 	];
 
 	/**
